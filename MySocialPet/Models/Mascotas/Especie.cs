@@ -9,8 +9,6 @@ namespace MySocialPet.Models.Mascotas
         public Especie()
         {
             Razas = new HashSet<Raza>();
-            PlanesVacunacion = new HashSet<PlanVacunacion>();
-            EspeciesSugerencia = new HashSet<EspecieSugerencia>();
         }
 
         [Key]
@@ -21,7 +19,5 @@ namespace MySocialPet.Models.Mascotas
         public string Nombre { get; set; }
 
         public virtual ICollection<Raza> Razas { get; set; }
-        public virtual ICollection<PlanVacunacion> PlanesVacunacion { get; set; }
-        public virtual ICollection<EspecieSugerencia> EspeciesSugerencia { get; set; }
     }
 }
