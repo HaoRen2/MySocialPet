@@ -7,10 +7,6 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-builder.Services.AddDbContext<AppDbContexto>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("MiConexion")));
-
-
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

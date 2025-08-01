@@ -11,8 +11,6 @@ namespace MySocialPet.Models.Mascotas
         public Especie()
         {
             Razas = new HashSet<Raza>();
-            PlanesVacunacion = new HashSet<ListaVacuna>();
-            EspeciesSugerencia = new HashSet<EspecieSugerencia>();
         }
 
         [Key]

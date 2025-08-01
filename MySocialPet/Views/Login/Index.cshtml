@@ -1,5 +1,118 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿<body class="no-navbar">
+
+    <div class="auth-wrapper">
+        <div class="auth-container row">
+            <!-- Columna Izquierda -->
+            <div class="col-md-6 auth-left">
+                <a href="Profile.html">
+                    <img src="/src/Welcome.png" alt="Dueño con mascota feliz" style="cursor: pointer;" />
+                </a>
+
+                <h2>MySocialPet 🐾</h2>
+                <p class="text-center mt-2">Comparte, conecta y cuida a tus mascotas en una comunidad creada para ti.</p>
+            </div>
+
+            <!-- Columna Derecha -->
+            <div class="col-md-6 auth-form">
+                <!-- Pestañas -->
+                <div class="auth-tabs">
+                    <button id="loginTab" class="active" onclick="showForm('login')">Iniciar Sesión</button>
+                    <button id="registerTab" onclick="showForm('register')">Registrarse</button>
+                </div>
+
+                <!-- Formulario Login -->
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="loginEmail" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="loginEmail" placeholder="ejemplo@correo.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="loginPassword" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="loginPassword" placeholder="********">
+                    </div>
+                    <!-- Enlaces de ayuda -->
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>
+                            <input type="checkbox" id="rememberMe" class="form-check-input me-1">
+                            <label for="rememberMe" class="form-check-label">Recordar sesión</label>
+                        </div>
+                        <a href="#" onclick="showForm('forgot')">¿Olvidaste tu contraseña?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </form>
+
+                <!-- Formulario Registro -->
+                <form id="registerForm" style="display: none;">
+                    <div class="mb-3">
+                        <label for="registerName" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="registerName" placeholder="Tu nombre completo">
+                    </div>
+                    <div class="mb-3">
+                        <label for="registerEmail" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="registerEmail" placeholder="ejemplo@correo.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="registerPassword" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="registerPassword" placeholder="Crea una contraseña">
+                    </div>
+                    <div class="mb-3">
+                        <label for="registerConfirm" class="form-label">Repite la contraseña</label>
+                        <input type="password" class="form-control" id="registerConfirm" placeholder="Repite la contraseña">
+                    </div>
+                    <!-- Checkbox de términos -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" value="" id="termsCheckbox" required>
+                        <label class="form-check-label" for="termsCheckbox">
+                            Acepto los <a href="#">términos de uso</a> y la <a href="#">política de privacidad</a>.
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Crear cuenta</button>
+                </form>
+
+                <!-- Formulario Recuperación de contraseña -->
+                <form id="forgotForm" style="display: none;">
+                    <div class="mb-4 text-center">
+                        <h4 class="text-muted">¿Problemas para iniciar sesión?</h4>
+                        <p>Introduce tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="forgotEmail" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="forgotEmail" placeholder="ejemplo@correo.com">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar enlace</button>
+                    <div class="text-center mt-3">
+                        <a href="#" onclick="showForm('login')">← Volver a iniciar sesión</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS para alternar formularios -->
+    <script>
+        function showForm(type) {
+          const loginTab = document.getElementById("loginTab");
+          const registerTab = document.getElementById("registerTab");
+          const loginForm = document.getElementById("loginForm");
+          const registerForm = document.getElementById("registerForm");
+          const forgotForm = document.getElementById("forgotForm");
+
+          loginForm.style.display = "none";
+          registerForm.style.display = "none";
+          forgotForm.style.display = "none";
+          loginTab.classList.remove("active");
+          registerTab.classList.remove("active");
+
+          if (type === 'login') {
+            loginForm.style.display = "block";
+            loginTab.classList.add("active");
+          } else if (type === 'register') {
+            registerForm.style.display = "block";
+            registerTab.classList.add("active");
+          } else if (type === 'forgot') {
+            forgotForm.style.display = "block";
+          }
+        }
+    </script>
+
+</body>

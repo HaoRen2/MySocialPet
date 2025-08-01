@@ -63,6 +63,6 @@ namespace MySocialPet.Models.Mascotas
         public virtual ICollection<VacunaRegistro> VacunaRegistros { get; set; }
         public virtual ICollection<Evento> Eventos { get; set; }
         public virtual ICollection<FotoEtiquetaMascota> FotosEtiquetadas { get; set; }
-  
+
     }
 }

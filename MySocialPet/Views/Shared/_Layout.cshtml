@@ -10,25 +10,42 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MySocialPet</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+        <!-- NAVBAR -->
+        <nav class="navbar navbar-expand-lg px-5 py-4 fixed-top navbar-main">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <a class="navbar-brand d-flex align-items-center text-white fw-bold fs-1 me-3" href="#">
+                    MySocialPet 🐾
+                </a>
+
+                <!-- LOGIN + HAMBURGUESA en móvil -->
+                <div class="d-flex align-items-center d-lg-none">
+                    <a href="@Url.Action("Index","Login")" class="btn btn-login fs-4 me-4">&nbsp;Login&nbsp;</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <i class="bi bi-list menu-icon" id="toggleSidebar"></i>
+                    </button>
+                </div>
+
+                <!-- MENÚ -->
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    <ul class="navbar-nav me-3">
+                        <li class="nav-item nav-section">
+                            <a class="nav-link text-white fw-bold fs-4" href="#sobre">Sobre</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        <li class="nav-item nav-section">
+                            <a class="nav-link text-white fw-bold fs-4" href="#caracteristicas">Características</a>
+                        </li>
+                        <li class="nav-item nav-section">
+                            <a class="nav-link text-white fw-bold fs-4" href="#comunidad">Comunidad</a>
+                        </li>
+                        <li class="nav-item nav-section">
+                            <a class="nav-link text-white fw-bold fs-4" href="#contacto">Contacto</a>
                         </li>
                     </ul>
+                    <a href="@Url.Action("Index", "Login")" class="btn btn-login fs-4 ms-2 d-none d-lg-inline">&nbsp;Login&nbsp;</a>
                 </div>
             </div>
         </nav>
+
     </header>
     <div class="container">
         <main role="main" class="pb-3">
