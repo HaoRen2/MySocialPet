@@ -12,12 +12,18 @@ namespace MySocialPet.Models.ViewModel.Autenticacion
         [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
         [EmailAddress(ErrorMessage = "El correo electrónico no es válido.")]
         [Display(Name = "Correo Electrónico")]
-        public string Correo { get; set; }
+        public string Email { get; set; }
 
         [Required(ErrorMessage = "La contraseña es obligatoria.")]
         [DataType(DataType.Password)]
         [Display(Name = "Contraseña")]
         public string Password { get; set; }
+
+        [Required(ErrorMessage = "Debe confirmar la contraseña")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirmar Contraseña")]
+        [Compare("Password", ErrorMessage = "Las contraseñas no coinciden")]
+        public string ConfirmPassword { get; set; }
 
 
 

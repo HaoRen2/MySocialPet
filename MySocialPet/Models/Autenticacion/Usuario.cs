@@ -29,7 +29,7 @@ namespace MySocialPet.Models.Autenticacion
 
         [Required]
         [StringLength(100)]
-        public string Nombre { get; set; }
+        public string Username { get; set; }
 
         [Required]
         public byte[] PasswordHash { get; set; }
