@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-t" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <!-- NAVBAR -->
+        @await Component.InvokeAsync("Navbar")
+    </header>
+        <div class="d-flex p-1 mt-5 mb-5 justify-content-center align-items-center">
+            <div class="auth-container row">
+                <div class="col-md-6 auth-left">
+                    <a asp-controller="Profile" asp-action="Index">
+                        <img src="~/src/Welcome.png" alt="Dueño con mascota feliz" style="cursor: pointer;" />
+                    </a>
+                    <h2>MySocialPet 🐾</h2>
+                    <p class="text-center mt-2">Comparte, conecta y cuida a tus mascotas en una comunidad creada para ti.</p>
+                </div>
+                <div class="col-md-6 auth-form">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    
+        <footer class="text-white pt-5 pb-4" style="background-color: #3a433c;">
+            <div class="container text-center text-md-start">
+                <div class="row">
+                    <!-- Logo -->
+                    <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                        <h5 class="fw-bold mb-3">MySocialPet 🐾</h5>
+                        <p>Conecta con quienes también consideran a sus mascotas parte de la familia. Compartimos, aprendemos y crecemos juntos.</p>
+                    </div>
+                    <!-- Contacto -->
+                    <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-4">
+                        <h6 class="fw-bold mb-3">Contacto</h6>
+                        <p>📧 contacto@mysocialpet.com</p>
+                        <p>📞 +34 600 000 000</p>
+                        <p>📍 Barcelona, España</p>
+                    </div>
+                    <!-- Enlaces -->
+                    <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <h6 class="fw-bold mb-3">Enlaces</h6>
+                        <p><a href="#sobre" class="text-white text-decoration-none">Sobre</a></p>
+                        <p><a href="#caracteristicas" class="text-white text-decoration-none">Características</a></p>
+                        <p><a href="#comunidad" class="text-white text-decoration-none">Comunidad</a></p>
+                        <p><a href="#contacto" class="text-white text-decoration-none">Contacto</a></p>
+                    </div>
+                    <!-- Políticas -->
+                    <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mb-4">
+                        <h6 class="fw-bold mb-3">Legal</h6>
+                        <p><a href="#" class="text-white text-decoration-none">Política de privacidad</a></p>
+                        <p><a href="#" class="text-white text-decoration-none">Términos y condiciones</a></p>
+                        <p><a href="#" class="text-white text-decoration-none">Cookies</a></p>
+                    </div>
+                </div>
+
+                <hr class="mb-3" style="border-top: 1px solid rgba(255,255,255,0.2);">
+
+                <div class="row d-flex justify-content-between align-items-center">
+                    <div class="col-md-6 text-center text-md-start">
+                        <p class="mb-0">&copy; 2025 MySocialPet. Todos los derechos reservados.</p>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <a href="#" class="text-white me-3"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-white me-3"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white me-3"><i class="bi bi-twitter-x"></i></a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

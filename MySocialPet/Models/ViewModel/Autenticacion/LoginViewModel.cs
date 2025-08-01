@@ -4,9 +4,9 @@ namespace MySocialPet.Models.ViewModel.Autenticacion
 {
     public class LoginViewModel
     {
-        [Required(ErrorMessage = "El nombre de usuario es obligatorio.")]
-        [Display(Name = "Nombre de Usuario")]
-        public string Username { get; set; }
+        [Required(ErrorMessage = "El email de usuario es obligatorio.")]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
 
         [Required(ErrorMessage = "La contraseña es obligatoria.")]
         [DataType(DataType.Password)]

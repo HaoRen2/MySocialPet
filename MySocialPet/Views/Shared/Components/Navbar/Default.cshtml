@@ -1,0 +1,35 @@
+﻿<nav class="navbar navbar-expand-lg fixed-top navbar-main">
+    <div class="container-fluid">
+        <a asp-action="Index" asp-controller="Home" class="navbar-brand fw-bold fs-3">MySocialPet 🐾</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav mb-2 mb-lg-0">
+                @if (ViewBag.IsAuthenticated)
+                {
+                <li class="nav-item">
+                    <a href="@Url.Action("ListaMascota", "Mascota")" class="nav-link text-white fw-bold">Mis Mascotas</a>
+                </li>
+                }
+                
+            </ul>
+
+            <div class="d-flex">
+                @if (!ViewBag.IsAuthenticated)
+                {
+                    <a href="@Url.Action("Index", "Login")" class="btn btn-outline-light ms-2">Login</a>
+                }
+                else
+                {
+                    <form asp-controller="Login" asp-action="Logout" method="post">
+                        <button type="submit" class="btn btn-outline-light ms-2">@ViewBag.Username (Salir)</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</nav>

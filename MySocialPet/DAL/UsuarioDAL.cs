@@ -14,11 +14,23 @@ namespace MySocialPet.DAL
             _context = context;
         }
 
-        public Usuario GetUsuarioLogin(string userName, string pwd)
+        public Usuario GetUsuarioLogin(string email, string pwd)
         {
-            var usuario = _context.Usuarios.FirstOrDefault(u => u.Username == userName);
+            var usuario = _context.Usuarios.FirstOrDefault(u => u.Email == email);
 
             if (usuario != null && PasswordHelper.VerifyPasswordHash(pwd, usuario.PasswordHash, usuario.PasswordSalt))
+            {
+                return usuario;
+            }
+
+            return null;
+        }
+
+        public Usuario GetUsuarioByEmail(string email)
+        {
+            var usuario = _context.Usuarios.FirstOrDefault(u => u.Email == email);
+
+            if (usuario != null)
             {
                 return usuario;
             }

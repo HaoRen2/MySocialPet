@@ -1,110 +1,28 @@
-﻿@model MySocialPet.Models.ViewModel.Autenticacion.RegisterViewModel
-
+﻿@model MySocialPet.Models.ViewModel.Autenticacion.LoginViewModel
 @{
-    ViewData["Title"] = "Registro";
+    Layout = "~/Views/Shared/_AuthLayoutPartial.cshtml";
+    ViewData["Title"] = "Iniciar Sesión";
 }
 
-<div class="auth-wrapper">
-    <div class="auth-container row">
-        <div class="col-md-6 auth-left">
-            <a asp-controller="Profile" asp-action="Index">
-                <img src="~/src/Welcome.png" alt="Dueño con mascota feliz" style="cursor: pointer;" />
-            </a>
-            <h2>MySocialPet 🐾</h2>
-            <p class="text-center mt-2">Comparte, conecta y cuida a tus mascotas en una comunidad creada para ti.</p>
-        </div>
-        <div class="col-md-6 auth-form">
-            <div class="auth-tabs">
-                <button id="loginTab" onclick="showForm('login')">Iniciar Sesión</button>
-                <button id="registerTab" class="active" onclick="showForm('register')">Registrarse</button>
-            </div>
-
-            <form asp-action="Index" asp-controller="Login" method="post" id="loginForm" style="display:none;">
-                @Html.AntiForgeryToken()
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control" id="loginEmail" placeholder="ejemplo@correo.com" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label asp-for="Password" class="form-label"></label>
-                    <input asp-for="Password" type="password" class="form-control" id="loginPassword" placeholder="********" />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-                <div class="d-flex justify-content-between mb-3">
-                    <div>
-                        <input type="checkbox" id="rememberMe" class="form-check-input me-1">
-                        <label for="rememberMe" class="form-check-label">Recordar sesión</label>
-                    </div>
-                    <a href="#" onclick="showForm('forgot')">¿Olvidaste tu contraseña?</a>
-                </div>
-                <button type="submit" class="btn btn-primary">Entrar</button>
-            </form>
-
-            <form asp-action="Registrar" asp-controller="Login" method="post" id="registerForm">
-                @Html.AntiForgeryToken()
-                <div class="mb-3">
-                    <label asp-for="Username"></label>
-                    <input asp-for="Username" class="form-control" id="registerUsername" required />
-                    <span asp-validation-for="Username" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label asp-for="Password"></label>
-                    <input asp-for="Password" type="password" class="form-control" id="registerPassword" required />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label asp-for="ConfirmPassword"></label>
-                    <input asp-for="ConfirmPassword" type="password" class="form-control" id="confirmPassword" required />
-                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label asp-for="Email"></label>
-                    <input asp-for="Email" class="form-control" id="email" required />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-                <button type="submit" class="btn btn-success w-100">Registrarse</button>
-            </form>
-
-            <form asp-action="ForgotPassword" asp-controller="Account" method="post" id="forgotForm" style="display: none;">
-                @Html.AntiForgeryToken()
-                <div class="mb-4 text-center">
-                    <h4 class="text-muted">¿Problemas para iniciar sesión?</h4>
-                    <p>Introduce tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</p>
-                </div>
-                <div class="mb-3">
-                    <label for="forgotEmail" class="form-label">Correo electrónico</label>
-                    <input type="email" class="form-control" name="Email" id="forgotEmail" placeholder="ejemplo@correo.com" required />
-                </div>
-                <button type="submit" class="btn btn-primary">Enviar enlace</button>
-                <div class="text-center mt-3">
-                    <a href="#" onclick="showForm('login')">← Volver a iniciar sesión</a>
-                </div>
-            </form>
-        </div>
+<div class="col-md-12 auth-form">
+    <div class="auth-tabs">
+        <a asp-action="Index" asp-controller="Login" class="btn btn-primary active">Iniciar Sesión</a>
+        <a asp-action="Registrar" asp-controller="Login" class="btn btn-primary">Registrarse</a>
     </div>
+
+    <form asp-action="Index" method="post">
+        @Html.AntiForgeryToken()
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" placeholder="ejemplo@correo.com" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" type="password" class="form-control" placeholder="********" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Entrar</button>
+    </form>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        function showForm(formName) {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'none';
-            document.getElementById('forgotForm').style.display = 'none';
-
-            document.getElementById('loginTab').classList.remove('active');
-            document.getElementById('registerTab').classList.remove('active');
-
-            if (formName === 'login') {
-                document.getElementById('loginForm').style.display = 'block';
-                document.getElementById('loginTab').classList.add('active');
-            } else if (formName === 'register') {
-                document.getElementById('registerForm').style.display = 'block';
-                document.getElementById('registerTab').classList.add('active');
-            } else if (formName === 'forgot') {
-                document.getElementById('forgotForm').style.display = 'block';
-            }
-        }
-    </script>
-}
+</div>

@@ -35,7 +35,12 @@ namespace MySocialPet.Controllers
         {
             if (ModelState.IsValid)
             {
-           
+                var existente = _usuarioDAL.GetUsuarioByEmail(model.Email);
+                if (existente != null)
+                {
+                    ModelState.AddModelError("Email", "Ya existe una cuenta con este correo electrónico.");
+                    return View(model);
+                }
 
                 var usuario = new Usuario
                 {
@@ -43,14 +48,19 @@ namespace MySocialPet.Controllers
                     Email = model.Email
                 };
 
-                // IMPROVEMENT: Asumimos que CreateUsuario ahora devuelve el usuario creado o null si falla
-                var usuarioCreado = _usuarioDAL.CreateUsuario(usuario, model.Password);
-
-                if (usuarioCreado != null)
+                try
                 {
-                    // FIX: Iniciar sesión inmediatamente después de registrarse
-                    await LoginConClaim(usuarioCreado);
-                    return RedirectToAction("Index", "Home");
+                    var usuarioCreado = _usuarioDAL.CreateUsuario(usuario, model.Password);
+                    if (usuarioCreado != null)
+                    {
+                        await LoginConClaim(usuarioCreado);
+                        return RedirectToAction("ListaMascota", "Mascota");
+                    }
+                    ModelState.AddModelError("", "No se ha podido completar el registro.");
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", $"Error interno: {ex.Message}");
                 }
 
                 ModelState.AddModelError("", "No se ha podido completar el registro. Inténtalo de nuevo.");
@@ -65,11 +75,11 @@ namespace MySocialPet.Controllers
         {
             if (ModelState.IsValid)
             {
-                Usuario usuario = _usuarioDAL.GetUsuarioLogin(model.Username, model.Password);
+                Usuario usuario = _usuarioDAL.GetUsuarioLogin(model.Email, model.Password);
                 if (usuario != null)
                 {
                     await LoginConClaim(usuario);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("ListaMascota", "Mascota");
                 }
                 ModelState.AddModelError("", "Usuario o contraseña incorrectos.");
             }
@@ -84,7 +94,6 @@ namespace MySocialPet.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // FIX: El método debe devolver Task en lugar de void
         private async Task LoginConClaim(Usuario usuario)
         {
             var claims = new List<Claim>

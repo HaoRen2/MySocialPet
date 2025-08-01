@@ -1,0 +1,41 @@
+﻿@model MySocialPet.Models.ViewModel.Autenticacion.RegisterViewModel
+@{
+    Layout = "~/Views/Shared/_AuthLayoutPartial.cshtml";
+    ViewData["Title"] = "Registro";
+}
+
+
+<div class="col-md-12 auth-form">
+    <div class="auth-tabs">
+        <a asp-action="Index" asp-controller="Login" class="btn btn-primary">Iniciar Sesión</a>
+        <a asp-action="Registrar" asp-controller="Login" class="btn active btn-primary">Registrarse</a>
+    </div>
+
+    <form asp-action="Registrar" asp-controller="Login" method="post" id="registerForm">
+
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label asp-for="Username"></label>
+            <input asp-for="Username" class="form-control" id="registerUsername" required />
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" type="password" class="form-control" id="registerPassword" required />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="ConfirmPassword"></label>
+            <input asp-for="ConfirmPassword" type="password" class="form-control" id="confirmPassword" required />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control" id="email" required />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Registrarse</button>
+
+    </form>
+</div>

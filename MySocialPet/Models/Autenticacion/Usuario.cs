@@ -25,7 +25,7 @@ namespace MySocialPet.Models.Autenticacion
         [EmailAddress]
         public string Email { get; set; }
 
-        public byte[] AvatarFoto { get; set; }
+        public byte[]? AvatarFoto { get; set; }
 
         [Required]
         [StringLength(100)]
