@@ -15,9 +15,6 @@ namespace MySocialPet.Models.Mascotas
             VacunaRegistros = new HashSet<VacunaRegistro>();
             Eventos = new HashSet<Evento>();
             FotosEtiquetadas = new HashSet<FotoEtiquetaMascota>();
-            Documentos = new HashSet<DocumentoMascota>();
-            Amigos = new HashSet<MascotaAmigos>();
-            AmigosDe = new HashSet<MascotaAmigos>();
         }
 
         [Key]
@@ -66,11 +63,6 @@ namespace MySocialPet.Models.Mascotas
         public virtual ICollection<VacunaRegistro> VacunaRegistros { get; set; }
         public virtual ICollection<Evento> Eventos { get; set; }
         public virtual ICollection<FotoEtiquetaMascota> FotosEtiquetadas { get; set; }
-        public virtual ICollection<DocumentoMascota> Documentos { get; set; }
-
-        [InverseProperty("MascotaPrincipal")]
-        public virtual ICollection<MascotaAmigos> Amigos { get; set; }
-        [InverseProperty("MascotaAmiga")]
-        public virtual ICollection<MascotaAmigos> AmigosDe { get; set; }
+  
     }
 }
