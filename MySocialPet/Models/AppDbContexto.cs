@@ -19,7 +19,7 @@ public class AppDbContexto : DbContext
     public DbSet<Mascota> Mascotas { get; set; }
     public DbSet<SaludRegistro> SaludRegistros { get; set; }
     public DbSet<TipoVacuna> TipoVacunas { get; set; }
-    public DbSet<PlanVacunacion> PlanVacunaciones { get; set; }
+    public DbSet<ListaVacuna> PlanVacunaciones { get; set; }
     public DbSet<VacunaRegistro> VacunaRegistros { get; set; }
     public DbSet<Evento> Eventos { get; set; }
     public DbSet<Sugerencia> Sugerencias { get; set; }

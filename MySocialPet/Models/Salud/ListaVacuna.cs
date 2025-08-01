@@ -4,8 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySocialPet.Models.Salud
 {
-    [Table("PlanVacunacion")]
-    public class PlanVacunacion
+    [Table("ListaVacuna")]
+    public class ListaVacuna
     {
         [Key]
         public int IdPlanVacunacion { get; set; }

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MySocialPet.Models.Salud;
+using MySocialPet.Models.Sugerencias;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySocialPet.Models.Mascotas
@@ -9,7 +11,7 @@ namespace MySocialPet.Models.Mascotas
         public Especie()
         {
             Razas = new HashSet<Raza>();
-            PlanesVacunacion = new HashSet<PlanVacunacion>();
+            PlanesVacunacion = new HashSet<ListaVacuna>();
             EspeciesSugerencia = new HashSet<EspecieSugerencia>();
         }
 
@@ -21,7 +23,7 @@ namespace MySocialPet.Models.Mascotas
         public string Nombre { get; set; }
 
         public virtual ICollection<Raza> Razas { get; set; }
-        public virtual ICollection<PlanVacunacion> PlanesVacunacion { get; set; }
+        public virtual ICollection<ListaVacuna> PlanesVacunacion { get; set; }
         public virtual ICollection<EspecieSugerencia> EspeciesSugerencia { get; set; }
     }
 }
