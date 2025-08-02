@@ -24,7 +24,7 @@ namespace MySocialPet.Models.ViewModel.Mascotas
         public byte[] Foto { get; set; }
 
         [Display(Name = "BCS")]
-        public decimal? BCS { get; set; }
+        public int? BCS { get; set; }
 
         [Display(Name = "Esterilizado/a")]
         public bool Esterilizada { get; set; }

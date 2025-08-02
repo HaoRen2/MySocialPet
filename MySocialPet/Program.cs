@@ -16,9 +16,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LogoutPath = "/Autentication/Logout";
     });
 
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<UsuarioDAL>();
+builder.Services.AddScoped<MascotaDAL>();
+
 
 var app = builder.Build();
 

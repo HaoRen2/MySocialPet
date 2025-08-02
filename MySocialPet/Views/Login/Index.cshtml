@@ -6,8 +6,8 @@
 
 <div class="col-md-12 auth-form">
     <div class="auth-tabs">
-        <a asp-action="Index" asp-controller="Login" class="btn btn-primary active">Iniciar Sesión</a>
-        <a asp-action="Registrar" asp-controller="Login" class="btn btn-primary">Registrarse</a>
+        <a asp-action="Index" asp-controller="Login" class="btn btn-primary active p-3 m-1">Iniciar Sesión</a>
+        <a asp-action="Registrar" asp-controller="Login" class="btn btn-primary p-3 m-1">Registrarse</a>
     </div>
 
     <form asp-action="Index" method="post">
@@ -23,6 +23,8 @@
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
         <button type="submit" class="btn btn-primary">Entrar</button>
+            <div class="text-center mb-3">
+                <a asp-action="RecuperarContrasenya" asp-controller="Login">¿Has olvidado tu contraseña?</a>
+            </div>
     </form>
-</div>
 </div>

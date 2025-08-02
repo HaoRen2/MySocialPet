@@ -29,6 +29,24 @@ namespace MySocialPet.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult RecuperarContrasenya()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RecuperarContrasenya(string email, string contrasenya)
+        {
+            var usuario = _usuarioDAL.GetUsuarioByEmail(email);
+
+            if (usuario != null) 
+                _usuarioDAL.CambiarContrasenya(usuario, contrasenya);
+
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Registrar(RegisterViewModel model)
@@ -99,6 +117,7 @@ namespace MySocialPet.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, usuario.Username),
+                new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString())
             };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

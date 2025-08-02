@@ -1,6 +1,6 @@
 ﻿<nav class="navbar navbar-expand-lg fixed-top navbar-main">
     <div class="container-fluid">
-        <a asp-action="Index" asp-controller="Home" class="navbar-brand fw-bold fs-3">MySocialPet 🐾</a>
+        <a asp-action="Index" asp-controller="Home" class="navbar-brand fw-bold fs-3 text-decoration-none">MySocialPet 🐾</a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -11,9 +11,26 @@
             <ul class="navbar-nav mb-2 mb-lg-0">
                 @if (ViewBag.IsAuthenticated)
                 {
-                <li class="nav-item">
-                    <a href="@Url.Action("ListaMascota", "Mascota")" class="nav-link text-white fw-bold">Mis Mascotas</a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold" href="@Url.Action("ListaMascota", "Mascota")">
+                            <i class="bi bi-house-heart me-1"></i>Mis Mascotas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold" href="@Url.Action("Index", "Salud")">
+                            <i class="bi bi-heart-pulse me-1"></i>Salud
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold" href="@Url.Action("Index", "Album")">
+                            <i class="bi bi-images me-1"></i>Álbum
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold" href="@Url.Action("Index", "Foro")">
+                            <i class="bi bi-chat-dots me-1"></i>Foro
+                        </a>
+                    </li>
                 }
                 
             </ul>
@@ -21,7 +38,7 @@
             <div class="d-flex">
                 @if (!ViewBag.IsAuthenticated)
                 {
-                    <a href="@Url.Action("Index", "Login")" class="btn btn-outline-light ms-2">Login</a>
+                    <a class="btn btn-outline-light ms-2 text-decoration-none" asp-action="Index" asp-controller="Login">Login</a>
                 }
                 else
                 {

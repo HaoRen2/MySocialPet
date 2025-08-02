@@ -1,0 +1,30 @@
+﻿<div class="offcanvas offcanvas-start bg-light" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title fw-bold" id="sidebarLabel">🐾 MySocialPet</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+                <a class="nav-link text-dark" href="@Url.Action("ListaMascota", "Mascota")">
+                    <i class="bi bi-house-heart me-2"></i> Mis Mascotas
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-dark" href="@Url.Action("Index", "Salud")">
+                    <i class="bi bi-heart-pulse me-2"></i> Salud
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-dark" href="@Url.Action("Index", "Album")">
+                    <i class="bi bi-images me-2"></i> Álbum
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-dark" href="@Url.Action("Index", "Foro")">
+                    <i class="bi bi-chat-dots me-2"></i> Foro
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

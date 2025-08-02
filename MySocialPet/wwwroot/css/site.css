@@ -158,6 +158,13 @@ a {
     color: #4a5c4f;
 }
 
+@media (max-width: 768px) {
+    .welcome-title {
+        font-size: 3.8rem;
+    }
+}
+
+
 .welcome-subtext {
     font-size: 2.5rem;
     line-height: 1;

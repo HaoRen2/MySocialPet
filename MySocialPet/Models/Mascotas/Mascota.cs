@@ -28,18 +28,17 @@ namespace MySocialPet.Models.Mascotas
         public DateTime? Nacimiento { get; set; }
 
         [Column(TypeName = "decimal(5, 2)")]
-        public decimal? PesoKg { get; set; }
+        public decimal PesoKg { get; set; }
 
         [Column(TypeName = "decimal(5, 2)")]
-        public decimal? LongitudCm { get; set; }
+        public decimal LongitudCm { get; set; }
 
         [StringLength(10)]
         public string Genero { get; set; }
 
-        public byte[] Foto { get; set; }
+        public byte[]? Foto { get; set; }
 
-        [Column(TypeName = "decimal(3, 1)")]
-        public decimal? BCS { get; set; }
+        public int? BCS { get; set; }
 
         public bool Esterilizada { get; set; }
 
@@ -47,7 +46,7 @@ namespace MySocialPet.Models.Mascotas
         [StringLength(50)]
         public string EstadoAdopcion { get; set; }
 
-        public int? IdUsuario { get; set; }
+        public int IdUsuario { get; set; }
         [ForeignKey("IdUsuario")]
         public virtual Usuario Usuario { get; set; }
 
@@ -55,14 +54,9 @@ namespace MySocialPet.Models.Mascotas
         [ForeignKey("IdRaza")]
         public virtual Raza Raza { get; set; }
 
-        public int? IdProtectora { get; set; }
-        [ForeignKey("IdProtectora")]
-        public virtual Protectora Protectora { get; set; }
-
         public virtual ICollection<SaludRegistro> SaludRegistros { get; set; }
         public virtual ICollection<VacunaRegistro> VacunaRegistros { get; set; }
         public virtual ICollection<Evento> Eventos { get; set; }
         public virtual ICollection<FotoEtiquetaMascota> FotosEtiquetadas { get; set; }
-
     }
 }

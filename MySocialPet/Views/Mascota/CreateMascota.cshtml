@@ -1,0 +1,220 @@
+﻿@model MySocialPet.Models.ViewModel.Mascotas.CrearMascotaViewModel
+
+@{
+    ViewData["Title"] = "Crear nueva mascota";
+}
+
+<div class="container my-5">
+    <div class="text-center mb-4">
+        <h2>Crear nueva mascota 🐾</h2>
+        <p class="lead">Completa los datos de tu nuevo amigo. Al seleccionar una raza, verás sus detalles.</p>
+    </div>
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-body p-4">
+                    <form asp-action="CreateMascota" asp-controller="Mascota" enctype="multipart/form-data" method="post" class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Nombre" class="form-label"></label>
+                            <input asp-for="Nombre" class="form-control" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Nacimiento" class="form-label"></label>
+                            <input asp-for="Nacimiento" class="form-control" type="date" />
+                            <span asp-validation-for="Nacimiento" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <hr />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Especies</label>
+                            <select asp-items="Model.Especies" class="form-select" id="especieSelect">
+                                <option value="">Seleccione una especie</option>
+                            </select>
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="IdRaza" class="form-label"></label>
+                            <select asp-for="IdRaza" class="form-select" id="razaSelect">
+                                <option value="">Primero elija una especie</option>
+                                @if (Model.Razas != null)
+                                {
+                                    foreach (var raza in Model.Razas)
+                                    {
+                                        <option value="@raza.Value">@raza.Text</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="IdRaza" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <hr />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="PesoKg" class="form-label">Peso (Kg)</label>
+                            <input asp-for="PesoKg" id="pesoInput" type="number" inputmode="decimal" class="form-control" step="0.1" />
+                            <span asp-validation-for="PesoKg" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="LongitudCm" class="form-label">Longitud (cm)</label>
+                            <input asp-for="LongitudCm" id="longitudInput" type="number" inputmode="decimal" class="form-control" step="0.1" />
+                            <span asp-validation-for="LongitudCm" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">BCS (Calculado)</label>
+                            <input id="bcsTextoInput" class="form-control" readonly placeholder="Se calculará aquí" />
+                            <input asp-for="BCS" id="bcsValorInput" type="hidden" />
+                            <span asp-validation-for="BCS" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Genero" class="form-label"></label>
+                            <select asp-for="Genero" class="form-select">
+                                <option value="">Seleccione</option>
+                                <option value="Macho">Macho</option>
+                                <option value="Hembra">Hembra</option>
+                            </select>
+                            <span asp-validation-for="Genero" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Foto" class="form-label">Foto Mascota</label>
+                            <input asp-for="Foto" type="file" class="form-control" />
+                            <span asp-validation-for="Foto" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="form-check mt-2">
+                                <input asp-for="Esterilizada" class="form-check-input" />
+                                <label asp-for="Esterilizada" class="form-check-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="col-12 d-flex justify-content-center">
+                            <button type="submit" class="btn btn-primary p-3 m-1">Guardar Mascota</button>
+                            <a asp-controller="Mascota" asp-action="ListaMascota" class="btn btn-outline-secondary text-decoration-none p-3 m-1">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div id="razaInfoContainer">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Información de la Raza</h5>
+                    </div>
+                    <div id="razaInfo" class="card-body text-center">
+                        <p class="text-muted">Seleccione una especie y una raza para ver los detalles aquí.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const especieSelect = document.getElementById("especieSelect");
+            const razaSelect = document.getElementById("razaSelect");
+            const razaInfo = document.getElementById("razaInfo");
+
+            especieSelect.addEventListener("change", function () {
+                const especieId = this.value;
+                razaSelect.innerHTML = '<option value="">Cargando...</option>';
+                razaInfo.innerHTML = '<p class="text-muted">Seleccione una raza para ver los detalles.</p>';
+                if (!especieId) {
+                    razaSelect.innerHTML = '<option value="">Primero elija una especie</option>';
+                    return;
+                }
+                fetch(`@Url.Action("GetRazasPorEspecie", "Mascota")?id=${especieId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        razaSelect.innerHTML = '<option value="">Seleccione una raza</option>';
+                        data.forEach(raza => {
+                            razaSelect.add(new Option(raza.text, raza.value));
+                        });
+                    })
+                    .catch(() => {
+                        razaSelect.innerHTML = '<option value="">Error al cargar razas</option>';
+                    });
+            });
+
+            razaSelect.addEventListener("change", function () {
+                const razaId = this.value;
+                razaInfo.innerHTML = '<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>';
+                if (!razaId) {
+                    razaInfo.innerHTML = '<p class="text-muted">Seleccione una raza para ver los detalles.</p>';
+                    return;
+                }
+                fetch(`@Url.Action("GetInfoRaza", "Mascota")?id=${razaId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data) {
+                            razaInfo.innerHTML = '<p class="text-danger">No se encontró información para esta raza.</p>';
+                            return;
+                        }
+                        const fotoUrl = data.foto || '/images/default-raza.png';
+                        razaInfo.innerHTML = `
+                            <img src="${fotoUrl}" class="img-fluid rounded-3 mb-3" alt="Foto de ${data.nombreRaza}" style="max-height: 250px; object-fit: cover;">
+                            <h4 class="card-title">${data.nombreRaza}</h4>
+                            <p><strong>Categoría:</strong> ${data.categoria || 'N/A'}</p>
+                            <p><strong>Tamaño:</strong> ${data.tamanyo || 'N/A'}</p>
+                            <p class="card-text text-start small">${data.informacion || 'No hay descripción disponible.'}</p>
+                        `;
+                    })
+                    .catch(() => {
+                        razaInfo.innerHTML = '<p class="text-danger">Error al cargar la información.</p>';
+                    });
+            });
+
+            const pesoInput = document.getElementById("pesoInput");
+            const longitudInput = document.getElementById("longitudInput");
+            const bcsTextoInput = document.getElementById("bcsTextoInput");
+            const bcsValorInput = document.getElementById("bcsValorInput");
+
+            function calcularYActualizarBCS() {
+                const especieTexto = especieSelect.options[especieSelect.selectedIndex].text.toLowerCase();
+                if (especieTexto === 'pájaro') return;
+
+                const peso = parseFloat(pesoInput.value);
+                const longitud = parseFloat(longitudInput.value);
+                const razaId = parseInt(razaSelect.value);
+
+                if (peso > 0 && longitud > 0 && razaId > 0) {
+                    bcsTextoInput.value = "Calculando...";
+                    bcsValorInput.value = ""; // Limpiar valor numérico mientras se calcula
+
+                    const url = `@Url.Action("CalcularBCS", "Mascota")?pesoKg=${peso}&longitudCm=${longitud}&idRaza=${razaId}`;
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data) {
+                                bcsTextoInput.value = data.bcsTexto || "";
+                                bcsValorInput.value = data.bcsValor || "";
+                            }
+                        })
+                        .catch(() => {
+                            bcsTextoInput.value = "Error";
+                            bcsValorInput.value = "";
+                        });
+                } else {
+                    bcsTextoInput.value = "";
+                    bcsValorInput.value = "";
+                }
+            }
+
+            pesoInput.addEventListener("input", calcularYActualizarBCS);
+            longitudInput.addEventListener("input", calcularYActualizarBCS);
+            razaSelect.addEventListener("change", calcularYActualizarBCS);
+
+        });
+    </script>
+}

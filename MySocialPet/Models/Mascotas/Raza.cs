@@ -21,6 +21,10 @@ namespace MySocialPet.Models.Mascotas
         public string NombreRaza { get; set; }
 
         public string Informacion { get; set; }
+        public string Tamanyo { get; set; }
+        public string Categoria { get; set; }
+
+        public string Foto { get; set; }
 
         public int IdEspecie { get; set; }
         [ForeignKey("IdEspecie")]

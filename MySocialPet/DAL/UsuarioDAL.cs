@@ -26,6 +26,15 @@ namespace MySocialPet.DAL
             return null;
         }
 
+        public void CambiarContrasenya(Usuario user, string password) 
+        {
+            PasswordHelper.CreatePasswordfHash(password, out byte[] passwordHash, out byte[] passwordSalt);
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
+
+            _context.SaveChanges();
+        }
+
         public Usuario GetUsuarioByEmail(string email)
         {
             var usuario = _context.Usuarios.FirstOrDefault(u => u.Email == email);

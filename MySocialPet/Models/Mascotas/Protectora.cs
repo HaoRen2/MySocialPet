@@ -9,7 +9,6 @@ namespace MySocialPet.Models.Mascotas
     {
         public Protectora()
         {
-            Mascotas = new HashSet<Mascota>();
         }
 
         [Key]
@@ -38,6 +37,5 @@ namespace MySocialPet.Models.Mascotas
         [ForeignKey("IdUsuario")]
         public virtual Usuario Usuario { get; set; }
 
-        public virtual ICollection<Mascota> Mascotas { get; set; }
     }
 }

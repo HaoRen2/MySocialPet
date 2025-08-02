@@ -1,0 +1,43 @@
+﻿@model MySocialPet.Models.ViewModel.DetailMascotaViewModel
+@{
+    ViewData["Title"] = "Detalle de Mascota";
+    var mascota = Model.DetailMascota;
+}
+
+<div class="container mt-5">
+    <div class="card shadow rounded">
+        <div class="row g-0">
+            <!-- Imagen -->
+            <div class="col-md-4 text-center p-3">
+                @if (Model.DetailMascota.Foto != null)
+                {
+                    var base64 = Convert.ToBase64String(mascota.Foto);
+                    var imgSrc = String.Format("data:image/jpeg;base64,{0}", base64);
+                    <img src="@imgSrc" class="img-fluid rounded" alt="Foto de @mascota.Nombre" />
+                }
+                else
+                {
+                    <img src="~/img/sin-foto.png" class="img-fluid rounded" alt="Sin foto" />
+                }
+            </div>
+
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h3 class="card-title">@Model.DetailMascota.Nombre</h3>
+                    <p class="card-text"><strong>Fecha de Nacimiento:</strong> @mascota.Nacimiento?.ToString("dd/MM/yyyy")</p>
+                    <p class="card-text"><strong>Peso:</strong> @mascota.PesoKg kg</p>
+                    <p class="card-text"><strong>Longitud:</strong> @mascota.LongitudCm cm</p>
+                    <p class="card-text"><strong>Género:</strong> @mascota.Genero</p>
+                    <p class="card-text"><strong>BCS:</strong> @mascota.BCS</p>
+                    <p class="card-text"><strong>Esterilizada:</strong> @(mascota.Esterilizada ? "Sí" : "No")</p>
+                    <p class="card-text"><strong>Raza:</strong> @mascota.Raza?.NombreRaza</p>
+
+                    <div class="mt-4 d-flex justify-content-center gap-2">
+                        <a href="@Url.Action("Editar", "Mascota", new { id = mascota.IdMascota })" class="btn btn-primary p-1 m-1">Editar</a>
+                        <a href="@Url.Action("ListaMascota", "Mascota")" class="btn btn-secondary p-1 m-1">Volver</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
