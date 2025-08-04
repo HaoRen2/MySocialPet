@@ -6,26 +6,29 @@
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet" />
+
 </head>
 <body>
     <header>
-        <!-- NAVBAR -->
-        @await Component.InvokeAsync("Navbar")
     </header>
-        <div class="d-flex p-1 mt-5 mb-5 justify-content-center align-items-center">
-            <div class="auth-container row">
-                <div class="col-md-6 auth-left">
-                    <a asp-controller="Profile" asp-action="Index">
-                        <img src="~/src/Welcome.png" alt="Dueño con mascota feliz" style="cursor: pointer;" />
-                    </a>
-                    <h2>MySocialPet 🐾</h2>
-                    <p class="text-center mt-2">Comparte, conecta y cuida a tus mascotas en una comunidad creada para ti.</p>
-                </div>
-                <div class="col-md-6 auth-form">
-                    @RenderBody()
-                </div>
+    <div class="d-flex p-3 mt-5 mb-5 justify-content-center align-items-center">
+        <div class="row shadow rounded overflow-hidden bg-white " style="max-width: 900px; width: 100%;">
+            <!-- Columna izquierda con imagen y texto -->
+            <div class="col-md-6  bg-lightgreen d-flex flex-column justify-content-center align-items-center p-4 text-center">
+                <a asp-controller="Profile" asp-action="Index">
+                    <img src="~/src/Welcome.png" alt="Dueño con mascota feliz" class="  img-fluid mb-3" style="max-height: 40vh;" />
+                </a>
+                <h2 class="fw-bold fs-3 mb-2 ">MySocialPet 🐾</h2>
+                <p class="fs-5">Comparte, conecta y cuida a tus mascotas en una comunidad creada para ti.</p>
+            </div>
+
+            <!-- Columna derecha con formulario (RenderBody) -->
+            <div class="col-md-6 d-flex flex-column justify-content-center px-4 ">
+                @RenderBody()
             </div>
         </div>
+    </div>
     
         <footer class="text-white pt-5 pb-4" style="background-color: #3a433c;">
             <div class="container text-center text-md-start">
