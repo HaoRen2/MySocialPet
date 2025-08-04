@@ -31,6 +31,7 @@ public class AppDbContexto : DbContext
     public DbSet<Foro> Foros { get; set; }
     public DbSet<Discusion> Discusiones { get; set; }
     public DbSet<Mensaje> Mensajes { get; set; }
+    public DbSet<Nota> Notas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

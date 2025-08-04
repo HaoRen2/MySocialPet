@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MySocialPet.Models.Mascotas;
+using MySocialPet.Models.ViewModel;
 using MySocialPet.Models.ViewModel.Mascotas;
 
 namespace MySocialPet.DAL
@@ -38,13 +39,41 @@ namespace MySocialPet.DAL
             return _context.Mascotas
                 .Where(a => a.IdUsuario.ToString() == userId)
                 .Include(a => a.Raza)
+                .Include(a => a.Eventos)
                 .ToList();
         }
 
-        public Mascota GetMascota(int id)
+        public  void UpdateMascota(Mascota mascota) 
         {
-            return _context.Mascotas.Include(m => m.Raza)
+            var m = _context.Mascotas.FirstOrDefault(m => m.IdMascota == mascota.IdMascota);
+            if (m != null)
+            {
+                m = mascota;
+                _context.SaveChangesAsync();
+            }
+
+        }
+
+        public async Task DeleteMascota(int id)
+        {
+            var mascota = await _context.Mascotas.FindAsync(id);
+            if (mascota != null)
+            {
+                _context.Mascotas.Remove(mascota);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public Mascota GetMascotaById(int id)
+        {
+            return _context.Mascotas.Include(m => m.Raza).Include(m => m.Notas)
                 .FirstOrDefault(m => m.IdMascota == id);
+        }
+
+        public void InsertNotas(Nota nota) 
+        {
+            _context.Notas.Add(nota);
+            _context.SaveChanges();
         }
 
         public Raza GetRazaDeMascota(int idRaza)

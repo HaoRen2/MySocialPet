@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using MySocialPet.Models.Salud;
+using System.ComponentModel.DataAnnotations;
 
 namespace MySocialPet.Models.ViewModel.Mascotas
 {
     public class ListaMascotaViewModel
     {
-        public int Id { get; set; }
+        public int? IdMascota { get; set; }
 
         public string Nombre { get; set; }
 
@@ -33,5 +35,7 @@ namespace MySocialPet.Models.ViewModel.Mascotas
 
         [Display(Name = "Raza")]
         public string NombreRaza { get; set; }
+
+        public Evento? Evento { get; set; }
     }
 }

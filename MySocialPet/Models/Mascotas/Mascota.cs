@@ -14,6 +14,7 @@ namespace MySocialPet.Models.Mascotas
             SaludRegistros = new HashSet<SaludRegistro>();
             VacunaRegistros = new HashSet<VacunaRegistro>();
             Eventos = new HashSet<Evento>();
+            Notas = new HashSet<Nota>();
             FotosEtiquetadas = new HashSet<FotoEtiquetaMascota>();
         }
 
@@ -57,6 +58,7 @@ namespace MySocialPet.Models.Mascotas
         public virtual ICollection<SaludRegistro> SaludRegistros { get; set; }
         public virtual ICollection<VacunaRegistro> VacunaRegistros { get; set; }
         public virtual ICollection<Evento> Eventos { get; set; }
+        public virtual ICollection<Nota> Notas { get; set; }
         public virtual ICollection<FotoEtiquetaMascota> FotosEtiquetadas { get; set; }
     }
 }

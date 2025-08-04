@@ -24,6 +24,7 @@ builder.Services.AddScoped<MascotaDAL>();
 builder.Services.AddScoped<ForoDAL>();
 builder.Services.AddScoped<AlbumDAL>();
 builder.Services.AddScoped<SaludDAL>();
+builder.Services.AddScoped<ForoDAL>();
 
 var app = builder.Build();
 

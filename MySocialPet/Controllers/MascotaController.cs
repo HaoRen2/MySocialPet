@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MySocialPet.DAL;
 using MySocialPet.Models.Mascotas;
+using MySocialPet.Models.Salud;
 using MySocialPet.Models.ViewModel;
 using MySocialPet.Models.ViewModel.Mascotas;
 using System.Security.Claims;
@@ -27,7 +28,7 @@ namespace MySocialPet.Controllers
 
             var viewModel = mascotas.Select(a => new ListaMascotaViewModel
             {
-                Id = a.IdMascota,
+                IdMascota = a.IdMascota,
                 Nombre = a.Nombre,
                 Foto = a.Foto,
                 Genero = a.Genero,
@@ -35,7 +36,10 @@ namespace MySocialPet.Controllers
                 PesoKg = a.PesoKg,
                 LongitudCm = a.LongitudCm,
                 BCS = a.BCS,
-                Esterilizada = a.Esterilizada
+                Esterilizada = a.Esterilizada,
+                NombreRaza = a.Raza.NombreRaza,
+                Evento = a.Eventos .Where(e => e.FechaHora > DateTime.Now).
+                OrderBy(e => (e.FechaHora - DateTime.Now).TotalSeconds).FirstOrDefault()
             }).ToList();
 
             return View(viewModel);
@@ -44,7 +48,7 @@ namespace MySocialPet.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var mascota = _mascotaDAL.GetMascota(id);
+            var mascota = _mascotaDAL.GetMascotaById(id);
 
             if (mascota == null)
             {
@@ -53,10 +57,28 @@ namespace MySocialPet.Controllers
 
             var viewModel = new DetailMascotaViewModel
             {
-                DetailMascota = mascota
+                DetailMascota = mascota,
+                Notas = mascota.Notas.OrderByDescending(n => n.IdNota).ToList()
             };
 
             return View(viewModel);
+        }
+
+        [HttpPost]
+        public IActionResult AgregarNota(int id, string descripcion)
+        {
+            if (!string.IsNullOrWhiteSpace(descripcion))
+            {
+                var nota = new Nota
+                {
+                    IdMascota = id,
+                    Descripcion = descripcion
+                };
+
+                _mascotaDAL.InsertNotas(nota);
+            }
+
+            return RedirectToAction("Details", new { id });
         }
 
 
@@ -66,6 +88,54 @@ namespace MySocialPet.Controllers
             var viewModel = _mascotaDAL.GetEspecie();
 
             return View(viewModel);
+        }
+
+        [HttpGet]
+        public IActionResult EditMascota(int id)
+        {
+            var mascota = _mascotaDAL.GetMascotaById(id); 
+            if (mascota == null)
+                return NotFound();
+
+            var especieViewModel = _mascotaDAL.GetEspecie();
+
+            var model = new CrearMascotaViewModel
+            {
+                Id = mascota.IdMascota,
+                Nombre = mascota.Nombre,
+                Nacimiento = mascota.Nacimiento,
+                PesoKg = mascota.PesoKg,
+                LongitudCm = mascota.LongitudCm,
+                Genero = mascota.Genero,
+                BCS = mascota.BCS,
+                Esterilizada = mascota.Esterilizada,
+                IdRaza = mascota.IdRaza,
+                Especies = especieViewModel.Especies,
+                Razas = _mascotaDAL.GetRazaPorEspecie(mascota.Raza.IdEspecie)
+            };
+
+            return View("EditMascota", model); 
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteMascota(int id)
+        {
+            var mascota = _mascotaDAL.GetMascotaById(id);
+            if (mascota == null)
+                return NotFound();
+
+            try
+            {
+                await _mascotaDAL.DeleteMascota(id);
+                return RedirectToAction("ListaMascota");
+            }
+            catch (Exception ex)
+            {
+                // Puedes redirigir con un mensaje de error o registrar el problema
+                TempData["Error"] = "Error al eliminar la mascota: " + ex.Message;
+                return RedirectToAction("ListaMascota");
+            }
         }
 
         [HttpGet]
@@ -141,7 +211,7 @@ namespace MySocialPet.Controllers
             try
             {
                 await _mascotaDAL.InsertMascota(mascota);
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("ListaMascota", "Mascota");
             }
             catch (Exception ex)
             {
@@ -157,6 +227,55 @@ namespace MySocialPet.Controllers
                 model.Razas = viewModel.Razas;
 
                 return View(model);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditMascota(CrearMascotaViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var especieData = _mascotaDAL.GetEspecie();
+                model.Especies = especieData.Especies;
+                model.Razas = _mascotaDAL.GetRazaPorEspecie(model.IdRaza); 
+                return View("EditMascota", model);
+            }
+
+            int id = (int)model.Id;
+
+            var mascota = _mascotaDAL.GetMascotaById(id);
+            if (mascota == null)
+                return NotFound();
+
+            mascota.Nombre = model.Nombre;
+            mascota.Nacimiento = model.Nacimiento;
+            mascota.PesoKg = model.PesoKg;
+            mascota.LongitudCm = model.LongitudCm;
+            mascota.Genero = model.Genero;
+            mascota.BCS = model.BCS;
+            mascota.Esterilizada = model.Esterilizada;
+            mascota.IdRaza = model.IdRaza;
+
+            if (model.Foto != null && model.Foto.Length > 0)
+            {
+                using var memoryStream = new MemoryStream();
+                await model.Foto.CopyToAsync(memoryStream);
+                mascota.Foto = memoryStream.ToArray();
+            }
+
+            try
+            {
+                _mascotaDAL.UpdateMascota(mascota);
+                return RedirectToAction("ListaMascota");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "Error al actualizar la mascota: " + ex.Message);
+                var especieData = _mascotaDAL.GetEspecie();
+                model.Especies = especieData.Especies;
+                model.Razas = _mascotaDAL.GetRazaPorEspecie(model.IdRaza);
+                return View("EditMascota", model);
             }
         }
 

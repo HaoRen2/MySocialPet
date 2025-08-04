@@ -7,12 +7,12 @@
         public string NombreMascota { get; set; }
         public string Especie { get; set; }
         public DateTime? FechaNacimiento { get; set; }
-        public List<EventoViewModel> Eventos { get; set; }
+        public List<EventoViewModel>? Eventos { get; set; }
     }
 
     public class EventoViewModel
     {
-        public int IdEvento { get; set; }
+        public int? IdEvento { get; set; }
         public int IdMascota { get; set; }
         public string Titulo { get; set; }
         public DateTime FechaHora { get; set; }
