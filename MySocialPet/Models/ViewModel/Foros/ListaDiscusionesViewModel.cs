@@ -2,9 +2,9 @@
 
 namespace MySocialPet.Models.ViewModel.Foros
 {
-    public class DetailDiscusionViewModel
+    public class ListaDiscusionesViewModel
     {
         public Foro Foro { get; set; } = new Foro();
-        public Discusion? DetailDiscusion { get; set; } = new Discusion();
+        public List<Discusion>? DetailDiscusion { get; set; }
     }
 }
