@@ -165,7 +165,7 @@
                         razaInfo.innerHTML = `
                             <img src="${fotoUrl}" class="img-fluid rounded-3 mb-3" alt="Foto de ${data.nombreRaza}" style="max-height: 250px; object-fit: cover;">
                             <h4 class="card-title">${data.nombreRaza}</h4>
-                            <p><strong>Categoría:</strong> ${data.categoria || 'N/A'}</p>
+                            <p><strong>Categoría:</strong> ${data.categoria.nombre || 'N/A'}</p>
                             <p><strong>Tamaño:</strong> ${data.tamanyo || 'N/A'}</p>
                             <p class="card-text text-start small">${data.informacion || 'No hay descripción disponible.'}</p>
                         `;

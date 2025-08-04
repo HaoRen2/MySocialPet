@@ -22,13 +22,17 @@ namespace MySocialPet.Models.Mascotas
 
         public string Informacion { get; set; }
         public string Tamanyo { get; set; }
-        public string Categoria { get; set; }
 
         public string Foto { get; set; }
 
         public int IdEspecie { get; set; }
+        public int IdCategoria { get; set; }
+
         [ForeignKey("IdEspecie")]
         public virtual Especie Especie { get; set; }
+
+        [ForeignKey("IdCategoria")]
+        public virtual Categoria Categoria { get; set; }
 
         public virtual ICollection<Mascota> Mascotas { get; set; }
         public virtual ICollection<RazaSugerencia> RazasSugerencia { get; set; }

@@ -14,7 +14,7 @@ namespace MySocialPet.DAL
             _context = context;
         }
 
-   
+
         public async Task InsertMascota(Mascota mascota)
         {
             _context.Mascotas.Add(mascota);
@@ -26,19 +26,11 @@ namespace MySocialPet.DAL
             return _context.Especies.ToList();
         }
 
-        public Raza? DatosRaza(int id) 
+        public Raza? DatosRaza(int id)
         {
             return _context.Razas
-                .Where(r => r.IdRaza == id)
-                .Select(r => new Raza
-                {
-                    NombreRaza = r.NombreRaza,
-                    Informacion = r.Informacion,
-                    Tamanyo = r.Tamanyo,
-                    Categoria = r.Categoria,
-                    Foto = r.Foto
-                })
-                .FirstOrDefault();
+                .Include(r => r.Categoria) 
+                .FirstOrDefault(r => r.IdRaza == id);
         }
 
         public List<Mascota> GetListaPorUsuario(string userId)
@@ -49,7 +41,7 @@ namespace MySocialPet.DAL
                 .ToList();
         }
 
-        public Mascota GetMascota(int id) 
+        public Mascota GetMascota(int id)
         {
             return _context.Mascotas.Include(m => m.Raza)
                 .FirstOrDefault(m => m.IdMascota == id);
@@ -60,7 +52,7 @@ namespace MySocialPet.DAL
             return _context.Razas.Include(r => r.Especie).FirstOrDefault(r => r.IdRaza == idRaza);
         }
 
-        public List<SelectListItem> GetRazaPorEspecie(int id) 
+        public List<SelectListItem> GetRazaPorEspecie(int id)
         {
             return _context.Razas
                 .Where(r => r.IdEspecie == id)
@@ -69,15 +61,15 @@ namespace MySocialPet.DAL
                     Value = r.IdRaza.ToString(),
                     Text = r.NombreRaza.ToString()
                 }).ToList();
-        } 
+        }
 
-        public CrearMascotaViewModel GetEspecie() 
+        public CrearMascotaViewModel GetEspecie()
         {
-           return new CrearMascotaViewModel
+            return new CrearMascotaViewModel
             {
                 Especies = _context.Especies
-                .Select(e => new SelectListItem { Value = e.IdEspecie.ToString(), Text = e.Nombre })
-                .ToList(),
+                 .Select(e => new SelectListItem { Value = e.IdEspecie.ToString(), Text = e.Nombre })
+                 .ToList(),
 
                 Razas = new List<SelectListItem>()
             };

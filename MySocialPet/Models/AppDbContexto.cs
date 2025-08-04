@@ -48,5 +48,8 @@ public class AppDbContexto : DbContext
         modelBuilder.Entity<FotoEtiquetaMascota>()
             .HasKey(fem => new { fem.IdFoto, fem.IdMascota });
 
+        modelBuilder.Entity<CategoriaSugerencia>()
+        .HasKey(cs => new { cs.IdCategoria, cs.IdSugerencia });
+
     }
 }

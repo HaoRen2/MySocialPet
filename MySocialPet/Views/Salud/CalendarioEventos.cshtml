@@ -1,0 +1,109 @@
+﻿@model MySocialPet.Models.ViewModel.Salud.CalendarioEventosViewModel
+
+@{
+    @using System.Text.Json
+    ViewData["Title"] = "Calendario de " + Model.NombreMascota;
+}
+<div class="container">
+    <h2>@ViewData["Title"]</h2>
+
+<div id="calendar"></div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalEvento" tabindex="-1" aria-labelledby="modalEventoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="CrearEvento" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEventoLabel">Nuevo Evento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="IdMascota" value="@Model.IdMascota" />
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" name="Titulo" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha y hora</label>
+                        <input type="datetime-local" name="FechaHora" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de evento</label>
+                        <input type="text" name="TipoEvento" class="form-control" placeholder="Vacuna, Cumpleaños, etc." required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notas</label>
+                        <textarea name="Notas" class="form-control"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js"></script>
+    <script src="@("https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.18/locales/es.global.min.js")"></script>
+
+   <script>
+    const eventos = @Html.Raw(JsonSerializer.Serialize(Model.Eventos.Select(e => new {
+        id = e.IdEvento,
+        title = e.Titulo,
+        start = e.FechaHora.ToString("yyyy-MM-ddTHH:mm:ss"),
+        description = e.Notas,
+        extendedProps = new {
+            tipoEvento = e.TipoEvento
+        }
+    })));
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('calendar');
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,listWeek'
+            },
+            selectable: true,
+            dateClick: function (info) {
+                const fecha = info.dateStr + "T00:00";
+                document.querySelector('#modalEvento input[name="FechaHora"]').value = fecha;
+                document.querySelector('#modalEvento input[name="Titulo"]').value = '';
+                document.querySelector('#modalEvento input[name="TipoEvento"]').value = '';
+                document.querySelector('#modalEvento textarea[name="Notas"]').value = '';
+                document.querySelector('#modalEvento form').action = '/Salud/CrearEvento';
+
+                const modal = new bootstrap.Modal(document.getElementById('modalEvento'));
+                modal.show();
+            },
+            eventClick: function (info) {
+                const evento = info.event;
+
+                document.querySelector('#modalEvento input[name="FechaHora"]').value = evento.startStr.substring(0, 16);
+                document.querySelector('#modalEvento input[name="Titulo"]').value = evento.title;
+                document.querySelector('#modalEvento input[name="TipoEvento"]').value = evento.extendedProps.tipoEvento;
+                document.querySelector('#modalEvento textarea[name="Notas"]').value = evento.extendedProps.description;
+
+                document.querySelector('#modalEvento form').action = '/TuControlador/EditarEvento?id=' + evento.id;
+
+                const modal = new bootstrap.Modal(document.getElementById('modalEvento'));
+                modal.show();
+            },
+            events: eventos
+        });
+
+        calendar.render();
+    });
+</script>
+}

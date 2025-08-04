@@ -23,5 +23,7 @@ namespace MySocialPet.Models.Mascotas
         public virtual ICollection<Raza> Razas { get; set; }
         public virtual ICollection<ListaVacuna> PlanesVacunacion { get; set; }
         public virtual ICollection<EspecieSugerencia> EspeciesSugerencia { get; set; }
+        public virtual ICollection<Categoria> Categorias { get; set; }
+
     }
 }

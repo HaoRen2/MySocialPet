@@ -27,6 +27,8 @@ namespace MySocialPet.Models.Sugerencias
 
         public virtual ICollection<EspecieSugerencia> EspeciesSugerencia { get; set; }
         public virtual ICollection<RazaSugerencia> RazasSugerencia { get; set; }
+        public virtual ICollection<CategoriaSugerencia> CategoriaSugerencias { get; set; }
+
     }
 
 }

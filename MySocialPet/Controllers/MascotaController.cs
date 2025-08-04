@@ -86,7 +86,19 @@ namespace MySocialPet.Controllers
                 return NotFound();
             }
 
-            return Json(raza);
+            var resultado = new
+            {
+                nombreRaza = raza.NombreRaza,
+                informacion = raza.Informacion,
+                tamanyo = raza.Tamanyo,
+                foto = string.IsNullOrEmpty(raza.Foto) ? "/images/default-raza.png" : raza.Foto,
+                categoria = new
+                {
+                    nombre = raza.Categoria?.NombreCategoria
+                }
+            };
+
+            return Json(resultado);
         }
 
         [HttpPost]
@@ -120,9 +132,9 @@ namespace MySocialPet.Controllers
                 Genero = model.Genero,
                 BCS = model.BCS,
                 Esterilizada = model.Esterilizada,
-                IdRaza = 1,
+                IdRaza = model.IdRaza,
                 Foto = fotoData,
-                IdUsuario = 9,
+                IdUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
                 EstadoAdopcion = "No está en adopción"
             };
 
