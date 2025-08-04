@@ -18,24 +18,62 @@
         <!-- MENÚ -->
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav me-1 align-items-center">
-                <li class="nav-item nav-section">
-                    <a class="nav-link" href="#sobre">Sobre</a>
-                </li>
-                <li class="separador-vertical"></li>
-                <li class="nav-item nav-section">
-                    <a class="nav-link" href="#caracteristicas">Características</a>
-                </li>
-                <li class="separador-vertical"></li>
-                <li class="nav-item nav-section">
-                    <a class="nav-link" href="#comunidad">Comunidad</a>
-                </li>
-                <li class="separador-vertical"></li>
-                <li class="nav-item nav-section">
-                    <a class="nav-link" href="#contacto">Contacto</a>
-                </li>
+                @if (ViewBag.IsAuthenticated)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold" href="@Url.Action("ListaMascota", "Mascota")">
+                            <i class="bi bi-house-heart me-1"></i>Mis Mascotas
+                        </a>
+                    </li>
+                    <li class="separador-vertical"></li>
+                    <li class="nav-item nav-section">
+                        <a class="nav-link text-white fw-semibold" href="@Url.Action("Index", "Salud")">
+                            <i class="bi bi-heart-pulse me-1"></i>Salud
+                        </a>
+                    </li>
+                    <li class="separador-vertical"></li>
+                    <li class="nav-item nav-section">
+                        <a class="nav-link text-white fw-semibold" href="@Url.Action("Index", "Album")">
+                            <i class="bi bi-images me-1"></i>Álbum
+                        </a>
+                    </li>
+                    <li class="separador-vertical"></li>
+                    <li class="nav-item nav-section">
+                        <a class="nav-link text-white fw-semibold" href="@Url.Action("Index", "Foro")">
+                            <i class="bi bi-chat-dots me-1"></i>Foro
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item nav-section">
+                        <a class="nav-link" href="#sobre">Sobre</a>
+                    </li>
+                    <li class="separador-vertical"></li>
+                    <li class="nav-item nav-section">
+                        <a class="nav-link" href="#caracteristicas">Características</a>
+                    </li>
+                    <li class="separador-vertical"></li>
+                    <li class="nav-item nav-section">
+                        <a class="nav-link" href="#comunidad">Comunidad</a>
+                    </li>
+                    <li class="separador-vertical"></li>
+                    <li class="nav-item nav-section">
+                        <a class="nav-link" href="#contacto">Contacto</a>
+                    </li>
+                }
             </ul>
 
-            <a href="@Url.Action("Index", "Login")" class="btn animated fs-4 d-none d-lg-inline">&nbsp;Login&nbsp;</a>
+            @if (!ViewBag.IsAuthenticated)
+            {
+                <a href="@Url.Action("Index", "Login")" class="btn animated fs-4 d-none d-lg-inline">&nbsp;Login&nbsp;</a>
+            }
+            else
+            {
+                <form asp-controller="Login" asp-action="Logout" method="post">
+                    <button type="submit" class="btn btn-outline-light ms-2">@ViewBag.Username (Salir)</button>
+                </form>
+            }
         </div>
     </div>
 </nav>
