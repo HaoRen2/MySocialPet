@@ -1,0 +1,50 @@
+﻿@model MySocialPet.Models.ViewModel.Autenticacion.RestablecerContrasenyaViewModel
+@{
+    Layout = "~/Views/Shared/_AuthLayoutPartial.cshtml";
+    ViewData["Title"] = "Restablecer contraseña";
+}
+
+
+<!-- Título -->
+<div class="text-center px-4">
+    <h4 class="fw-bold fs-4">Restablecer contraseña</h4>
+    <p class="text-muted fs-5">Introduce tu nueva contraseña.</p>
+</div>
+
+<!-- Formulario -->
+<form asp-action="RestablecerContrasenya" method="post" class="px-5">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Token" />
+
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="NuevaContrasenya" class="form-label">Nueva contraseña</label>
+        <input asp-for="NuevaContrasenya" type="password" class="form-control" required />
+        <span asp-validation-for="NuevaContrasenya" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ConfirmarContrasenya" class="form-label">Confirmar contraseña</label>
+        <input asp-for="ConfirmarContrasenya" type="password" class="form-control" required />
+        <span asp-validation-for="ConfirmarContrasenya" class="text-danger small"></span>
+    </div>
+
+    <div class="d-grid">
+        <button type="submit" class="btn static">Actualizar contraseña</button>
+    </div>
+</form>
+
+
+<div class="text-center mt-4">
+    <a asp-action="Index" asp-controller="Login" class="text-primary text-decoration-none">
+        ← Volver a Iniciar Sesión
+    </a>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+

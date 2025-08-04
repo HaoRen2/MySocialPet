@@ -26,9 +26,11 @@ namespace MySocialPet.DAL
             return null;
         }
 
-        public void CambiarContrasenya(Usuario user, string password) 
+        public void CambiarContrasenya(Usuario user, string nuevaPassword)
         {
-            PasswordHelper.CreatePasswordfHash(password, out byte[] passwordHash, out byte[] passwordSalt);
+            if (user == null) return;
+
+            PasswordHelper.CreatePasswordfHash(nuevaPassword, out byte[] passwordHash, out byte[] passwordSalt);
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
@@ -61,5 +63,40 @@ namespace MySocialPet.DAL
 
             return user;
         }
+
+        public void GuardarTokenRecuperacion(int idUsuario, string token, DateTime expiracion)
+        {
+            var usuario = _context.Usuarios.FirstOrDefault(u => u.IdUsuario == idUsuario);
+            if (usuario != null)
+            {
+                usuario.ResetToken = token;
+                usuario.TokenExpiration = expiracion.ToUniversalTime(); // 🔄 Guardar en UTC
+                _context.SaveChanges();
+            }
+
+            Console.WriteLine("TokenExpiration guardado (UTC): " + expiracion.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss"));
+        }
+
+        public Usuario GetUsuarioByToken(string token)
+        {
+            var nowUtc = DateTime.UtcNow;
+
+            Console.WriteLine("Ahora (UTC): " + nowUtc.ToString("yyyy-MM-dd HH:mm:ss"));
+
+            return _context.Usuarios.FirstOrDefault(u =>
+                u.ResetToken == token && u.TokenExpiration >= nowUtc); // 🔍 Comparar en UTC
+        }
+
+        public void EliminarTokenRecuperacion(int idUsuario)
+        {
+            var usuario = _context.Usuarios.FirstOrDefault(u => u.IdUsuario == idUsuario);
+            if (usuario != null)
+            {
+                usuario.ResetToken = null;
+                usuario.TokenExpiration = null;
+                _context.SaveChanges();
+            }
+        }
+
     }
 }

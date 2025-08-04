@@ -48,5 +48,8 @@ namespace MySocialPet.Models.Autenticacion
         public virtual ICollection<Discusion> DiscusionesCreadas { get; set; }
         public virtual ICollection<Mensaje> Mensajes { get; set; }
         public virtual Protectora Protectora { get; set; }
+
+        public string? ResetToken { get; set; }
+        public DateTime? TokenExpiration { get; set; }
     }
 }
