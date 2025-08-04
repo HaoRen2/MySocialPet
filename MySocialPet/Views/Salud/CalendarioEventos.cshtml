@@ -8,12 +8,24 @@
     <h2>@ViewData["Title"]</h2>
 
 <div id="calendar"></div>
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto" id="toastTitle">Notificación</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastBody">
+            </div>
+    </div>
+</div>
+
 
 <!-- Modal -->
 <div class="modal fade" id="modalEvento" tabindex="-1" aria-labelledby="modalEventoLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form asp-action="CrearEvento" method="post">
+            <form asp-action="CreateEvento" method="post">
+                <input type="hidden" name="IdEvento" />
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalEventoLabel">Nuevo Evento</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -53,7 +65,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js"></script>
     <script src="@("https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.18/locales/es.global.min.js")"></script>
 
-   <script>
+      <script>
     const eventos = @Html.Raw(JsonSerializer.Serialize(Model.Eventos.Select(e => new {
         id = e.IdEvento,
         title = e.Titulo,
@@ -62,7 +74,7 @@
         extendedProps = new {
             tipoEvento = e.TipoEvento
         }
-    })));
+    })))
 
     document.addEventListener('DOMContentLoaded', function () {
         const calendarEl = document.getElementById('calendar');
@@ -82,23 +94,26 @@
                 document.querySelector('#modalEvento input[name="Titulo"]').value = '';
                 document.querySelector('#modalEvento input[name="TipoEvento"]').value = '';
                 document.querySelector('#modalEvento textarea[name="Notas"]').value = '';
-                document.querySelector('#modalEvento form').action = '/Salud/CrearEvento';
+                document.querySelector('#modalEvento form').action = '/Salud/CreateEvento';
+
+                document.getElementById('modalEventoLabel').textContent = "Nuevo Evento";
+
 
                 const modal = new bootstrap.Modal(document.getElementById('modalEvento'));
                 modal.show();
             },
         eventContent: function (arg) {
-            const title = arg.event.title;
-            const time = arg.timeText;
-            const description = arg.event.extendedProps.description;
+    const title = arg.event.title;
+    const time = arg.timeText;
+    const description = arg.event.extendedProps.description;
 
-            const containerEl = document.createElement('div');
-            containerEl.innerHTML = `
-                <div><strong>Hora: ${time}</strong></div>
-                <div>${title}</div>
-                <div style="font-size: 0.8em; color: #666;">${description}</div>`;
-                return { domNodes: [containerEl] };
-        },
+    const containerEl = document.createElement('div');
+    containerEl.innerHTML = `
+        <div><strong>Hora: ${time}</strong></div>
+        <div>${title}</div>
+        <div style="font-size: 0.8em; color: #666;">${description}</div>`;
+    return { domNodes: [containerEl] };
+},
             eventClick: function (info) {
                 const evento = info.event;
 
@@ -106,8 +121,11 @@
                 document.querySelector('#modalEvento input[name="Titulo"]').value = evento.title;
                 document.querySelector('#modalEvento input[name="TipoEvento"]').value = evento.extendedProps.tipoEvento;
                 document.querySelector('#modalEvento textarea[name="Notas"]').value = evento.extendedProps.description;
+                document.querySelector('#modalEvento input[name="IdEvento"]').value = evento.id;
 
-                document.querySelector('#modalEvento form').action = '/TuControlador/EditarEvento?id=' + evento.id;
+                document.querySelector('#modalEvento form').action = '/Salud/EditEvento';
+
+                document.getElementById('modalEventoLabel').textContent = "Editar Evento";
 
                 const modal = new bootstrap.Modal(document.getElementById('modalEvento'));
                 modal.show();
