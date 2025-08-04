@@ -52,7 +52,10 @@ html, body, * {
 
 /* Verde oliva claro personalizado */
 .bg-lightgreen {
-    background-color: #9BB29D !important;
+    background-color: #9BB29D;
+}
+.bg-ultralightgreen {
+    background-color: #dce5dc;
 }
 .text-primary {
     color: #4a5c4f !important;
