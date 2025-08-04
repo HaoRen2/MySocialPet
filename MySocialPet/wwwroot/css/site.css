@@ -1,6 +1,13 @@
 ﻿/* ------------------------------------------------------------
    ESPACIADO GLOBAL
 ------------------------------------------------------------ */
+:root {
+    --primary: #4a5c4f;
+    --green: #54785e;
+    --ultralight-green: #dce5dc;
+    --light-green: #9BB29D
+}
+
 html, body, * {
     font-family: 'Quicksand', sans-serif !important;
 }
@@ -27,6 +34,14 @@ html, body, * {
     background-color: rgba(97, 97, 97, 0.1); /* Gris claro transparente */
     transition: all 0.2s ease-in-out;
     cursor: pointer;
+}
+
+.btn-verde:hover {
+    border: 2px dashed rgba(97, 97, 97, 1); /* Gris oscuro */
+    background-color: rgba(97, 97, 97, 0.1); /* Gris claro transparente */
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    color: var(--primary);
 }
 
 
