@@ -1,52 +1,42 @@
-﻿<nav class="navbar navbar-expand-lg fixed-top navbar-main">
-    <div class="container-fluid">
-        <a asp-action="Index" asp-controller="Home" class="navbar-brand fw-bold fs-3 text-decoration-none">MySocialPet 🐾</a>
+﻿<nav class="navbar navbar-expand-lg px-5 py-4 fixed-top navbar-main">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <!-- Logo -->
+        <a class="navbar-brand d-flex align-items-center text-white fw-bold fs-1 me-3"
+           asp-controller="Home" asp-action="Index">
+            MySocialPet 🐾
+        </a>
 
+        <!-- LOGIN + HAMBURGUESA en móvil -->
+        <div class="d-flex align-items-center d-lg-none">
+            <a href="@Url.Action("Index", "Login")" class="btn fs-4 me-4">&nbsp;Login&nbsp;</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="bi bi-list menu-icon" id="toggleSidebar"></i>
+            </button>
+        </div>
+
+        <!-- MENÚ -->
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul class="navbar-nav mb-2 mb-lg-0">
-                @if (ViewBag.IsAuthenticated)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link text-white fw-semibold" href="@Url.Action("ListaMascota", "Mascota")">
-                            <i class="bi bi-house-heart me-1"></i>Mis Mascotas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white fw-semibold" href="@Url.Action("Index", "Salud")">
-                            <i class="bi bi-heart-pulse me-1"></i>Salud
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white fw-semibold" href="@Url.Action("Index", "Album")">
-                            <i class="bi bi-images me-1"></i>Álbum
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white fw-semibold" href="@Url.Action("Index", "Foro")">
-                            <i class="bi bi-chat-dots me-1"></i>Foro
-                        </a>
-                    </li>
-                }
-                
+            <ul class="navbar-nav me-1 align-items-center">
+                <li class="nav-item nav-section">
+                    <a class="nav-link" href="#sobre">Sobre</a>
+                </li>
+                <li class="separador-vertical"></li>
+                <li class="nav-item nav-section">
+                    <a class="nav-link" href="#caracteristicas">Características</a>
+                </li>
+                <li class="separador-vertical"></li>
+                <li class="nav-item nav-section">
+                    <a class="nav-link" href="#comunidad">Comunidad</a>
+                </li>
+                <li class="separador-vertical"></li>
+                <li class="nav-item nav-section">
+                    <a class="nav-link" href="#contacto">Contacto</a>
+                </li>
             </ul>
 
-            <div class="d-flex">
-                @if (!ViewBag.IsAuthenticated)
-                {
-                    <a class="btn btn-outline-light ms-2 text-decoration-none" asp-action="Index" asp-controller="Login">Login</a>
-                }
-                else
-                {
-                    <form asp-controller="Login" asp-action="Logout" method="post">
-                        <button type="submit" class="btn btn-outline-light ms-2">@ViewBag.Username (Salir)</button>
-                    </form>
-                }
-            </div>
+            <a href="@Url.Action("Index", "Login")" class="btn animated fs-4 d-none d-lg-inline">&nbsp;Login&nbsp;</a>
         </div>
     </div>
 </nav>
+

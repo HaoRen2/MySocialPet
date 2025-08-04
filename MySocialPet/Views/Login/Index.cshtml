@@ -4,27 +4,41 @@
     ViewData["Title"] = "Iniciar Sesión";
 }
 
-<div class="col-md-12 auth-form">
-    <div class="auth-tabs">
-        <a asp-action="Index" asp-controller="Login" class="btn btn-primary active p-3 m-1">Iniciar Sesión</a>
-        <a asp-action="Registrar" asp-controller="Login" class="btn btn-primary p-3 m-1">Registrarse</a>
+<!-- Pestañas de navegación -->
+<div class="auth-tabs mb-3  py-2">
+    <a asp-action="Index" asp-controller="Login"
+       class="btn @(ViewData["Title"]?.ToString() == "Iniciar Sesión" ? "active" : "")">
+        Iniciar Sesión
+    </a>
+    <a asp-action="Registrar" asp-controller="Login"
+       class="btn @(ViewData["Title"]?.ToString() == "Registro" ? "active" : "")">
+        Registrarse
+    </a>
+</div>
+
+
+<!-- Formulario de inicio de sesión -->
+<form asp-action="Index" method="post" class="px-5 ">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3 ">
+        <label asp-for="Email" class="form-label">Correo electrónico</label>
+        <input asp-for="Email" class="form-control" placeholder="ejemplo@correo.com" />
+        <span asp-validation-for="Email" class="text-danger small"></span>
     </div>
 
-    <form asp-action="Index" method="post">
-        @Html.AntiForgeryToken()
-        <div class="mb-3">
-            <label asp-for="Email" class="form-label"></label>
-            <input asp-for="Email" class="form-control" placeholder="ejemplo@correo.com" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <label asp-for="Password" class="form-label"></label>
-            <input asp-for="Password" type="password" class="form-control" placeholder="********" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-        <button type="submit" class="btn btn-primary">Entrar</button>
-            <div class="text-center mb-3">
-                <a asp-action="RecuperarContrasenya" asp-controller="Login">¿Has olvidado tu contraseña?</a>
-            </div>
-    </form>
-</div>
+    <div class="mb-3 ">
+        <label asp-for="Password" class="form-label">Contraseña</label>
+        <input asp-for="Password" type="password" class="form-control" placeholder="********" />
+        <span asp-validation-for="Password" class="text-danger small"></span>
+    </div>
+
+    <div class="text-center mt-3  text-lg-start">
+        <a asp-action="RecuperarContrasenya" asp-controller="Login" class=" text-primary">¿Has olvidado tu contraseña?</a>
+    </div>
+    <br>
+    <div class="d-grid ">
+        <button type="submit" class="btn static">Entrar</button>
+    </div>
+
+</form>
