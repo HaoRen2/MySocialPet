@@ -89,6 +89,18 @@
                 const modal = new bootstrap.Modal(document.getElementById('modalEvento'));
                 modal.show();
             },
+        eventContent: function (arg) {
+            const title = arg.event.title;
+            const time = arg.timeText;
+            const description = arg.event.extendedProps.description;
+
+            const containerEl = document.createElement('div');
+            containerEl.innerHTML = `
+                <div><strong>Hora: ${time}</strong></div>
+                <div>${title}</div>
+                <div style="font-size: 0.8em; color: #666;">${description}</div>`;
+                return { domNodes: [containerEl] };
+        },
             eventClick: function (info) {
                 const evento = info.event;
 

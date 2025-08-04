@@ -79,6 +79,12 @@ namespace MySocialPet.Controllers
                 NombreMascota = mascota.Nombre,
                 Eventos = mascota.Eventos.Select(e => new EventoViewModel
                 {
+                    IdEvento = e.IdEvento,
+                    Titulo = e.Titulo,
+                    FechaHora = e.FechaHora,
+                    TipoEvento = e.TipoEvento,
+                    Notas = e.Notas,
+                    IdMascota = e.IdMascota
                 }).ToList()
             };
 

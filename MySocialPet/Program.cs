@@ -23,7 +23,7 @@ builder.Services.AddScoped<UsuarioDAL>();
 builder.Services.AddScoped<MascotaDAL>();
 builder.Services.AddScoped<ForoDAL>();
 builder.Services.AddScoped<AlbumDAL>();
-
+builder.Services.AddScoped<SaludDAL>();
 
 var app = builder.Build();
 
