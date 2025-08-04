@@ -1,0 +1,63 @@
+﻿@model MySocialPet.Models.ViewModel.Salud.SaludRegistroViewModel
+
+@{
+    ViewData["Title"] = "Registrar Salud de " + Model.NombreMascota;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="GestionarSaludRegistro" method="post">
+    <input type="hidden" asp-for="IdMascota" />
+
+    <div class="mb-3">
+        <label asp-for="Fecha" class="form-label"></label>
+        <input asp-for="Fecha" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PesoKg" class="form-label"></label>
+        <input asp-for="PesoKg" class="form-control" id="pesoInput" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LongitudCm" class="form-label"></label>
+        <input asp-for="LongitudCm" class="form-control" id="longitudInput" />
+    </div>
+
+    <div class="mb-3">
+        <label>BCS Calculado</label>
+        <input type="text" class="form-control" readonly id="bcsTextoInput" />
+        <input type="hidden" asp-for="BCS" id="bcsValorInput" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Notas" class="form-label"></label>
+        <textarea asp-for="Notas" class="form-control"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</form>
+
+@section Scripts {
+    <script>
+        function calcularBCS() {
+            var peso = parseFloat(document.getElementById("pesoInput").value);
+            var longitud = parseFloat(document.getElementById("longitudInput").value);
+            var idMascota = @Model.IdMascota;
+
+            if (!peso || !longitud) return;
+
+            fetch(`/Salud/CalcularBCS?pesoKg=${peso}&longitudCm=${longitud}&idRaza=${@Model.IdMascota}`, {
+                method: 'GET'
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("bcsTextoInput").value = data.bcsTexto;
+                document.getElementById("bcsValorInput").value = data.bcsValor;
+            });
+        }
+
+        document.getElementById("pesoInput").addEventListener("change", calcularBCS);
+        document.getElementById("longitudInput").addEventListener("change", calcularBCS);
+    </script>
+}
