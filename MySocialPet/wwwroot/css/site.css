@@ -15,7 +15,7 @@ html, body, * {
 
 /* Espacio para compensar el navbar fijo arriba (fixed-top) */
 .pt-nav {
-    padding-top: clamp(4rem, 10vh, 6rem);
+    margin-top: 12vh;
 }
 /* ------------------------------------------------------------
    ESTILOS GENERALES
@@ -30,9 +30,7 @@ html, body, * {
 /* ------------------ HOVER EFECTO TEST ------------------ */
 /* Añade borde punteado gris y fondo gris claro al hacer hover */
 .test:hover {
-    border: 2px dashed rgba(97, 97, 97, 1); /* Gris oscuro */
     background-color: rgba(97, 97, 97, 0.1); /* Gris claro transparente */
-    transition: all 0.2s ease-in-out;
     cursor: pointer;
 }
 
@@ -82,7 +80,7 @@ html, body, * {
 
 .navbar {
     background-color: #9BB29D !important; /* Verde oliva claro */
-    min-height: 8vh;
+    max-height: 12vh;
     box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.25); /* Sombra sutil */
     z-index: 1000; /* Por encima del contenido */
     padding: 1.25rem 4.5rem; /* Espaciado interior (top/bottom y laterales) */
@@ -173,10 +171,9 @@ html, body, * {
 
 
 .welcome-section {
-    min-height: calc(100vh - 100px);
-    padding: 60px 200px;
+    min-height: 88vh;
+    margin-top: 12vh;
 }
-
 
 
 .auth-tabs {
