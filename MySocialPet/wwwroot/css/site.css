@@ -37,7 +37,7 @@ html, body, * {
 }
 
 .btn-verde:hover {
-    border: 2px dashed rgba(97, 97, 97, 1); /* Gris oscuro */
+    border: 2px solid rgba(97, 97, 97, 1); /* Gris oscuro */
     background-color: rgba(97, 97, 97, 0.1); /* Gris claro transparente */
     transition: all 0.2s ease-in-out;
     cursor: pointer;
