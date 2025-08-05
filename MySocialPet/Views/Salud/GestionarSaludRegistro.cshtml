@@ -1,63 +1,76 @@
 ﻿@model MySocialPet.Models.ViewModel.Salud.SaludRegistroViewModel
 
 @{
+    Layout = "~/Views/Shared/_Layout.cshtml"; // o el layout correspondiente
     ViewData["Title"] = "Registrar Salud de " + Model.NombreMascota;
 }
+<div class=" welcome-section d-flex align-items-center" style="height: 90vh;">
+    <div class="container px-4 py-5 test">
+        <div class="text-center mb-4 test">
+            <h2 class="fw-bold">@ViewData["Title"]</h2>
+            <p class="text-muted fs-5">Introduce los datos de salud de tu mascota.</p>
+        </div>
 
-<h2>@ViewData["Title"]</h2>
+        <form asp-action="GestionarSaludRegistro" method="post" class="mx-auto" style="max-width: 600px;">
+            <input type="hidden" asp-for="IdMascota" />
 
-<form asp-action="GestionarSaludRegistro" method="post">
-    <input type="hidden" asp-for="IdMascota" />
+            <div class="mb-3">
+                <label asp-for="Fecha" class="form-label">Fecha</label>
+                <input asp-for="Fecha" class="form-control" />
+                <span asp-validation-for="Fecha" class="text-danger small"></span>
+            </div>
 
-    <div class="mb-3">
-        <label asp-for="Fecha" class="form-label"></label>
-        <input asp-for="Fecha" class="form-control" />
+            <div class="mb-3">
+                <label asp-for="PesoKg" class="form-label">Peso (Kg)</label>
+                <input asp-for="PesoKg" class="form-control" id="pesoInput" />
+                <span asp-validation-for="PesoKg" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="LongitudCm" class="form-label">Longitud (cm)</label>
+                <input asp-for="LongitudCm" class="form-control" id="longitudInput" />
+                <span asp-validation-for="LongitudCm" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">BCS Calculado</label>
+                <input type="text" class="form-control" readonly id="bcsTextoInput" />
+                <input type="hidden" asp-for="BCS" id="bcsValorInput" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Notas" class="form-label">Notas adicionales</label>
+                <textarea asp-for="Notas" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Notas" class="text-danger small"></span>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn static">Guardar</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div class="mb-3">
-        <label asp-for="PesoKg" class="form-label"></label>
-        <input asp-for="PesoKg" class="form-control" id="pesoInput" />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="LongitudCm" class="form-label"></label>
-        <input asp-for="LongitudCm" class="form-control" id="longitudInput" />
-    </div>
-
-    <div class="mb-3">
-        <label>BCS Calculado</label>
-        <input type="text" class="form-control" readonly id="bcsTextoInput" />
-        <input type="hidden" asp-for="BCS" id="bcsValorInput" />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Notas" class="form-label"></label>
-        <textarea asp-for="Notas" class="form-control"></textarea>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Guardar</button>
-</form>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
     <script>
         function calcularBCS() {
-            var peso = parseFloat(document.getElementById("pesoInput").value);
-            var longitud = parseFloat(document.getElementById("longitudInput").value);
-            var idMascota = @Model.IdMascota;
+            const peso = parseFloat(document.getElementById("pesoInput").value);
+            const longitud = parseFloat(document.getElementById("longitudInput").value);
+            const idMascota = @Model.IdMascota;
 
             if (!peso || !longitud) return;
 
-            fetch(`/Salud/CalcularBCS?pesoKg=${peso}&longitudCm=${longitud}&idRaza=${@Model.IdMascota}`, {
-                method: 'GET'
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById("bcsTextoInput").value = data.bcsTexto;
-                document.getElementById("bcsValorInput").value = data.bcsValor;
-            });
+            fetch(`/Salud/CalcularBCS?pesoKg=${peso}&longitudCm=${longitud}&idRaza=${idMascota}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("bcsTextoInput").value = data.bcsTexto;
+                    document.getElementById("bcsValorInput").value = data.bcsValor;
+                });
         }
 
-        document.getElementById("pesoInput").addEventListener("change", calcularBCS);
-        document.getElementById("longitudInput").addEventListener("change", calcularBCS);
+        document.getElementById("pesoInput").addEventListener("input", calcularBCS);
+        document.getElementById("longitudInput").addEventListener("input", calcularBCS);
     </script>
 }

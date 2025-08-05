@@ -4,10 +4,12 @@
     @using System.Text.Json
     ViewData["Title"] = "Calendario de " + Model.NombreMascota;
 }
-<div class="container">
-    <h2>@ViewData["Title"]</h2>
+<div class="welcome-section container  test">
+    <div class="container my-5 text-lg-start text-center test">
+            <h2 class="fw-bold display-6">@ViewData["Title"]</h2>
+    </div>
 
-<div id="calendar"></div>
+<div class="test my-5" id="calendar"></div>
 
 <!-- Modal -->
 <div class="modal fade" id="modalEvento" tabindex="-1" aria-labelledby="modalEventoLabel" aria-hidden="true">
