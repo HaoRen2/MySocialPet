@@ -5,6 +5,8 @@ namespace MySocialPet.Models.ViewModel.Mascotas
 {
     public class CrearMascotaViewModel
     {
+
+        public int? Id { get; set; }
         [Required]
         public string Nombre { get; set; }
         public DateTime? Nacimiento { get; set; }
@@ -17,7 +19,7 @@ namespace MySocialPet.Models.ViewModel.Mascotas
 
         public IFormFile? Foto { get; set; }
 
-        public int BCS { get; set; }
+        public int? BCS { get; set; }
         public bool Esterilizada { get; set; }
         [Required]
         public int IdRaza { get; set; }

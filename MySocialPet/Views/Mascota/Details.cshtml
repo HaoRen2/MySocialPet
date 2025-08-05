@@ -5,7 +5,7 @@
 }
 
 <div class="container mt-5">
-    <div class="card shadow rounded">
+    <div class="card shadow rounded pb-1">
         <div class="row g-0">
             <!-- Imagen -->
             <div class="col-md-4 text-center p-3">
@@ -19,6 +19,7 @@
                 {
                     <img src="~/img/sin-foto.png" class="img-fluid rounded" alt="Sin foto" />
                 }
+                <a href="@Url.Action("EditMascota", "Mascota", new { id = mascota.IdMascota })" class="btn px-5 py-2 m-1">Editar</a>
             </div>
 
             <div class="col-md-8">
@@ -33,14 +34,45 @@
                     <p class="card-text"><strong>Raza:</strong> @mascota.Raza?.NombreRaza</p>
 
                     <div class="mt-4 d-flex justify-content-center gap-2">
-                        <a href="@Url.Action("Editar", "Mascota", new { id = mascota.IdMascota })" class="btn btn-primary p-1 m-1">Editar</a>
                         <a href="@Url.Action("ListaMascota", "Mascota")" class="btn btn-secondary p-1 m-1">Volver</a>
                         <a href="@Url.Action("GestionarSaludRegistro", "Salud", new { id = mascota.IdMascota })" class="btn btn-light p-1 m-1">Salud</a>
-                        <a href="@Url.Action("CalendarioEventos", "Salud",new { id = mascota.IdMascota})" class="btn btn-success p-1 m-1">Evento</a>
-
-                    </div>
+                        <a href="@Url.Action("CalendarioEventos", "Salud",new { id = mascota.IdMascota})" class="btn btn-success p-1 m-1">Evento</a> 
+                    </div>  
                 </div>
+                <form asp-action="DeleteMascota" asp-controller="Mascota" class="text-center" method="post" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta mascota?');">
+                    <input type="hidden" name="id" value="@mascota.IdMascota" />
+                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                </form>
             </div>
+        </div>
+    </div>
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>Notas sobre @mascota.Nombre</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="AgregarNota" asp-controller="Mascota" method="post">
+                <input type="hidden" name="id" value="@mascota.IdMascota" />
+                <div class="mb-3">
+                    <textarea name="descripcion" class="form-control" placeholder="Escribe una nota..." rows="3" maxlength="150"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar nota</button>
+            </form>
+
+            <hr />
+            @if (Model.Notas != null && Model.Notas.Any())
+            {
+                foreach (var nota in Model.Notas)
+                {
+                    <div class="mb-2">
+                        <div class="bg-light p-2 rounded">@nota.Descripcion</div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted">No hay notas aún.</p>
+            }
         </div>
     </div>
 </div>

@@ -79,6 +79,12 @@ namespace MySocialPet.Controllers
                 NombreMascota = mascota.Nombre,
                 Eventos = mascota.Eventos.Select(e => new EventoViewModel
                 {
+                    IdEvento = e.IdEvento,
+                    Titulo = e.Titulo,
+                    FechaHora = e.FechaHora,
+                    TipoEvento = e.TipoEvento,
+                    Notas = e.Notas,
+                    IdMascota = e.IdMascota
                 }).ToList()
             };
 
@@ -87,27 +93,66 @@ namespace MySocialPet.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CrearEvento(EventoViewModel datosFormulario)
+        public async Task<IActionResult> CreateEvento(EventoViewModel model)
         {
             if (ModelState.IsValid)
             {
                 var nuevoEvento = new Evento
                 {
-                    Titulo = datosFormulario.Titulo,
-                    FechaHora = datosFormulario.FechaHora,
-                    TipoEvento = datosFormulario.TipoEvento,
-                    Notas = datosFormulario.Notas,
-                    IdMascota = datosFormulario.IdMascota
+                    Titulo = model.Titulo,
+                    FechaHora = model.FechaHora,
+                    TipoEvento = model.TipoEvento,
+                    Notas = model.Notas,
+                    IdMascota = model.IdMascota
                 };
 
                 _context.Eventos.Add(nuevoEvento);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("CalendarioEventos", new { id = datosFormulario.IdMascota });
+                return RedirectToAction("CalendarioEventos", new { id = model.IdMascota });
             }
 
-            return RedirectToAction("CalendarioEventos", new { id = datosFormulario.IdMascota });
+            return RedirectToAction("CalendarioEventos", new { id = model.IdMascota });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditEvento(EventoViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var eventoExistente = await _context.Eventos
+           .FirstOrDefaultAsync(e => e.IdEvento == model.IdEvento);
+
+                if (eventoExistente != null)
+                {
+                    eventoExistente.Titulo = model.Titulo;
+                    eventoExistente.FechaHora = model.FechaHora;
+                    eventoExistente.TipoEvento = model.TipoEvento;
+                    eventoExistente.Notas = model.Notas;
+                    eventoExistente.IdMascota = model.IdMascota;
+
+                    await _context.SaveChangesAsync();
+                }
+
+                return RedirectToAction("CalendarioEventos", new { id = model.IdMascota });
+            }
+
+            return RedirectToAction("CalendarioEventos", new { id = model.IdMascota });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteEvento(int id)
+        {
+            var evento = await _context.Eventos.FindAsync(id);
+            if (evento == null)
+                return NotFound();
+
+            _context.Eventos.Remove(evento);
+            await _context.SaveChangesAsync();
+
+            return Ok(); 
+        }
     }
 }
