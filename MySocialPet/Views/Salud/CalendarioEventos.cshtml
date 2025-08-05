@@ -2,6 +2,7 @@
 
 @{
     @using System.Text.Json
+    @Html.AntiForgeryToken()
     ViewData["Title"] = "Calendario de " + Model.NombreMascota;
 }
 <div class="welcome-section container  test">
@@ -67,7 +68,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js"></script>
     <script src="@("https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.18/locales/es.global.min.js")"></script>
 
-      <script>
+     <script>
     const eventos = @Html.Raw(JsonSerializer.Serialize(Model.Eventos.Select(e => new {
         id = e.IdEvento,
         title = e.Titulo,
@@ -100,22 +101,26 @@
 
                 document.getElementById('modalEventoLabel').textContent = "Nuevo Evento";
 
-
                 const modal = new bootstrap.Modal(document.getElementById('modalEvento'));
                 modal.show();
             },
-        eventContent: function (arg) {
-    const title = arg.event.title;
-    const time = arg.timeText;
-    const description = arg.event.extendedProps.description;
+            eventContent: function (arg) {
+                const title = arg.event.title;
+                const time = arg.timeText;
+                const description = arg.event.extendedProps.description;
+                const id = arg.event.id;
 
-    const containerEl = document.createElement('div');
-    containerEl.innerHTML = `
-        <div><strong>Hora: ${time}</strong></div>
-        <div>${title}</div>
-        <div style="font-size: 0.8em; color: #666;">${description}</div>`;
-    return { domNodes: [containerEl] };
-},
+                const containerEl = document.createElement('div');
+                containerEl.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>${time}</strong>
+                        <button class="btn btn-sm btn-danger btn-delete-event" data-id="${id}" style="padding: 0 5px;">&times;</button>
+                    </div>
+                    <div>${title}</div>
+                    <div style="font-size: 0.8em; color: #666;">${description}</div>
+                `;
+                return { domNodes: [containerEl] };
+            },
             eventClick: function (info) {
                 const evento = info.event;
 
@@ -136,6 +141,49 @@
         });
 
         calendar.render();
+
+        document.getElementById('calendar').addEventListener('click', function (e) {
+    if (e.target.classList.contains('btn-delete-event')) {
+        e.stopPropagation(); 
+
+        const eventoId = e.target.getAttribute('data-id');
+
+        if (confirm("¿Estás seguro de que deseas eliminar este evento?")) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            fetch(`/Salud/DeleteEvento/${eventoId}`, { 
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token 
+                }
+            })
+            .then(res => {
+                if (res.ok) {
+                    const eventToRemove = calendar.getEventById(eventoId);
+                    if (eventToRemove) {
+                        eventToRemove.remove();
+                    }
+                    showToast("Evento eliminado exitosamente");
+                } else { 
+                    console.error('Error al eliminar:', res);
+                    alert("Error al eliminar el evento. Revisa la consola para más detalles.");
+                }
+            })
+            .catch(error => {
+                console.error('Error en fetch:', error);
+                alert("Ocurrió un error de red al intentar eliminar el evento.");
+            });
+        }
+    }
+});
+
+        function showToast(message, title = "Notificación") {
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastBody').textContent = message;
+
+            const toast = new bootstrap.Toast(document.getElementById('liveToast'));
+            toast.show();
+        }
     });
 </script>
 }
