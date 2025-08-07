@@ -1,0 +1,203 @@
+﻿@model MySocialPet.Models.ViewModel.Salud.SaludRegistroViewModel
+
+@{
+    ViewData["Title"] = "Registrar Salud de " + Model.NombreMascota;
+    var vistaActual = "SaludRegistro";
+}
+
+<div class="container pt-nav">
+    <div class="view-switcher mb-3">
+        <a asp-action="SaludRegistro"
+           asp-controller="Salud"
+           asp-route-id="@Model.IdMascota"
+           class="btn @(vistaActual == "SaludRegistro" ? "btn-primary" : "btn-outline-primary")">
+            Registro Salud
+        </a>
+        <a asp-action="Vacunas"
+           asp-controller="Salud"
+           asp-route-id="@Model.IdMascota"
+           asp-route-vista="especificaciones"
+           class="btn @(vistaActual == "Vacunas" ? "btn-primary" : "btn-outline-primary")">
+            Registro Vacunas
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="text-center col-12">
+            <h2 class="fw-bold">@ViewData["Title"]</h2>
+        </div>
+
+        <div class="col-lg-6 p-2">
+            <!-- Formulario -->
+            <form asp-action="SaludRegistro" method="post" class="mx-auto" style="max-width: 600px;">
+                <input type="hidden" asp-for="IdMascota" />
+                <p class="text-muted fs-5">Introduce los datos de salud de tu mascota.</p>
+
+                <div class="mb-3">
+                    <label asp-for="Fecha" class="form-label">Fecha</label>
+                    <input asp-for="Fecha" class="form-control" />
+                    <span asp-validation-for="Fecha" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PesoKg" class="form-label">Peso (Kg)</label>
+                    <input asp-for="PesoKg" class="form-control" id="pesoInput" />
+                    <span asp-validation-for="PesoKg" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="LongitudCm" class="form-label">Longitud (cm)</label>
+                    <input asp-for="LongitudCm" class="form-control" id="longitudInput" />
+                    <span asp-validation-for="LongitudCm" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">BCS Calculado</label>
+                    <input type="text" class="form-control" readonly id="bcsTextoInput" />
+                    <input type="hidden" asp-for="BCS" id="bcsValorInput" />
+                    <small>
+                        IMPORTANTE: Este es un cálculo de orientación basado en promedios y no reemplaza la evaluación de un veterinario.
+                        La complexión de cada mascota es única.
+                    </small>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn static">Guardar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-6 p-2">
+            <h2>Evolución de Peso</h2>
+            <canvas id="evolucionChart" style="max-height: 400px;"></canvas>
+            <!-- Calorías recomendadas -->
+            <div class="p-2 justify-content-end">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Calorías recomendadas</h5>
+                        <p class="card-text">
+                            <span id="caloriasValor" class="fw-bold fs-4 text-primary">--</span> kcal/día
+                        </p>
+                        <small class="text-muted">
+                            Basado en peso actual, especie y estado reproductivo.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        function EstimarIndiceCorporal() {
+            const peso = parseFloat(document.getElementById("pesoInput").value);
+            const longitud = parseFloat(document.getElementById("longitudInput").value);
+            const idMascota = @Model.IdMascota;
+
+            if (!peso || !longitud) return;
+
+            fetch(`/Salud/EstimarIndiceCorporal?pesoKg=${peso}&longitudLomoCm=${longitud}&idRaza=${idMascota}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("bcsTextoInput").value = data.textoOrientativo;
+                    document.getElementById("bcsValorInput").value = data.valorEstimado;
+                    document.getElementById("advertencia").value = data.advertencia;
+                });
+        }
+
+        document.getElementById("pesoInput").addEventListener("input", EstimarIndiceCorporal);
+        document.getElementById("longitudInput").addEventListener("input", EstimarIndiceCorporal);
+
+                const idMascota = @Model.IdMascota;
+
+                // === 1. Gráfico de evolución ===
+                fetch(`/Salud/ObtenerEvolucion?idMascota=${idMascota}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const labels = data.map(r => r.fecha);
+                        const pesos = data.map(r => r.peso);
+                        const bcs = data.map(r => r.bcs);
+
+                        const ctx = document.getElementById('evolucionChart').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [
+                                    {
+                                        label: 'Peso (kg)',
+                                        data: pesos,
+                                        borderColor: 'blue',
+                                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                                        tension: 0.3,
+                                        yAxisID: 'y'
+                                    },
+                                    {
+                                        label: 'BCS',
+                                        data: bcs,
+                                        borderColor: 'green',
+                                        backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                                        tension: 0.3,
+                                        yAxisID: 'y2'
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                interaction: {
+                                    mode: 'index',
+                                    intersect: false
+                                },
+                                stacked: false,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: 'Evolución de Peso y BCS'
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        type: 'linear',
+                                        position: 'left',
+                                        title: {
+                                            display: true,
+                                            text: 'Peso (kg)'
+                                        }
+                                    },
+                                       y2: {
+                                type: 'linear',
+                                position: 'right',
+                                title: 
+                                {
+                                display: true,
+                                text: 'BCS'
+                                },
+                                min: 1,
+                                max: 9,
+                                ticks: {
+                                stepSize: 1 
+                                },
+                                grid: {
+                                drawOnChartArea: false
+            }
+        }
+                                }
+                            }
+                        });
+                    });
+
+                // === 2. Calorías recomendadas ===
+                fetch(`/Salud/CalcularCalorias?idMascota=${idMascota}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('caloriasValor').textContent = data.calorias;
+                    });
+    </script>
+}

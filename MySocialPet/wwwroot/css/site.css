@@ -29,10 +29,12 @@ html, body, * {
 ------------------------------------------------------------ */
 /* ------------------ HOVER EFECTO TEST ------------------ */
 /* Añade borde punteado gris y fondo gris claro al hacer hover */
+/*
 .test:hover {
-    background-color: rgba(97, 97, 97, 0.1); /* Gris claro transparente */
+    background-color: rgba(97, 97, 97, 0.1); /* Gris claro transparente 
     cursor: pointer;
 }
+*/
 
 .btn-verde:hover {
     border: 2px dashed rgba(97, 97, 97, 1); /* Gris oscuro */

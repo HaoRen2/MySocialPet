@@ -8,7 +8,7 @@ namespace MySocialPet.Models.Salud
     public class ListaVacuna
     {
         [Key]
-        public int IdPlanVacunacion { get; set; }
+        public int IdListaVacuna { get; set; }
 
         public int IdEspecie { get; set; }
         [ForeignKey("IdEspecie")]
@@ -18,10 +18,12 @@ namespace MySocialPet.Models.Salud
         [ForeignKey("IdTipoVacuna")]
         public virtual TipoVacuna TipoVacuna { get; set; }
 
-        public int? EdadRecomendadaSemanas { get; set; }
+        public string EdadRecomendada { get; set; }
         public bool EsRefuerzo { get; set; }
 
-        [StringLength(500)]
         public string Descripcion { get; set; }
+        public string Notas { get; set; }
+        public bool Esencial { get; set; }
+
     }
 }
