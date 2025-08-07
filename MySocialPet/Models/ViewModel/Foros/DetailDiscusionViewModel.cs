@@ -4,7 +4,7 @@ namespace MySocialPet.Models.ViewModel.Foros
 {
     public class DetailDiscusionViewModel
     {
-        public Foro Foro { get; set; } = new Foro();
-        public Discusion? DetailDiscusion { get; set; } = new Discusion();
+        public int IdForo { get; set; } 
+        public Discusion? Discusion { get; set; } = new Discusion();
     }
 }

@@ -24,10 +24,11 @@ namespace MySocialPet.Controllers
             return View(vm);
         }
 
-        [HttpGet]
-        public IActionResult Details(int id)
+        [HttpPost]
+        public IActionResult Hilos(int id)
         {
             ListaDiscusionesViewModel vm = new ListaDiscusionesViewModel();
+
             Foro? foro = _foroDAL.GetForoById(id);
             List<Discusion> discusiones = _foroDAL.GetDiscusionesPorForo(id);
 
@@ -38,14 +39,28 @@ namespace MySocialPet.Controllers
             }
 
             vm.Foro = foro;
-            vm.DetailDiscusion = discusiones;
-
-            if (vm.DetailDiscusion != null)
-            {
-                ViewBag.Error = "Foro no encontrado.";
-            }
+            vm.Discusions = discusiones;
 
             return View(vm);
+        }
+
+        [HttpPost]
+        public IActionResult HiloDetails(int foroId, int discId)
+        {
+            DetailDiscusionViewModel vm = new DetailDiscusionViewModel();
+
+            vm.IdForo = foroId;
+
+            if (_foroDAL.GetForoById(foroId) != null)
+            {
+                TempData["Hilo"] = JsonConvert.SerializeObject(vm);
+            }
+            else
+            {
+                ViewBag.NoAnimal = "No se ha encontrado ningún hilo con esa identificación.";
+            }
+
+            return RedirectToAction("Index", "Hilo");
         }
     }
 }

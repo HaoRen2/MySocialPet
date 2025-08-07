@@ -5,7 +5,8 @@
     --primary: #4a5c4f;
     --green: #54785e;
     --ultralight-green: #dce5dc;
-    --light-green: #9BB29D
+    --light-green: #9BB29D;
+    --bg-foro: rgb(245, 245, 245);
 }
 
 html, body, * {
@@ -71,6 +72,15 @@ html, body, * {
 }
 .bg-ultralightgreen {
     background-color: #dce5dc;
+}
+.bg-foro {
+    background-color: var(--bg-foro);
+}
+.bg-white {
+    background-color: white;
+}
+.bg-verde {
+    background-color: var(--primary)
 }
 .text-primary {
     color: #4a5c4f !important;
@@ -205,6 +215,48 @@ html, body, * {
             height: 3px;
             background-color: #7A927E;
         }
+
+/* ------------------------------------------------------------
+   BORDER RADIUS
+------------------------------------------------------------ */
+
+.rounded-5{
+    border-radius: .5rem;
+}
+
+.rounded-10 {
+    border-radius: 1rem;
+}
+
+.rounded-15 {
+    border-radius: 1.5rem;
+}
+
+
+
+
+/* ------------------------------------------------------------
+   FORO STYLE
+------------------------------------------------------------ */
+.card-hilo {
+    padding: 1.5rem 1rem;
+}
+
+    .card-hilo:not(:last-child) {
+        border-bottom: 1px solid #dee2e6;
+    }
+
+.circulo-rojo {
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 50%;
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
 
 
 .pet-card {
