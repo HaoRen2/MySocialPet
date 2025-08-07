@@ -12,8 +12,12 @@ builder.Services.AddDbContext<AppDbContexto>(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Autentication/Login";
-        options.LogoutPath = "/Autentication/Logout";
+        options.LoginPath = "/Login";
+        options.LogoutPath = "/Login/Logout";
+       // options.Cookie.HttpOnly = true;
+       // options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.ExpireTimeSpan = TimeSpan.FromDays(30);
+
     });
 
 

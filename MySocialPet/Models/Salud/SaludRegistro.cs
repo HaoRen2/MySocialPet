@@ -21,8 +21,6 @@ namespace MySocialPet.Models.Salud
         [Column(TypeName = "decimal(5, 2)")]
         public decimal LongitudCm { get; set; }
 
-        public string Notas { get; set; }
-
         public int IdMascota { get; set; }
         [ForeignKey("IdMascota")]
         public virtual Mascota Mascota { get; set; }

@@ -1,5 +1,6 @@
 ﻿using MySocialPet.Models.Autenticacion;
 using MySocialPet.Models.Mascotas;
+using MySocialPet.Models.Salud;
 
 namespace MySocialPet.Models.ViewModel
 {
@@ -9,5 +10,6 @@ namespace MySocialPet.Models.ViewModel
 
         public string Descripcion { get; set; }
         public List<Nota>? Notas { get; set; }
+        public Evento Evento { get; set; }
     }
 }

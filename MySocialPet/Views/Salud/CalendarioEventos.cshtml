@@ -5,8 +5,10 @@
     @Html.AntiForgeryToken()
     ViewData["Title"] = "Calendario de " + Model.NombreMascota;
 }
-<div class="container">
-    <h2>@ViewData["Title"]</h2>
+<div class="welcome-section container test">
+    <div class="container my-5 text-lg-start text-center test">
+            <h2 class="fw-bold display-6">@ViewData["Title"]</h2>
+    </div>
 
 <div id="calendar"></div>
 <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100">
@@ -60,13 +62,12 @@
 </div>
 </div>
 
-
 @section Scripts {
 
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js"></script>
-    <script src="@("https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.18/locales/es.global.min.js")"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js"></script>
+ <script src="@("https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.18/locales/es.global.min.js")"></script>
 
-     <script>
+<script>
     const eventos = @Html.Raw(JsonSerializer.Serialize(Model.Eventos.Select(e => new {
         id = e.IdEvento,
         title = e.Titulo,
@@ -109,14 +110,61 @@
                 const id = arg.event.id;
 
                 const containerEl = document.createElement('div');
-                containerEl.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong>${time}</strong>
-                        <button class="btn btn-sm btn-danger btn-delete-event" data-id="${id}" style="padding: 0 5px;">&times;</button>
-                    </div>
-                    <div>${title}</div>
-                    <div style="font-size: 0.8em; color: #666;">${description}</div>
-                `;
+
+                const timeEl = document.createElement('span');
+                timeEl.className = 'fw-bold';
+                timeEl.textContent = time;
+
+                const deleteBtn = document.createElement('a');
+                deleteBtn.href = '#';
+                deleteBtn.className = 'btn-delete-event text-danger ms-2 position-absolute end-0 top-0';
+                deleteBtn.title = 'Eliminar evento';
+                deleteBtn.innerHTML = '&times;';
+                deleteBtn.setAttribute('data-id', id);
+
+                // ← Prevenir propagación del clic al contenedor
+                deleteBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    if (confirm("¿Estás seguro de que deseas eliminar este evento?")) {
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                        fetch(`/Salud/DeleteEvento/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': token
+                            }
+                        })
+                            .then(res => {
+                                if (res.ok) {
+                                    arg.event.remove();
+                                    showToast("Evento eliminado exitosamente");
+                                } else {
+                                    console.error('Error al eliminar:', res);
+                                    alert("Error al eliminar el evento. Revisa la consola para más detalles.");
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error en fetch:', error);
+                                alert("Ocurrió un error de red al intentar eliminar el evento.");
+                            });
+                    }
+                });
+
+                const titleEl = document.createElement('div');
+                titleEl.className = 'fw-medium';
+                titleEl.textContent = title;
+
+                const descEl = document.createElement('div');
+                descEl.className = 'text-muted small';
+                descEl.textContent = description;
+
+                containerEl.appendChild(timeEl);
+                containerEl.appendChild(deleteBtn);
+                containerEl.appendChild(titleEl);
+                containerEl.appendChild(descEl);
+
                 return { domNodes: [containerEl] };
             },
             eventClick: function (info) {
@@ -139,41 +187,6 @@
         });
 
         calendar.render();
-
-        document.getElementById('calendar').addEventListener('click', function (e) {
-    if (e.target.classList.contains('btn-delete-event')) {
-        e.stopPropagation(); 
-
-        const eventoId = e.target.getAttribute('data-id');
-
-        if (confirm("¿Estás seguro de que deseas eliminar este evento?")) {
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-
-            fetch(`/Salud/DeleteEvento/${eventoId}`, { 
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': token 
-                }
-            })
-            .then(res => {
-                if (res.ok) {
-                    const eventToRemove = calendar.getEventById(eventoId);
-                    if (eventToRemove) {
-                        eventToRemove.remove();
-                    }
-                    showToast("Evento eliminado exitosamente");
-                } else { 
-                    console.error('Error al eliminar:', res);
-                    alert("Error al eliminar el evento. Revisa la consola para más detalles.");
-                }
-            })
-            .catch(error => {
-                console.error('Error en fetch:', error);
-                alert("Ocurrió un error de red al intentar eliminar el evento.");
-            });
-        }
-    }
-});
 
         function showToast(message, title = "Notificación") {
             document.getElementById('toastTitle').textContent = title;

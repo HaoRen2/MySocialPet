@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MySocialPet.DAL;
@@ -10,10 +11,10 @@ using System.Security.Claims;
 
 namespace MySocialPet.Controllers
 {
+    [Authorize]
     public class MascotaController : Controller
     {
         private readonly MascotaDAL _mascotaDAL;
-
 
         public MascotaController(MascotaDAL mascotaDAL)
         {
@@ -58,10 +59,16 @@ namespace MySocialPet.Controllers
             var viewModel = new DetailMascotaViewModel
             {
                 DetailMascota = mascota,
-                Notas = mascota.Notas.OrderByDescending(n => n.IdNota).ToList()
+                Notas = mascota.Notas.OrderByDescending(n => n.IdNota).ToList(),
+                Evento = mascota.Eventos.Where(e => e.FechaHora > DateTime.Now).
+                OrderBy(e => (e.FechaHora - DateTime.Now).TotalSeconds).FirstOrDefault()
             };
 
-            return View(viewModel);
+            if (mascota.IdUsuario.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)?.Value)
+                return View(viewModel);
+            else
+                return RedirectToAction("ListaMascota");
+
         }
 
         [HttpPost]
@@ -132,7 +139,6 @@ namespace MySocialPet.Controllers
             }
             catch (Exception ex)
             {
-                // Puedes redirigir con un mensaje de error o registrar el problema
                 TempData["Error"] = "Error al eliminar la mascota: " + ex.Message;
                 return RedirectToAction("ListaMascota");
             }
@@ -296,58 +302,47 @@ namespace MySocialPet.Controllers
 
             string especie = raza.Especie.Nombre.ToLower();
             string tamano = raza.Tamanyo.ToLower();
-            double ratioIdeal;
 
+            // Calcular ratio tipo IMC: peso en kg / (longitud en metros)^2
+            double longitudMetros = longitudCm / 100.0;
+            double ratioActual = pesoKg / Math.Pow(longitudMetros, 2);
+
+            // Valores de IMC aproximados para ideal según especie/tamaño
+            double ratioIdeal;
             if (especie == "perro")
             {
-                if (tamano.Contains("pequeño") || tamano.Contains("toy")) ratioIdeal = 0.15;
-                else if (tamano.Contains("grande")) ratioIdeal = 0.55;
-                else if (tamano.Contains("gigante")) ratioIdeal = 0.80;
-                else ratioIdeal = 0.35; // Mediano
+                if (tamano.Contains("toy") || tamano.Contains("pequeño")) ratioIdeal = 28;
+                else if (tamano.Contains("mediano")) ratioIdeal = 30;
+                else if (tamano.Contains("grande")) ratioIdeal = 32;
+                else if (tamano.Contains("gigante")) ratioIdeal = 34;
+                else ratioIdeal = 30;
             }
             else if (especie == "gato")
             {
-                if (tamano.Contains("grande") || tamano.Contains("gigante")) ratioIdeal = 0.16;
-                else ratioIdeal = 0.11; // Mediano o Común
+                ratioIdeal = 30; // Gatos adultos estándar
             }
             else
             {
                 return Json(new { bcsValor = 0, bcsTexto = "No aplicable" });
             }
 
-            double ratioActual = pesoKg / longitudCm;
+            // Calcular desviación en porcentaje
+            double desviacion = (ratioActual - ratioIdeal) / ratioIdeal * 100;
 
-            // CALCULAMOS VALOR Y TEXTO POR SEPARADO
+            // Escala BCS estándar (1 a 9)
             int bcsValor;
             string bcsTexto;
 
-            if (ratioActual < ratioIdeal * 0.85)
-            {
-                bcsValor = 1;
-                bcsTexto = "1 - Muy Delgado";
-            }
-            else if (ratioActual < ratioIdeal * 0.95)
-            {
-                bcsValor = 2;
-                bcsTexto = "2 - Delgado";
-            }
-            else if (ratioActual <= ratioIdeal * 1.15)
-            {
-                bcsValor = 3;
-                bcsTexto = "3 - Ideal";
-            }
-            else if (ratioActual <= ratioIdeal * 1.30)
-            {
-                bcsValor = 4;
-                bcsTexto = "4 - Sobrepeso";
-            }
-            else
-            {
-                bcsValor = 5;
-                bcsTexto = "5 - Obeso";
-            }
+            if (desviacion <= -40) { bcsValor = 1; bcsTexto = "1 - Emaciado"; }
+            else if (desviacion <= -30) { bcsValor = 2; bcsTexto = "2 - Muy Delgado"; }
+            else if (desviacion <= -20) { bcsValor = 3; bcsTexto = "3 - Delgado"; }
+            else if (desviacion <= -10) { bcsValor = 4; bcsTexto = "4 - Ligeramente Delgado"; }
+            else if (desviacion <= 10) { bcsValor = 5; bcsTexto = "5 - Ideal"; }
+            else if (desviacion <= 20) { bcsValor = 6; bcsTexto = "6 - Ligeramente Sobrepeso"; }
+            else if (desviacion <= 30) { bcsValor = 7; bcsTexto = "7 - Sobrepeso"; }
+            else if (desviacion <= 40) { bcsValor = 8; bcsTexto = "8 - Obeso"; }
+            else { bcsValor = 9; bcsTexto = "9 - Obesidad Severa"; }
 
-            // Devolvemos un objeto con ambas propiedades
             return Json(new { bcsValor, bcsTexto });
         }
 

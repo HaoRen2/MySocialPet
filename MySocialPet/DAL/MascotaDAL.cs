@@ -66,7 +66,7 @@ namespace MySocialPet.DAL
 
         public Mascota GetMascotaById(int id)
         {
-            return _context.Mascotas.Include(m => m.Raza).Include(m => m.Notas)
+            return _context.Mascotas.Include(m => m.Raza).Include(m => m.Notas).Include(m => m.Eventos)
                 .FirstOrDefault(m => m.IdMascota == id);
         }
 
