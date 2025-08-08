@@ -15,7 +15,6 @@ namespace MySocialPet.Controllers
     public class MascotaController : Controller
     {
         private readonly MascotaDAL _mascotaDAL;
-
         public MascotaController(MascotaDAL mascotaDAL)
         {
             _mascotaDAL = mascotaDAL;
@@ -173,7 +172,6 @@ namespace MySocialPet.Controllers
                     nombre = raza.Categoria?.NombreCategoria
                 }
             };
-
             return Json(resultado);
         }
 
@@ -345,6 +343,5 @@ namespace MySocialPet.Controllers
 
             return Json(new { bcsValor, bcsTexto });
         }
-
     }
 }
