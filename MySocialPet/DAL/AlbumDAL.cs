@@ -22,6 +22,12 @@ namespace MySocialPet.DAL
                 .Include(a => a.Fotos)
                 .ToList();
         }
+        public Album GetAlbumPorId(int idAlbum)
+        {
+            return _context.Albumes
+                .Include(a => a.Fotos)
+                .FirstOrDefault(a => a.IdAlbum == idAlbum);
+        }
         public byte[] GetFotoRecinete(string IdAlbum)
         {
             int id = int.Parse(IdAlbum);
@@ -37,6 +43,28 @@ namespace MySocialPet.DAL
             // Retorna un arreglo vacío si no hay fotos recientes
             return Array.Empty<byte>(); 
 
+        }
+
+        public List<SelectListItem> GetListaNombreMascotasPorUsuario(int userId)
+        {
+            return _context.Mascotas
+                .Where(m => m.IdUsuario == userId)
+                .Select(m => new SelectListItem
+                {
+                    Value = m.IdMascota.ToString(),
+                    Text = m.Nombre.ToString()
+                }).ToList();
+        }
+
+        internal async Task InsertAlbum(CrearAlbumViewModel model)
+        {
+            var album = new Album
+            {
+                NombreAlbum = model.NombreAlbum,
+                IdUsuario = model.IdUsuario,
+            };
+            _context.Albumes.Add(album);
+            await _context.SaveChangesAsync();
         }
     }
 }
