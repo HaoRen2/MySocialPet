@@ -1,6 +1,6 @@
 ﻿@model MySocialPet.Models.ViewModel.Albums.DetailAlbumViewModel
 @{
-    var mascotasUsuario = ViewBag.MascotasUsuario as List<MySocialPet.Models.Mascotas.Mascota>;
+    var mascotasUsuario = ViewBag.MascotasUsuario;
 
     ViewData["Title"] = "Detalles Álbum";
 }
@@ -70,17 +70,22 @@
                         <label class="form-label">Fecha</label>
                         <input type="date" name="Fecha" class="form-control" required />
                     </div>
-                    @if (mascotasUsuario != null && mascotasUsuario.Any())
+                    @if (mascotasUsuario != null)
                     {
                         <div class="mb-3">
                             <label class="form-label">Mascotas Etiquetadas</label>
-                            <select class="form-select" name="MascotasEtiquetadasIds" multiple>
+                            <div>
                                 @foreach (var mascota in mascotasUsuario)
                                 {
-                                    <option value="@mascota.IdMascota">@mascota.Nombre</option>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox"
+                                               name="MascotasEtiquetadasIds"
+                                               value="@mascota.Value"
+                                               id="mascota_@mascota.Value" />
+                                        <label class="form-check-label" for="mascota_@mascota.Value">@mascota.Text</label>
+                                    </div>
                                 }
-                            </select>
-                            <small class="text-muted">Mantén Ctrl (Windows) o Cmd (Mac) para seleccionar múltiples.</small>
+                            </div>
                         </div>
                     }
                 </div>

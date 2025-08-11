@@ -67,7 +67,6 @@ namespace MySocialPet.DAL
 
         public FotoAlbum GetFotoPorId(int idFoto)
         {
-
             return _context.FotoAlbumes
                 .Include(f => f.MascotasEtiquetadas)
                     .ThenInclude(fe => fe.Mascota)
