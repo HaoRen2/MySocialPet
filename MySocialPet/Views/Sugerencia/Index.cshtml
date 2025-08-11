@@ -1,0 +1,91 @@
+﻿@model MySocialPet.Models.ViewModel.Sugerencias.SugerenciaViewModel
+
+<div class="container pt-nav">
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4><i class="bi bi-filter"></i> Filtrar Sugerencias</h4>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label asp-for="IdEspecie" class="form-label">Especie</label>
+                    <select asp-for="IdEspecie" asp-items="Model.EspeciesSelectList" class="form-select">
+                        <option value="">-- Todas --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="IdCategoria" class="form-label">Categoría</label>
+                    <select asp-for="IdCategoria" asp-items="Model.CategoriasSelectList" class="form-select">
+                        <option value="">-- Todas --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="IdRaza" class="form-label">Raza</label>
+                    <select asp-for="IdRaza" asp-items="Model.RazasSelectList" class="form-select">
+                        <option value="">-- Todas --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h3>Resultados</h3>
+    <hr />
+
+    <div class="row">
+        @if (Model.Sugerencias != null && Model.Sugerencias.Any())
+        {
+            @foreach (var sug in Model.Sugerencias)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="d-flex flex-column">
+                            <h5 class="card-title">@sug.Titulo</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">@sug.Tema</h6>
+                            
+                            <p class="card-text flex-grow-1">@sug.Descripcion</p>
+
+                            <div class="mt-auto pt-2">
+                                @if (sug.CategoriaSugerencias.Any())
+                                {
+                                    <div>
+                                        @foreach (var cs in sug.CategoriaSugerencias)
+                                        {
+                                            <span class="badge bg-success">@cs.Categoria.NombreCategoria</span>
+                                        }
+                                    </div>
+                                }
+                                @if (sug.EspeciesSugerencia.Any() || sug.RazasSugerencia.Any())
+                                {
+                                    <div class="mt-2">
+                                        @foreach (var es in sug.EspeciesSugerencia)
+                                        {
+                                            <span class="badge bg-info text-dark">@es.Especie.Nombre</span>
+                                        }
+                                        @foreach (var rs in sug.RazasSugerencia)
+                                        {
+                                            <span class="badge bg-secondary">@rs.Raza.NombreRaza</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+            }
+        }
+        else
+        {
+            <div class="alert alert-info text-center">
+                <p class="mb-0">No se encontraron sugerencias con los filtros seleccionados.</p>
+            </div>
+        }
+    </div>
+</div>

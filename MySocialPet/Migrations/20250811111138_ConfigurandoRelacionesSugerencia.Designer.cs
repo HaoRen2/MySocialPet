@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MySocialPet.Migrations
 {
     [DbContext(typeof(AppDbContexto))]
-    partial class AppDbContextoModelSnapshot : ModelSnapshot
+    [Migration("20250811111138_ConfigurandoRelacionesSugerencia")]
+    partial class ConfigurandoRelacionesSugerencia
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,7 +97,6 @@ namespace MySocialPet.Migrations
 
                     b.HasKey("IdFoto", "IdMascota");
 
-                    b.HasIndex("IdMascota");
                     b.HasIndex("FotoAlbumIdFoto");
 
                     b.HasIndex("MascotaIdMascota");
@@ -514,24 +516,18 @@ namespace MySocialPet.Migrations
             modelBuilder.Entity("MySocialPet.Models.Salud.ListaVacuna", b =>
                 {
                     b.Property<int>("IdListaVacuna")
-                    b.Property<int>("IdPlanVacunacion")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdListaVacuna"));
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPlanVacunacion"));
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("EdadRecomendada")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-                    b.Property<int?>("EdadRecomendadaSemanas")
-                        .HasColumnType("int");
 
                     b.Property<bool>("EsRefuerzo")
                         .HasColumnType("bit");
@@ -548,7 +544,6 @@ namespace MySocialPet.Migrations
                     b.Property<string>("Notas")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-                    b.HasKey("IdPlanVacunacion");
 
                     b.HasKey("IdListaVacuna");
 
@@ -579,10 +574,6 @@ namespace MySocialPet.Migrations
                     b.Property<decimal>("LongitudCm")
                         .HasColumnType("decimal(5, 2)");
 
-                    b.Property<string>("Notas")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal?>("PesoKg")
                         .HasColumnType("decimal(5, 2)");
 
@@ -604,8 +595,6 @@ namespace MySocialPet.Migrations
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("IdTipoVacuna");
 
@@ -646,21 +635,11 @@ namespace MySocialPet.Migrations
                     b.Property<int>("IdSugerencia")
                         .HasColumnType("int");
 
-                    b.Property<int>("CategoriaIdCategoria")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SugerenciaIdSugerencia")
-                        .HasColumnType("int");
-
                     b.HasKey("IdCategoria", "IdSugerencia");
 
                     b.HasIndex("IdSugerencia");
-                    b.HasIndex("CategoriaIdCategoria");
-
-                    b.HasIndex("SugerenciaIdSugerencia");
 
                     b.ToTable("CategoriaSugerencias");
-                    b.ToTable("CategoriaSugerencia");
                 });
 
             modelBuilder.Entity("MySocialPet.Models.Sugerencias.EspecieSugerencia", b =>
@@ -671,18 +650,9 @@ namespace MySocialPet.Migrations
                     b.Property<int>("IdSugerencia")
                         .HasColumnType("int");
 
-                    b.Property<int>("EspecieIdEspecie")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SugerenciaIdSugerencia")
-                        .HasColumnType("int");
-
                     b.HasKey("IdEspecie", "IdSugerencia");
 
                     b.HasIndex("IdSugerencia");
-                    b.HasIndex("EspecieIdEspecie");
-
-                    b.HasIndex("SugerenciaIdSugerencia");
 
                     b.ToTable("EspecieSugerencia");
                 });
@@ -695,18 +665,9 @@ namespace MySocialPet.Migrations
                     b.Property<int>("IdSugerencia")
                         .HasColumnType("int");
 
-                    b.Property<int>("RazaIdRaza")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SugerenciaIdSugerencia")
-                        .HasColumnType("int");
-
                     b.HasKey("IdRaza", "IdSugerencia");
 
                     b.HasIndex("IdSugerencia");
-                    b.HasIndex("RazaIdRaza");
-
-                    b.HasIndex("SugerenciaIdSugerencia");
 
                     b.ToTable("RazaSugerencia");
                 });
@@ -765,14 +726,12 @@ namespace MySocialPet.Migrations
                     b.HasOne("MySocialPet.Models.Albums.FotoAlbum", "FotoAlbum")
                         .WithMany("MascotasEtiquetadas")
                         .HasForeignKey("FotoAlbumIdFoto")
-                        .HasForeignKey("IdFoto")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MySocialPet.Models.Mascotas.Mascota", "Mascota")
                         .WithMany("FotosEtiquetadas")
                         .HasForeignKey("MascotaIdMascota")
-                        .HasForeignKey("IdMascota")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -975,14 +934,12 @@ namespace MySocialPet.Migrations
                     b.HasOne("MySocialPet.Models.Mascotas.Categoria", "Categoria")
                         .WithMany("CategoriaSugerencias")
                         .HasForeignKey("IdCategoria")
-                        .HasForeignKey("CategoriaIdCategoria")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MySocialPet.Models.Sugerencias.Sugerencia", "Sugerencia")
                         .WithMany("CategoriaSugerencias")
                         .HasForeignKey("IdSugerencia")
-                        .HasForeignKey("SugerenciaIdSugerencia")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -996,14 +953,12 @@ namespace MySocialPet.Migrations
                     b.HasOne("MySocialPet.Models.Mascotas.Especie", "Especie")
                         .WithMany("EspeciesSugerencia")
                         .HasForeignKey("IdEspecie")
-                        .HasForeignKey("EspecieIdEspecie")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MySocialPet.Models.Sugerencias.Sugerencia", "Sugerencia")
                         .WithMany("EspeciesSugerencia")
                         .HasForeignKey("IdSugerencia")
-                        .HasForeignKey("SugerenciaIdSugerencia")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1017,14 +972,12 @@ namespace MySocialPet.Migrations
                     b.HasOne("MySocialPet.Models.Mascotas.Raza", "Raza")
                         .WithMany("RazasSugerencia")
                         .HasForeignKey("IdRaza")
-                        .HasForeignKey("RazaIdRaza")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MySocialPet.Models.Sugerencias.Sugerencia", "Sugerencia")
                         .WithMany("RazasSugerencia")
                         .HasForeignKey("IdSugerencia")
-                        .HasForeignKey("SugerenciaIdSugerencia")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

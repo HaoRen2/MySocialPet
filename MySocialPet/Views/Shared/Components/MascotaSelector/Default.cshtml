@@ -1,0 +1,20 @@
+﻿@model MySocialPet.Models.ViewModel.Mascotas.MascotaSelectorViewModel
+
+<div class="d-flex align-items-center gap-2">
+    <label for="selectMascota" class="form-label mb-0">Cambiar mascota:</label>
+    <select id="selectMascota" class="form-select" asp-for="MascotaIdActual" onchange="onMascotaChange(this)">
+        <option value="">Seleccione una mascota</option>
+        @foreach (var mascota in Model.Mascotas)
+        {
+            <option value="@mascota.IdMascota">@mascota.Nombre</option>
+        }
+    </select>
+</div>
+
+<script>
+    function onMascotaChange(select) {
+        const mascotaId = select.value;
+        const baseUrl = `/${"@Model.Controlador"}/${"@Model.Accion"}/${mascotaId}`;
+        window.location.href = baseUrl;
+    }
+</script>

@@ -24,6 +24,9 @@ public class AppDbContexto : DbContext
     public DbSet<Evento> Eventos { get; set; }
     public DbSet<Sugerencia> Sugerencias { get; set; }
     public DbSet<EspecieSugerencia> EspecieSugerencias { get; set; }
+    public DbSet<CategoriaSugerencia> CategoriaSugerencias { get; set; }
+    public DbSet<Categoria> Categorias { get; set; }
+
     public DbSet<RazaSugerencia> RazaSugerencias { get; set; }
     public DbSet<Album> Albumes { get; set; }
     public DbSet<FotoAlbum> FotoAlbumes { get; set; }
@@ -38,13 +41,47 @@ public class AppDbContexto : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Clave compuesta para la tabla de relación EspecieSugerencia
         modelBuilder.Entity<EspecieSugerencia>()
-            .HasKey(es => new { es.IdEspecie, es.IdSugerencia });
+    .HasKey(es => new { es.IdEspecie, es.IdSugerencia });
 
-        // Clave compuesta para la tabla de relación RazaSugerencia
+        modelBuilder.Entity<EspecieSugerencia>()
+            .HasOne(es => es.Especie) 
+            .WithMany(e => e.EspeciesSugerencia)
+            .HasForeignKey(es => es.IdEspecie); 
+
+        modelBuilder.Entity<EspecieSugerencia>()
+            .HasOne(es => es.Sugerencia) 
+            .WithMany(s => s.EspeciesSugerencia) // ...y una Sugerencia tiene muchas EspeciesSugerencia
+            .HasForeignKey(es => es.IdSugerencia); // La clave foránea en esta tabla es IdSugerencia
+
+
         modelBuilder.Entity<RazaSugerencia>()
             .HasKey(rs => new { rs.IdRaza, rs.IdSugerencia });
+
+        modelBuilder.Entity<RazaSugerencia>()
+            .HasOne(rs => rs.Raza)
+            .WithMany(r => r.RazasSugerencia) // Asumo que en tu clase Raza tienes 'public ICollection<RazaSugerencia> RazasSugerencia { get; set; }'
+            .HasForeignKey(rs => rs.IdRaza);
+
+        modelBuilder.Entity<RazaSugerencia>()
+            .HasOne(rs => rs.Sugerencia)
+            .WithMany(s => s.RazasSugerencia)
+            .HasForeignKey(rs => rs.IdSugerencia);
+
+
+        // --- Configuración para CategoriaSugerencia (mismo patrón) ---
+        modelBuilder.Entity<CategoriaSugerencia>()
+            .HasKey(cs => new { cs.IdCategoria, cs.IdSugerencia });
+
+        modelBuilder.Entity<CategoriaSugerencia>()
+            .HasOne(cs => cs.Categoria)
+            .WithMany(c => c.CategoriaSugerencias) // Asumo que en tu clase Categoria tienes 'public ICollection<CategoriaSugerencia> CategoriaSugerencias { get; set; }'
+            .HasForeignKey(cs => cs.IdCategoria);
+
+        modelBuilder.Entity<CategoriaSugerencia>()
+            .HasOne(cs => cs.Sugerencia)
+            .WithMany(s => s.CategoriaSugerencias)
+            .HasForeignKey(cs => cs.IdSugerencia);
 
         // Clave compuesta para la tabla de relación FotoEtiquetaMascota
         modelBuilder.Entity<FotoEtiquetaMascota>()

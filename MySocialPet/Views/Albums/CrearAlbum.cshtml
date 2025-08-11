@@ -12,23 +12,23 @@
             <h4 class="mb-0">@ViewData["Title"]</h4>
         </div>
         <div class="card-body p-4">
-            <form asp-action="CrearAlbum" asp-controller="Albums" method="post" enctype="multipart/form-data">
-                <div class="mb-3">
+    <form asp-action="CrearAlbum" asp-controller="Albums" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
                     <label for="nombreAlbum" class="form-label fw-bold">Nombre del Álbum</label>
                     <input type="text" class="form-control form-control-lg" id="nombreAlbum" name="nombreAlbum" required placeholder="Ej: Vacaciones con mi perro">
                     <div class="invalid-feedback">Por favor, ingresa un nombre para el álbum.</div>
-                </div>
+        </div>
 
                 <!-- Uncomment if you want to add photo upload here, but as per your code, it's not active -->
-                @* <div class="mb-3">
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalInsertarFoto">
-                        Insertar Foto
-                    </button>
+       @* <div class="mb-3">
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalInsertarFoto">
+                Insertar Foto
+            </button>
                 </div> *@
 
                 <button type="submit" class="btn btn-primary btn-lg w-100">Crear Álbum</button>
-            </form>
-        </div>
+    </form>
+</div>
     </div>
 </div>
 

@@ -92,7 +92,7 @@ namespace MySocialPet.DAL
             if (album == null)
             {
                 throw new Exception("El álbum no existe.");
-            }
+    }
 
             // 1️⃣ Eliminar etiquetas de cada foto
             foreach (var foto in album.Fotos)
@@ -113,7 +113,7 @@ namespace MySocialPet.DAL
             _context.Albumes.Remove(album);
 
             await _context.SaveChangesAsync();
-        }
+}
 
         public FotoAlbum GetFotoPorId(int idFoto)
         {

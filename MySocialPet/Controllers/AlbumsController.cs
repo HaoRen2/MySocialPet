@@ -42,7 +42,7 @@ namespace MySocialPet.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 model.IdUsuario = int.Parse(userId);
-
+                
                 // Guardar el álbum y obtener su Id
                 var nuevoAlbumId = await _albumDAL.InsertAlbum(model);
 
@@ -72,7 +72,7 @@ namespace MySocialPet.Controllers
 
         [HttpGet]
         public IActionResult EditarFoto(int idFoto)
-        {
+         {
             var foto = _albumDAL.GetFotoPorId(idFoto);
 
             if (foto == null)
@@ -91,12 +91,12 @@ namespace MySocialPet.Controllers
             //ViewBag.ImagenActual = foto.Foto; // para mostrar en la vista
 
             return View(model);
-        }
+         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+         [HttpPost]
+         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarFoto(EditarFotoViewModel model, IFormFile? nuevaFoto)
-        {
+         {
             if (!ModelState.IsValid)
             {
                 // volvemos a pasar la foto actual por ViewBag para que se muestre otra vez
@@ -150,21 +150,21 @@ namespace MySocialPet.Controllers
         }
         [HttpGet]
         public IActionResult EditarAlbum(int idAlbum)
-        {
+             {
             var album = _albumDAL.GetAlbumPorId(idAlbum);
             if (album == null)
-            {
+                 {
                 return NotFound(); // Retorna un error 404 si el álbum no se encuentra
             }
 
             var model = new EditarAlbumViewModel
-            {
+                     {
                 IdAlbum = album.IdAlbum,
                 NombreAlbum = album.NombreAlbum
             };
 
             return View(model);
-        }
+                     }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -173,14 +173,14 @@ namespace MySocialPet.Controllers
             if (!ModelState.IsValid)
             {
                 return View(model); // Vuelve a mostrar la vista si la validación falla
-            }
+                 }
 
             try
             {
                 await _albumDAL.UpdateAlbumName(model.IdAlbum, model.NombreAlbum);
                 TempData["Success"] = "Álbum actualizado correctamente.";
-                return RedirectToAction("ListAlbum");
-            }
+                 return RedirectToAction("ListAlbum");
+             }
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, "Error al actualizar el álbum: " + ex.Message);
@@ -205,14 +205,14 @@ namespace MySocialPet.Controllers
         public async Task<IActionResult> DeleteAlbum(int idAlbum)
         {
             try
-            {
+             {
                 // ✅ Llamamos al DAL para que elimine el álbum y sus fotos asociadas
                 await _albumDAL.DeleteAlbum(idAlbum);
 
                 TempData["Success"] = "Álbum eliminado correctamente junto con sus fotos.";
             }
             catch (Exception ex)
-            {
+                 {
                 // Registrar el error (log recomendado)
                 TempData["Error"] = "Error al eliminar el álbum: " + ex.Message;
             }
@@ -237,9 +237,9 @@ namespace MySocialPet.Controllers
             }
 
             return RedirectToAction("ListAlbum");
-        }
-
-
-
     }
+    
+
+
+}
 }

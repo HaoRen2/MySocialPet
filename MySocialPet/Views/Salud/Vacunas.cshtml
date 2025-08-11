@@ -21,6 +21,11 @@
             Registro Vacunas
         </a>
     </div>
+    @await Component.InvokeAsync("MascotaSelector", new {
+    mascotaIdActual = Model.IdMascota,
+        controlador = "Salud",
+        accion = "Vacunas"
+        })
     <h2 class="mb-4">
         📋 Plan de Vacunación para
         <strong>@Model.NombreMascota</strong> (@Model.NombreEspecie)
