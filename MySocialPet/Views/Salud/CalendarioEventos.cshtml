@@ -6,6 +6,11 @@
     ViewData["Title"] = "Calendario de " + Model.NombreMascota;
 }
 <div class="welcome-section container test">
+        @await Component.InvokeAsync("MascotaSelector", new {
+    mascotaIdActual = Model.IdMascota,
+        controlador = "Salud", 
+        accion = "CalendarioEventos" 
+        })
     <div class="container my-5 text-lg-start text-center test">
             <h2 class="fw-bold display-6">@ViewData["Title"]</h2>
     </div>
@@ -121,7 +126,7 @@
                 deleteBtn.innerHTML = '&times;';
                 deleteBtn.setAttribute('data-id', id);
 
-                // ← Prevenir propagación del clic al contenedor
+                // Prevenir propagación del clic al contenedor
                 deleteBtn.addEventListener('click', function (e) {
                     e.stopPropagation();
                     e.preventDefault();

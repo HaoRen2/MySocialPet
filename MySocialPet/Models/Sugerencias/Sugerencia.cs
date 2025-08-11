@@ -10,6 +10,7 @@ namespace MySocialPet.Models.Sugerencias
         {
             EspeciesSugerencia = new HashSet<EspecieSugerencia>();
             RazasSugerencia = new HashSet<RazaSugerencia>();
+            CategoriaSugerencias = new HashSet<CategoriaSugerencia>();
         }
 
         [Key]

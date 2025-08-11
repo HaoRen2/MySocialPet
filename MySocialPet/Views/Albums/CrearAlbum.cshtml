@@ -1,0 +1,71 @@
+﻿@model MySocialPet.Models.ViewModel.Albums.CrearAlbumViewModel
+
+@{
+    ViewData["Title"] = "Crear Álbum";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+    <form asp-action="CrearAlbum" asp-controller="Albums" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="nombreAlbum" class="form-label">Nombre del Álbum</label>
+            <input type="text" class="form-control" id="nombreAlbum" name="nombreAlbum" required>
+        </div>
+
+       @* <div class="mb-3">
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalInsertarFoto">
+                Insertar Foto
+            </button>
+        </div>*@
+
+        <button type="submit" class="btn btn-primary" >Crear Álbum</button>
+    </form>
+</div>
+
+<!-- Modal: Insertar Foto -->
+<div class="modal fade" id="modalInsertarFoto" tabindex="-1" aria-labelledby="modalInsertarFotoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="InsertarFoto" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInsertarFotoLabel">Insertar Foto al Álbum</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" name="Titulo" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Foto</label>
+                        <input type="file" name="Foto" class="form-control" accept="image/*" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="Descripcion" class="form-control"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="Fecha" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mascotas Etiquetadas</label>
+                        <select class="form-select" name="MascotasEtiquetadasIds" multiple>
+                            @*
+                            foreach (var mascota in Model.Mascotas)
+                            {
+                                <option value="@mascota.IdMascota">@mascota.Nombre</option>
+                            }
+                            *@
+                        </select>
+                        <small class="text-muted">Mantén Ctrl (Windows) o Cmd (Mac) para seleccionar múltiples.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Guardar Foto</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

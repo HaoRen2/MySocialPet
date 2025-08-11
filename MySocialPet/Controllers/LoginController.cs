@@ -207,7 +207,7 @@ namespace MySocialPet.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, usuario.Username),
-                new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString())
+                new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
             };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

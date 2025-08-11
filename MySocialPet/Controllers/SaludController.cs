@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MySocialPet.DAL;
@@ -8,16 +9,19 @@ using MySocialPet.Models.ViewModel.Salud;
 
 namespace MySocialPet.Controllers
 {
+    [Authorize]
     public class SaludController : Controller
     {
 
         private readonly AppDbContexto _context;
+        private readonly SaludDAL _saludDAL;
         private readonly MascotaDAL _mascotaDAL;
 
 
-        public SaludController(AppDbContexto context, MascotaDAL mascotaDAL)
+        public SaludController(AppDbContexto context, SaludDAL saludDAL, MascotaDAL mascotaDAL)
         {
             _context = context;
+            _saludDAL = saludDAL;
             _mascotaDAL = mascotaDAL;
         }
 
@@ -68,11 +72,7 @@ namespace MySocialPet.Controllers
         [HttpGet]
         public async Task<IActionResult> CalendarioEventos(int id)
         {
-            var mascota = await _context.Mascotas
-                    .Include(m => m.Eventos)
-                    .Include(m => m.Raza)
-                        .ThenInclude(r => r.Especie)
-                    .FirstOrDefaultAsync(m => m.IdMascota == id);
+            var mascota = _saludDAL.GetEventosMascota(id);
 
             if (mascota == null)
                 return NotFound();
@@ -110,8 +110,7 @@ namespace MySocialPet.Controllers
                     IdMascota = model.IdMascota
                 };
 
-                _context.Eventos.Add(nuevoEvento);
-                await _context.SaveChangesAsync();
+               _saludDAL.InsertMascota(nuevoEvento);
 
                 return RedirectToAction("CalendarioEventos", new { id = model.IdMascota });
             }
