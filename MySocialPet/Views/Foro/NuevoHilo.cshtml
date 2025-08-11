@@ -1,0 +1,31 @@
+﻿@model MySocialPet.Models.ViewModel.Foros.NuevoHiloViewModel
+@{
+    ViewData["Title"] = "Nuevo hilo";
+}
+
+<div class="bg-foro pb-5">
+    <div class="container">
+        <div style="height: 15vh;"></div>
+        <div class="row">
+            <h2 class="mb-2 fw-bold fs-3">Nueva Discusión</h2>
+
+            <form asp-action="NuevoHilo" asp-controller="Foro" method="post">
+                <input type="hidden" asp-for="IdForo" />
+
+                <div class="form-group">
+                    <label asp-for="Titulo"></label>
+                    <input asp-for="Titulo" class="form-control" />
+                    <span asp-validation-for="Titulo" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-2">
+                    <label asp-for="Descripcion"></label>
+                    <textarea asp-for="Descripcion" class="form-control"></textarea>
+                    <span asp-validation-for="Descripcion" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Crear</button>
+            </form>
+        </div>
+    </div>
+</div> 

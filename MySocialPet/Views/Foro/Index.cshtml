@@ -25,10 +25,10 @@
                                         <p>@item.Descripcion</p>
                                     </div>
                                 </div>
-                                <form asp-controller="Foro" asp-action="Hilos" method="post">
-                                    <input type="hidden" value="@item.IdForo" name="id" />
-                                    <button type="submit" class="btn btn-verde border border-verde fs-6 py-1">Ir</button>
-                                </form>
+                                <a asp-controller="Foro" asp-action="Hilos" asp-route-slug="@item.Slug" class="btn btn-verde border border-verde fs-6 py-1">
+                                    Ir
+                                </a>
+
                             </div>
                             <hr />
                         }

@@ -20,6 +20,7 @@ namespace MySocialPet.Models.Foros
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public string? Icono { get; set; }
+        public string Slug { get; set; }
         public int? IdEspecie { get; set; }
 
         [ForeignKey("IdEspecie")]
