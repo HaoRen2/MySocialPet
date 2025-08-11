@@ -1,0 +1,24 @@
+﻿@model MySocialPet.Models.ViewModel.Foros.EnviarMensajeViewModel
+
+<div class="bg-foro pb-5">
+    <div class="container">
+        <div style="height: 15vh;"></div>
+        <div class="row">
+            <h2 class="fs-2 fw-bold text-uppercase m-0">@(Model.IdMensajePadre.HasValue ? "Responder a mensaje" : "Nuevo mensaje")</h2>
+            <form asp-action="EnviarMensaje" method="post">
+                <input type="hidden" asp-for="IdDiscusion" />
+                <input type="hidden" asp-for="IdMensajePadre" />
+
+                <div class="form-group">
+                    <label asp-for="Contenido"></label>
+                    <textarea asp-for="Contenido" class="form-control"></textarea>
+                    <span asp-validation-for="Contenido" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    @(Model.IdMensajePadre.HasValue ? "Responder" : "Enviar")
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

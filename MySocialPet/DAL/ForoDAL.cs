@@ -44,6 +44,14 @@ namespace MySocialPet.DAL
                 .ToList();
         }
 
+        public Discusion? GetDiscusionById(int id)
+        {
+            return _context.Discusiones
+                .Include(d => d.Mensajes)
+                .Include(d => d.UsuarioCreador)
+                .FirstOrDefault(x => x.IdDiscusion == id);
+        }
+
         public List<SelectListItem> GetForosPorEspecieSelectList(int idEspecie)
         {
             return _context.Foros
@@ -55,5 +63,25 @@ namespace MySocialPet.DAL
                 })
                 .ToList();
         }
+
+        public Foro? GetForoBySlug(string slug)
+        {
+            return _context.Foros
+                .Include(f => f.Discusiones)
+                    .ThenInclude(d => d.Mensajes)
+                .FirstOrDefault(f => f.Slug.ToLower() == slug.ToLower());
+        }
+
+        public void CrearHilo(Discusion discusion)
+        {
+            _context.Discusiones.Add(discusion);
+            _context.SaveChanges();
+        }
+        public async Task CrearMensaje(Mensaje mensaje)
+        {
+            _context.Mensajes.Add(mensaje);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }
