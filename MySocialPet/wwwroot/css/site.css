@@ -25,6 +25,9 @@ html, body, * {
     text-align: justify;
 }
 
+.border-verde{
+    border-color: var(--primary);
+}
 /* ------------------------------------------------------------
    CLASES DE DEPURACIÓN (Quitar estilos visuales para test)
 ------------------------------------------------------------ */
@@ -240,9 +243,9 @@ html, body, * {
     padding: 1.5rem 1rem;
 }
 
-    .card-hilo:not(:last-child) {
-        border-bottom: 1px solid #dee2e6;
-    }
+.card-hilo:not(:last-child) {
+    border-bottom: 1px solid #dee2e6;
+}
 
 .circulo-rojo {
     width: 8px;
@@ -253,6 +256,10 @@ html, body, * {
     position: absolute;
     top: 0;
     right: 0;
+}
+
+a.dropdown-item:hover{
+    background-color: var(--light-green);
 }
 
 
