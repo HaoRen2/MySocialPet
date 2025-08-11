@@ -20,11 +20,9 @@ namespace MySocialPet.Models.ViewModel.Salud
         public decimal LongitudCm { get; set; }
 
         public int? BCS { get; set; }
-        public string BcsTexto { get; set; }
+        public string? BcsTexto { get; set; }
 
-        public string Notas { get; set; }
-
-        public string NombreMascota { get; set; }
+        public string? NombreMascota { get; set; }
 
     }
 }

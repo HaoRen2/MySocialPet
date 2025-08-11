@@ -1,0 +1,138 @@
+﻿@model MySocialPet.Models.ViewModel.Salud.VacunaMascotaViewModel
+
+@{
+    ViewData["Title"] = "Registrar Salud de " + Model.NombreMascota;
+    var vistaActual = "Vacunas";
+}
+
+<div class="container pt-nav">
+    <div class="view-switcher mb-3">
+        <a asp-action="SaludRegistro"
+           asp-controller="Salud"
+           asp-route-id="@Model.IdMascota"
+           class="btn @(vistaActual == "SaludRegistro" ? "btn-primary" : "btn-outline-primary")">
+            Registro Salud
+        </a>
+        <a asp-action="Vacunas"
+           asp-controller="Salud"
+           asp-route-id="@Model.IdMascota"
+           asp-route-vista="especificaciones"
+           class="btn @(vistaActual == "Vacunas" ? "btn-primary" : "btn-outline-primary")">
+            Registro Vacunas
+        </a>
+    </div>
+    <h2 class="mb-4">
+        📋 Plan de Vacunación para
+        <strong>@Model.NombreMascota</strong> (@Model.NombreEspecie)
+    </h2>
+
+    <div class="d-flex justify-content-between mb-3">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registroVacunaModal">
+            <i class="bi bi-plus-circle"></i> Registrar nueva vacuna aplicada
+        </button>
+        <a href="@Url.Action("ListaMascota", "Mascota")" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="table-responsive shadow-sm rounded border">
+        <table class="table table-hover mb-0">
+            <thead class=" align-items-center align-items-center text-center">
+                <tr>
+                    <th>Vacuna</th>
+                    <th>Edad Recomendada<br></th>
+                    <th>Refuerzo</th>
+                    <th>Descripción</th>
+                    <th>Esencial</th>
+                    <th>Notas</th>
+                    <th>Fecha Aplicación</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var vacuna in Model.Vacunas)
+                {
+                    <tr class="@(vacuna.Aplicada ? "table-success" : "table-warning")">
+                        <td><strong>@vacuna.NombreVacuna</strong></td>
+                        <td class="text-center">@(vacuna.EdadRecomendada?.ToString() ?? "-")</td>
+                        <td class="text-center">
+                            @if (vacuna.EsRefuerzo)
+                            {
+                                <span class="badge bg-info">Sí</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">No</span>
+                            }
+                        </td>
+                        <td>@vacuna.Descripcion</td>
+                        <td class="text-center">
+                            @if (vacuna.Esencial)
+                            {
+                                <span class="badge bg-danger">Sí</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-light text-dark">No</span>
+                            }
+                        </td>
+                        <td>@vacuna.Notas</td>
+                        <td class="text-center">@(vacuna.FechaAplicacion?.ToString("dd/MM/yyyy") ?? "-")</td>
+                        <td class="text-center">
+                            @if (vacuna.Aplicada)
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle-fill"></i> Aplicada
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-exclamation-circle"></i> Pendiente
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="registroVacunaModal" tabindex="-1" aria-labelledby="registroVacunaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="RegistrarVacuna" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registroVacunaModalLabel">Registrar vacuna aplicada</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="IdMascota" value="@Model.IdMascota" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Vacuna</label>
+                        <select name="IdTipoVacuna" class="form-select" required>
+                            <option value="">-- Selecciona una vacuna --</option>
+                            @foreach (var vacuna in ViewBag.Vacunas as List<SelectListItem>)
+                            {
+                                <option value="@vacuna.Value">@vacuna.Text</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de aplicación</label>
+                        <input name="Fecha" type="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

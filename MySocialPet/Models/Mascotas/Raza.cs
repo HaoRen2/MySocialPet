@@ -24,6 +24,7 @@ namespace MySocialPet.Models.Mascotas
         public string Tamanyo { get; set; }
 
         public string Foto { get; set; }
+        public int? RatioIdeal { get; set; }
 
         public int IdEspecie { get; set; }
         public int IdCategoria { get; set; }

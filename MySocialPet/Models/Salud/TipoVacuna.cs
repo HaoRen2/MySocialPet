@@ -10,7 +10,6 @@ namespace MySocialPet.Models.Salud
         public int IdTipoVacuna { get; set; }
 
         [Required]
-        [StringLength(100)]
         public string Nombre { get; set; }
     }
 }

@@ -19,7 +19,7 @@ public class AppDbContexto : DbContext
     public DbSet<Mascota> Mascotas { get; set; }
     public DbSet<SaludRegistro> SaludRegistros { get; set; }
     public DbSet<TipoVacuna> TipoVacunas { get; set; }
-    public DbSet<ListaVacuna> PlanVacunaciones { get; set; }
+    public DbSet<ListaVacuna> ListaVacunas { get; set; }
     public DbSet<VacunaRegistro> VacunaRegistros { get; set; }
     public DbSet<Evento> Eventos { get; set; }
     public DbSet<Sugerencia> Sugerencias { get; set; }
@@ -32,6 +32,7 @@ public class AppDbContexto : DbContext
     public DbSet<Discusion> Discusiones { get; set; }
     public DbSet<Mensaje> Mensajes { get; set; }
     public DbSet<Nota> Notas { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

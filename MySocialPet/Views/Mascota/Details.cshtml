@@ -2,14 +2,39 @@
 @{
     ViewData["Title"] = "Detalle de Mascota";
     var mascota = Model.DetailMascota;
+    var Evento = Model.Evento;
 }
 
 <div class="container pt-nav test">
     <div class="card shadow rounded pb-1">
+        <div class="position-absolute top-0 end-0 p-2 d-flex gap-1">
+            <a href="@Url.Action("EditMascota", "Mascota", new { id = mascota.IdMascota })"
+               class="btn"
+               title="Editar">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a href="@Url.Action("DeleteMascota", "Mascota", new { id = mascota.IdMascota })"
+               title="Eliminar"
+               class="btn"
+               onclick="return confirm('¿Estás seguro de eliminar esta mascota?');">
+                <i class="bi bi-trash"></i>
+            </a>
+            <a href="@Url.Action("SaludRegistro", "Salud", new { id = mascota.IdMascota })"
+               title="Salud"
+               class="btn">
+                <i class="bi bi-heart-pulse"></i>
+            </a>
+            <a href="@Url.Action("CalendarioEventos", "Salud", new { id = mascota.IdMascota })"
+               title="Eventos"
+               class="btn">
+                <i class="bi bi-calendar2-event"></i>
+            </a>
+        </div>
         <div class="row g-0">
+
             <!-- Imagen -->
             <div class="col-md-4 text-center p-3">
-                @if (Model.DetailMascota.Foto != null)
+                @if (mascota.Foto != null)
                 {
                     var base64 = Convert.ToBase64String(mascota.Foto);
                     var imgSrc = String.Format("data:image/jpeg;base64,{0}", base64);
@@ -19,30 +44,45 @@
                 {
                     <img src="~/img/sin-foto.png" class="img-fluid rounded" alt="Sin foto" />
                 }
-                <a href="@Url.Action("EditMascota", "Mascota", new { id = mascota.IdMascota })" class="btn px-5 py-2 m-1">Editar</a>
+                <h3>Próximo Evento</h3>
+                @if (Evento != null)
+                {
+                    <h4>Título: @Evento.Titulo</h4>
+                    <p>Fecha: @Evento.FechaHora</p>
+                    <p>@Evento.Notas</p>
+                }
+                else
+                {
+                    <p class="text-muted">No hay eventos próximos.</p>
+                }
+
             </div>
 
             <div class="col-md-8">
-                <div class="card-body">
-                    <h3 class="card-title">@Model.DetailMascota.Nombre</h3>
-                    <p class="card-text"><strong>Fecha de Nacimiento:</strong> @mascota.Nacimiento?.ToString("dd/MM/yyyy")</p>
-                    <p class="card-text"><strong>Peso:</strong> @mascota.PesoKg kg</p>
-                    <p class="card-text"><strong>Longitud:</strong> @mascota.LongitudCm cm</p>
-                    <p class="card-text"><strong>Género:</strong> @mascota.Genero</p>
-                    <p class="card-text"><strong>BCS:</strong> @mascota.BCS</p>
-                    <p class="card-text"><strong>Esterilizada:</strong> @(mascota.Esterilizada ? "Sí" : "No")</p>
-                    <p class="card-text"><strong>Raza:</strong> @mascota.Raza?.NombreRaza</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <h3 class="card-title">@Model.DetailMascota.Nombre</h3>
+                            <p class="card-text"><strong>Fecha de Nacimiento:</strong> @mascota.Nacimiento?.ToString("dd/MM/yyyy")</p>
+                            <p class="card-text"><strong>Peso:</strong> @mascota.PesoKg kg</p>
+                            <p class="card-text"><strong>Longitud:</strong> @mascota.LongitudCm cm</p>
+                            <p class="card-text"><strong>Género:</strong> @mascota.Genero</p>
+                            <p class="card-text"><strong>BCS:</strong> @mascota.BCS</p>
+                            <p class="card-text"><strong>Esterilizado/a:</strong> @(mascota.Esterilizada ? "Sí" : "No")</p>
+                            <p class="card-text"><strong>Raza:</strong> @mascota.Raza?.NombreRaza</p>
 
-                    <div class="mt-4 d-flex justify-content-center gap-2">
-                        <a href="@Url.Action("ListaMascota", "Mascota")" class="btn btn-secondary p-1 m-1">Volver</a>
-                        <a href="@Url.Action("GestionarSaludRegistro", "Salud", new { id = mascota.IdMascota })" class="btn btn-light p-1 m-1">Salud</a>
-                        <a href="@Url.Action("CalendarioEventos", "Salud",new { id = mascota.IdMascota})" class="btn btn-success p-1 m-1">Evento</a> 
-                    </div>  
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mt-5">
+                        <div class="card-body">
+                            <h3 class="card-title">Información Raza</h3>
+                            <p class="card-text">
+                                <strong>Información:</strong> @mascota.Raza?.Informacion
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <form asp-action="DeleteMascota" asp-controller="Mascota" class="text-center" method="post" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta mascota?');">
-                    <input type="hidden" name="id" value="@mascota.IdMascota" />
-                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                </form>
             </div>
         </div>
     </div>
