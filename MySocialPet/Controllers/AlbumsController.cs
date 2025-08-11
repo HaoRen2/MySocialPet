@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySocialPet.DAL;
-using MySocialPet.Models.Albums;
 using MySocialPet.Models.ViewModel.Albums;
-using MySocialPet.Models.ViewModel.Mascotas;
 using System.Security.Claims;
 
 namespace MySocialPet.Controllers
@@ -20,17 +18,20 @@ namespace MySocialPet.Controllers
         public IActionResult ListAlbum()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            ListaAlbumViewModel vm = new ListaAlbumViewModel();
-
-            vm.ListAlbums = _albumDAL.GetAlbumesPorUsuario(userId);
+            var vm = new ListaAlbumViewModel
+            {
+                ListAlbums = _albumDAL.GetAlbumesPorUsuario(userId)
+            };
 
             return View(vm);
         }
+
         [HttpGet]
         public IActionResult CrearAlbum()
         {
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearAlbum(CrearAlbumViewModel model)
@@ -39,66 +40,44 @@ namespace MySocialPet.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 model.IdUsuario = int.Parse(userId);
-                // Guardar el álbum
-                await _albumDAL.InsertAlbum(model);
-                
-                return RedirectToAction("ListAlbum");
+
+                // Guardar el álbum y obtener su Id
+                var nuevoAlbumId = await _albumDAL.InsertAlbum(model);
+
+                // Redirigir a DetallesAlbum con el Id recién creado
+                return RedirectToAction("DetailsAlbum", new { idAlbum = nuevoAlbumId });
             }
             return View(model);
         }
 
+        [HttpGet]
         public IActionResult DetailsAlbum(int idAlbum)
         {
+            var album = _albumDAL.GetAlbumPorId(idAlbum);
+            if (album == null)
+                return NotFound();
 
-            return View();
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            ViewBag.MascotasUsuario = _albumDAL.GetListaNombreMascotasPorUsuario(userId);
+
+            var viewModel = new DetailAlbumViewModel
+            {
+                DetailAlbum = album
+            };
+
+            return View(viewModel);
         }
-        /* [HttpGet]
-         public JsonResult GetNombresMascotasporUser()
-         {
-             int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-             var mascotasNombre = _albumDAL.GetListaNombreMascotasPorUsuario(userId);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> InsertarFoto(int IdAlbum, string Titulo, IFormFile Foto, string Descripcion, DateTime Fecha, List<int> MascotasEtiquetadasIds)
+        {
+            if (Foto != null && Foto.Length > 0)
+            {
+                await _albumDAL.InsertFoto(IdAlbum, Titulo, Foto, Descripcion, Fecha, MascotasEtiquetadasIds);
+            }
 
-             return Json(mascotasNombre);
-         }
-
-         [HttpPost]
-         [ValidateAntiForgeryToken]
-         public async Task<IActionResult> CreateAlbum(CreateAlbumViewModel model)
-         {
-             if (ModelState.IsValid)
-             {
-                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                 model.IdUsuario = int.Parse(userId);
-                 // Guardar el álbum
-                 await _albumDAL.InsertAlbum(model);
-                 // Guardar las fotos del álbum
-                 if (model.Fotos != null && model.Fotos.Count > 0)
-                 {
-                     foreach (var foto in model.Fotos)
-                     {
-                         await _albumDAL.InsertFoto(foto, model.IdAlbum);
-                     }
-                 }
-                 return RedirectToAction("ListAlbum");
-             }
-             else 
-             {
-                 // Si el modelo no es válido, volvemos a cargar los datos necesarios para la vista
-                 var viewModel = new CreateAlbumViewModel
-                 {
-                     IdUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
-                     Fotos = model.Fotos, // Mantener las fotos subidas si hay errores de validación
-                     NombreMascota = model.NombreMascota,
-                     IdMascota = model.IdMascota
-                 };
-                 // Cargar las mascotas del usuario para el dropdown
-                 viewModel.Mascotas = _albumDAL.GetListaNombreMascotasPorUsuario(viewModel.IdUsuario);
-                 return View(viewModel);
-             }*/
-
-
-
+            return RedirectToAction("DetailsAlbum", new { idAlbum = IdAlbum });
+        }
     }
-    
 }

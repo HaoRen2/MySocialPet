@@ -1,5 +1,94 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model MySocialPet.Models.ViewModel.Albums.DetailAlbumViewModel
 @{
+    var mascotasUsuario = ViewBag.MascotasUsuario as List<MySocialPet.Models.Mascotas.Mascota>;
+
+    ViewData["Title"] = "Detalles Álbum";
 }
+
+<div class="container mt-4">
+    <h2>@Model.DetailAlbum.NombreAlbum</h2>
+
+    <div class="row">
+        @if (Model.DetailAlbum.Fotos != null && Model.DetailAlbum.Fotos.Any())
+        {
+            foreach (var foto in Model.DetailAlbum.Fotos)
+            {
+                var base64Image = Convert.ToBase64String(foto.Foto);
+                var imgSrc = $"data:image/png;base64,{base64Image}";
+
+                <div class="col-md-3 mb-3">
+                    <div class="card shadow-sm">
+                        <img src="@imgSrc" class="card-img-top" alt="@foto.Titulo" style="height: 200px; object-fit: cover;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@foto.Titulo</h5>
+                            <a asp-action="DetallesFoto" asp-controller="Fotos" asp-route-id="@foto.IdFoto" class="btn btn-outline-primary btn-sm">
+                                Ver Detalles
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No hay fotos en este álbum aún.</p>
+        }
+    </div>
+</div>
+
+<!-- Botón flotante -->
+<button class="btn btn-primary rounded-circle shadow-lg"
+        style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; font-size: 28px; line-height: 1;"
+        data-bs-toggle="modal" data-bs-target="#modalInsertarFoto">
+    +
+</button>
+
+<!-- Modal para subir foto -->
+<div class="modal fade" id="modalInsertarFoto" tabindex="-1" aria-labelledby="modalInsertarFotoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="InsertarFoto" asp-controller="Albums" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="IdAlbum" value="@Model.DetailAlbum.IdAlbum" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInsertarFotoLabel">Agregar Foto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" name="Titulo" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Foto</label>
+                        <input type="file" name="Foto" class="form-control" accept="image/*" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="Descripcion" class="form-control"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="Fecha" class="form-control" required />
+                    </div>
+                    @if (mascotasUsuario != null && mascotasUsuario.Any())
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Mascotas Etiquetadas</label>
+                            <select class="form-select" name="MascotasEtiquetadasIds" multiple>
+                                @foreach (var mascota in mascotasUsuario)
+                                {
+                                    <option value="@mascota.IdMascota">@mascota.Nombre</option>
+                                }
+                            </select>
+                            <small class="text-muted">Mantén Ctrl (Windows) o Cmd (Mac) para seleccionar múltiples.</small>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Subir Foto</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

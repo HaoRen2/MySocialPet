@@ -13,36 +13,31 @@ namespace MySocialPet.DAL
         {
             _context = context;
         }
+
         public List<Album> GetAlbumesPorUsuario(string userId)
         {
-            int id = int.Parse(userId);
-
             return _context.Albumes
                 .Where(a => a.IdUsuario.ToString() == userId)
                 .Include(a => a.Fotos)
                 .ToList();
         }
+
         public Album GetAlbumPorId(int idAlbum)
         {
             return _context.Albumes
                 .Include(a => a.Fotos)
                 .FirstOrDefault(a => a.IdAlbum == idAlbum);
         }
-        public byte[] GetFotoRecinete(string IdAlbum)
+
+        public byte[] GetFotoReciente(string IdAlbum)
         {
             int id = int.Parse(IdAlbum);
             var fotoReciente = _context.FotoAlbumes
                 .Where(f => f.IdAlbum == id)
                 .OrderByDescending(f => f.Fecha)
                 .FirstOrDefault();
-            if (fotoReciente != null)
-            {
-                // Retorna la foto más reciente del álbum
-                return fotoReciente.Foto;
-            }
-            // Retorna un arreglo vacío si no hay fotos recientes
-            return Array.Empty<byte>(); 
 
+            return fotoReciente?.Foto ?? Array.Empty<byte>();
         }
 
         public List<SelectListItem> GetListaNombreMascotasPorUsuario(int userId)
@@ -52,11 +47,11 @@ namespace MySocialPet.DAL
                 .Select(m => new SelectListItem
                 {
                     Value = m.IdMascota.ToString(),
-                    Text = m.Nombre.ToString()
+                    Text = m.Nombre
                 }).ToList();
         }
 
-        internal async Task InsertAlbum(CrearAlbumViewModel model)
+        public async Task<int> InsertAlbum(CrearAlbumViewModel model)
         {
             var album = new Album
             {
@@ -65,7 +60,42 @@ namespace MySocialPet.DAL
             };
             _context.Albumes.Add(album);
             await _context.SaveChangesAsync();
+
+            return album.IdAlbum; // Devolvemos el Id recién creado
+        }
+
+
+        public async Task InsertFoto(int idAlbum, string titulo, IFormFile foto, string descripcion, DateTime fecha, List<int> mascotasIds)
+        {
+            using var ms = new MemoryStream();
+            await foto.CopyToAsync(ms);
+            var bytes = ms.ToArray();
+
+            var fotoAlbum = new FotoAlbum
+            {
+                IdAlbum = idAlbum,
+                Titulo = titulo,
+                Descripcion = descripcion,
+                Fecha = fecha,
+                Foto = bytes
+            };
+
+            _context.FotoAlbumes.Add(fotoAlbum);
+            await _context.SaveChangesAsync();
+
+            if (mascotasIds != null && mascotasIds.Any())
+            {
+                foreach (var idMascota in mascotasIds)
+                {
+                    var etiqueta = new FotoEtiquetaMascota
+                    {
+                        IdFoto = fotoAlbum.IdFoto,
+                        IdMascota = idMascota
+                    };
+                    _context.FotoEtiquetaMascotas.Add(etiqueta);
+                }
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }
-
