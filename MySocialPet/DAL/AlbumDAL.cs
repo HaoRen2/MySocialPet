@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MySocialPet.Models.Albums;
 using MySocialPet.Models.ViewModel.Albums;
+using MySocialPet.Models.ViewModel.Foros;
 
 namespace MySocialPet.DAL
 {
@@ -64,7 +65,14 @@ namespace MySocialPet.DAL
             return album.IdAlbum; // Devolvemos el Id recién creado
         }
 
+        public FotoAlbum GetFotoPorId(int idFoto)
+        {
 
+            return _context.FotoAlbumes
+                .Include(f => f.MascotasEtiquetadas)
+                    .ThenInclude(fe => fe.Mascota)
+                .FirstOrDefault(f => f.IdFoto == idFoto);
+        }
         public async Task InsertFoto(int idAlbum, string titulo, IFormFile foto, string descripcion, DateTime fecha, List<int> mascotasIds)
         {
             using var ms = new MemoryStream();

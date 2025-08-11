@@ -7,10 +7,5 @@ namespace MySocialPet.Models.ViewModel.Albums
     {
         public List<Album> ListAlbums { get; set; } = new List<Album>();
 
-        
-
-
-
-
     }
 }

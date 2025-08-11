@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySocialPet.DAL;
+using MySocialPet.Models.Albums;
 using MySocialPet.Models.ViewModel.Albums;
 using System.Security.Claims;
 
@@ -66,6 +67,22 @@ namespace MySocialPet.Controllers
             };
 
             return View(viewModel);
+        }
+
+        [HttpGet]
+        public IActionResult DetailsFoto(int id)
+        {
+            var fotoVM = _albumDAL.GetFotoPorId(id);
+            if (fotoVM == null)
+                return NotFound();
+
+            var viewModel = new DetailsFotoViewModel
+            {
+                Foto = fotoVM
+            };
+
+
+            return View("DetailsFoto", viewModel);
         }
 
         [HttpPost]

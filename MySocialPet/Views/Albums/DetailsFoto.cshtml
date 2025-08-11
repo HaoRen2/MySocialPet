@@ -1,0 +1,24 @@
+﻿@model MySocialPet.Models.ViewModel.Albums.DetailsFotoViewModel
+
+@{
+    ViewData["Title"] = "Detalles de Foto";
+    var base64Image = $"data:image/png;base64,{Convert.ToBase64String(Model.Foto.Foto)}";
+}
+
+<div class="container mt-4">
+    <h2>@Model.Foto.Titulo</h2>
+    <img src="@base64Image" class="img-fluid mb-3" style="max-height: 500px; object-fit: contain;" />
+    <p><strong>Descripción:</strong> @Model.Foto.Descripcion</p>
+    <p><strong>Fecha:</strong> @Model.Foto.Fecha.ToString("dd/MM/yyyy")</p>
+
+    @if (Model.Foto.MascotasEtiquetadas != null && Model.Foto.MascotasEtiquetadas.Any())
+    {
+        <p><strong>Mascotas Etiquetadas:</strong> @string.Join(", ", Model.Foto.MascotasEtiquetadas)</p>
+    }
+    else
+    {
+        <p><em>No hay mascotas etiquetadas en esta foto.</em></p>
+    }
+
+    <a href="javascript:history.back()" class="btn btn-secondary">Volver</a>
+</div>
