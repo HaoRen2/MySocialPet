@@ -43,13 +43,13 @@ namespace MySocialPet.DAL
                 .ToList();
         }
 
-        public  void UpdateMascota(Mascota mascota) 
+        public async void UpdateMascota(Mascota mascota) 
         {
             var m = _context.Mascotas.FirstOrDefault(m => m.IdMascota == mascota.IdMascota);
             if (m != null)
             {
                 m = mascota;
-                _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
 
         }
@@ -68,6 +68,27 @@ namespace MySocialPet.DAL
         {
             return _context.Mascotas.Include(m => m.Raza).Include(m => m.Notas).Include(m => m.Eventos)
                 .FirstOrDefault(m => m.IdMascota == id);
+        }
+
+        public Nota GetNotabyId(int id)
+        {
+            return _context.Notas.FirstOrDefault(n => n.IdNota == id);
+        }
+
+        public async Task DeleteNota(Nota nota)
+        {
+            _context.Notas.Remove(nota);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateNota(Nota nota)
+        {
+            var n = _context.Notas.FirstOrDefault(n => n.IdNota == nota.IdNota);
+            if (n != null)
+            {
+                n.Descripcion = nota.Descripcion;
+                await _context.SaveChangesAsync();
+            }
         }
 
         public void InsertNotas(Nota nota) 

@@ -21,7 +21,11 @@
             Registro Vacunas
         </a>
     </div>
-
+    @await Component.InvokeAsync("MascotaSelector", new {
+    mascotaIdActual = Model.IdMascota,
+        controlador = "Salud",
+        accion = "SaludRegistro"
+        })
     <div class="row justify-content-center">
         <div class="text-center col-12">
             <h2 class="fw-bold">@ViewData["Title"]</h2>

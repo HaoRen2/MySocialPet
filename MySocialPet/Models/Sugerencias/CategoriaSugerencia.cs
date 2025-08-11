@@ -1,7 +1,10 @@
 ﻿using MySocialPet.Models.Mascotas;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySocialPet.Models.Sugerencias
 {
+    [Table("CategoriaSugerencia")]
+
     public class CategoriaSugerencia
     {
         public int IdCategoria { get; set; }
