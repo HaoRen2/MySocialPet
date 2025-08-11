@@ -1,0 +1,369 @@
+﻿@model MySocialPet.Models.ViewModel.Perfil.PerfilViewModel
+
+@{
+    ViewData["Title"] = "Mi perfil";
+}
+
+<div class="container pt-nav">
+    <div class="row g-4">
+        <!-- Izquierda: avatar + resumen -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <img id="avatarClickable"
+                         src="@(Model.AvatarFoto != null
+                                                              ? $"data:image/png;base64,{Convert.ToBase64String(Model.AvatarFoto)}"
+                                                              : Url.Content("~/src/DefaultAvatar/AvatarPerro.png"))"
+                         alt="Avatar"
+                         class="rounded-circle mb-3"
+                         style="width:140px;height:140px;object-fit:cover;border:4px solid var(--ultralight-green);cursor:pointer;"
+                         title="Cambiar avatar (clic)">
+
+                    <h3 class="mb-1 text-primary">@Model.Username</h3>
+                    <div class="small mt-2">Usuario desde @Model.FechaRegistro.ToString("dd/MM/yyyy")</div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-ultralightgreen fw-bold">Resumen</div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between py-1"><span>Mascotas</span><strong>@Model.MascotasCount</strong></div>
+                    <div class="d-flex justify-content-between py-1"><span>Álbumes</span><strong>@Model.AlbumesCount</strong></div>
+                    <div class="d-flex justify-content-between py-1"><span>Discusiones</span><strong>@Model.DiscusionesCount</strong></div>
+                    <div class="d-flex justify-content-between py-1"><span>Mensajes</span><strong>@Model.MensajesCount</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Derecha -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-ultralightgreen">
+                    <ul class="nav nav-tabs card-header-tabs" id="profileTabs" role="tablist">
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#cuenta" type="button">Cuenta</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#seguridad" type="button">Seguridad</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#privacidad" type="button">Privacidad</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#actividad" type="button">Actividad</button></li>
+                    </ul>
+                </div>
+
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- CUENTA -->
+                        <div class="tab-pane fade show active" id="cuenta">
+                            <form id="cuentaForm" asp-controller="Perfil" asp-action="SaveCuenta" method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nombre de usuario</label>
+                                        <input name="Username" value="@Model.Username" class="form-control" required />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nombre</label>
+                                        <input name="Nombre" value="@Model.Nombre" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Apellido</label>
+                                        <input name="Apellido" value="@Model.Apellido" class="form-control" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Teléfono</label>
+                                        <input name="Telefono" value="@Model.Telefono" class="form-control" />
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label">Dirección</label>
+                                        <input name="Direccion" value="@Model.Direccion" class="form-control" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Ciudad</label>
+                                        <input name="Ciudad" value="@Model.Ciudad" class="form-control" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Provincia</label>
+                                        <input name="Provincia" value="@Model.Provincia" class="form-control" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Código postal</label>
+                                        <input name="CodigoPostal" value="@Model.CodigoPostal" class="form-control" />
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn animated mt-3">Guardar cambios</button>
+                            </form>
+                        </div>
+
+                        <!-- SEGURIDAD -->
+                        <div class="tab-pane fade" id="seguridad">
+                            <div class="card mb-3">
+                                <div class="card-header fw-bold">Correo electrónico</div>
+                                <div class="card-body">
+                                    <div class="mb-2 text-muted">Email actual: <strong>@Model.Email</strong></div>
+                                    <form id="emailForm" asp-controller="Perfil" asp-action="ChangeEmail" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <div class="row g-3">
+                                            <div class="col-md-6"><input name="NewEmail" type="email" placeholder="Nuevo email" class="form-control" required /></div>
+                                            <div class="col-md-6"><input name="ConfirmNewEmail" type="email" placeholder="Confirmar email" class="form-control" required /></div>
+                                            <div class="col-md-6"><input name="Password" type="password" placeholder="Contraseña" class="form-control" required /></div>
+                                        </div>
+                                        <button type="submit" class="btn animated mt-3">Actualizar email</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header fw-bold">Contraseña</div>
+                                <div class="card-body">
+                                    <form id="passwordForm" asp-controller="Perfil" asp-action="ChangePassword" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <div class="row g-3">
+                                            <div class="col-md-4"><input name="CurrentPassword" type="password" placeholder="Actual" class="form-control" required /></div>
+                                            <div class="col-md-4"><input name="NewPassword" type="password" placeholder="Nueva" class="form-control" required /></div>
+                                            <div class="col-md-4"><input name="ConfirmNewPassword" type="password" placeholder="Confirmar" class="form-control" required /></div>
+                                        </div>
+                                        <button type="submit" class="btn btn-verde mt-3">Cambiar contraseña</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PRIVACIDAD -->
+                        <div class="tab-pane fade" id="privacidad">
+                            <p class="text-justify mb-2">Configura quién puede ver tu perfil y tu actividad.</p>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="perfilPublico" checked>
+                                <label class="form-check-label" for="perfilPublico">Perfil público</label>
+                            </div>
+                        </div>
+
+                        <!-- ACTIVIDAD -->
+                        <div class="tab-pane fade" id="actividad">
+                            <div class="row g-3">
+                                <div class="col-sm-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="text-muted">Mascotas añadidas</div><div class="display-6 fw-bold">@Model.MascotasCount</div></div></div></div>
+                                <div class="col-sm-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="text-muted">Álbumes</div><div class="display-6 fw-bold">@Model.AlbumesCount</div></div></div></div>
+                                <div class="col-sm-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="text-muted">Mensajes foro</div><div class="display-6 fw-bold">@Model.MensajesCount</div></div></div></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal seleccionar avatar -->
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-ultralightgreen">
+                <h5 class="modal-title">Cambiar avatar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link disabled" type="button" title="Próximamente">Mis mascotas</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pane-defaults" type="button">Por defecto</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pane-upload" type="button">Subir nueva</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content mt-3">
+
+                    <!-- Por defecto (render server-side) -->
+                    <div class="tab-pane fade show active" id="pane-defaults">
+                        <div id="defaultsGrid" class="row g-3">
+                            @if (Model.DefaultAvatarFileNames == null || !Model.DefaultAvatarFileNames.Any())
+                            {
+                                <div class="col-12 text-muted">No hay avatares en la carpeta.</div>
+                            }
+                            else
+                            {
+                                foreach (var file in Model.DefaultAvatarFileNames)
+                                {
+                                    var url = Url.Content($"~/src/DefaultAvatar/{file}");
+                                    var nombre = System.IO.Path.GetFileNameWithoutExtension(file);
+                                    <div class="col-6 col-md-4 col-lg-3">
+                                        <div class="card h-100 selector-item" data-type="default" data-filename="@file">
+                                            <img src="@url" class="card-img-top" style="height:120px;object-fit:cover;">
+                                            <div class="card-body p-2 text-center">
+                                                <div class="small fw-bold">@nombre</div>
+                                                <div class="form-check mt-1">
+                                                    <input class="form-check-input sel-radio" type="radio" name="selDefault" value="@file">
+                                                    <label class="form-check-label small">Usar</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                    </div>
+
+                    <!-- Subir -->
+                    <div class="tab-pane fade" id="pane-upload">
+                        <form id="avatarUploadForm" asp-controller="Perfil" asp-action="SaveAvatar" method="post" enctype="multipart/form-data">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <input type="file" name="avatar" accept="image/*" class="form-control" required />
+                            </div>
+                            <button type="submit" class="btn animated">Subir y usar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary" id="btnQuitarAvatar">Quitar avatar</button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-verde" id="btnGuardarAvatar">Guardar avatar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form oculto para obtener antiforgery token en AJAX "puros" -->
+<form id="__AjaxAntiForgeryForm" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        (function () {
+          const avatarImg   = document.getElementById("avatarClickable");
+          const modalEl     = document.getElementById("avatarModal");
+          const avatarModal = new bootstrap.Modal(modalEl);
+          const defaultsGrid= document.getElementById("defaultsGrid");
+          const btnGuardar  = document.getElementById("btnGuardarAvatar");
+          const btnQuitar   = document.getElementById("btnQuitarAvatar");
+          const uploadForm  = document.getElementById("avatarUploadForm");
+
+          let selected = { type: null, value: null };
+
+          function getToken(){
+            return document.querySelector('#__AjaxAntiForgeryForm input[name="__RequestVerificationToken"]')?.value;
+          }
+
+          // Abre el modal al clicar la foto
+          avatarImg.addEventListener("click", () => {
+            selected = { type: null, value: null };
+            // marcar click visual
+            defaultsGrid.querySelectorAll(".selector-item").forEach(c => c.classList.remove("border","border-2","border-success"));
+            avatarModal.show();
+          });
+
+          // Selección visual de default
+          defaultsGrid.querySelectorAll(".selector-item").forEach(card => {
+            card.addEventListener("click", () => {
+              defaultsGrid.querySelectorAll(".selector-item").forEach(c => c.classList.remove("border","border-2","border-success"));
+              card.classList.add("border","border-2","border-success");
+              const radio = card.querySelector(".sel-radio");
+              if (radio) radio.checked = true;
+              selected = { type: "default", value: card.dataset.filename };
+            });
+          });
+
+          // Guardar selección (default)
+          btnGuardar.addEventListener("click", async () => {
+            if (!(selected.type === "default" && selected.value)) {
+              alert("Selecciona un avatar por defecto o usa 'Subir nueva'.");
+              return;
+            }
+            const fd = new FormData();
+            fd.append("fileName", selected.value);
+            const token = getToken(); if (token) fd.append("__RequestVerificationToken", token);
+
+            try {
+              const res = await fetch('@Url.Action("SetAvatarDefault", "Perfil")', {
+                method: "POST",
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+                body: fd
+              });
+              if (!res.ok) {
+                const txt = await res.text();
+                alert("Error " + res.status + ": " + txt);
+                return;
+              }
+              const j = await res.json();
+              alert(j.message || "Listo");
+              if (j.success && j.previewDataUrl) {
+                avatarImg.src = j.previewDataUrl;
+                avatarModal.hide();
+              }
+            } catch (e) {
+              alert("Error de red.");
+            }
+          });
+
+          // Quitar avatar
+          btnQuitar.addEventListener("click", async () => {
+            if (!confirm("¿Quitar tu avatar y usar el predeterminado?")) return;
+            const fd = new FormData();
+            fd.append("removeAvatar","true");
+            const token = getToken(); if (token) fd.append("__RequestVerificationToken", token);
+
+            try {
+              const res = await fetch('@Url.Action("SaveAvatar", "Perfil")', {
+                method: "POST",
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+                body: fd
+              });
+              if (!res.ok) {
+                const txt = await res.text();
+                alert("Error " + res.status + ": " + txt);
+                return;
+              }
+              const j = await res.json();
+              alert(j.message || "Hecho");
+              if (j.success && j.previewDataUrl) {
+                avatarImg.src = j.previewDataUrl;
+                avatarModal.hide();
+              }
+            } catch (e) {
+              alert("Error de red.");
+            }
+          });
+
+          // Subir nueva (usa el token del form oculto o el del propio form)
+          if (uploadForm) {
+            uploadForm.addEventListener("submit", async (e) => {
+              e.preventDefault();
+              const fd = new FormData(uploadForm); // ya contiene el __RequestVerificationToken del form
+              // (opcional) si quieres asegurarte:
+              if(!fd.get("__RequestVerificationToken")) {
+                const token = getToken(); if (token) fd.append("__RequestVerificationToken", token);
+              }
+
+              try {
+                const res = await fetch(uploadForm.action, {
+                  method: "POST",
+                  headers: { "X-Requested-With": "XMLHttpRequest" },
+                  body: fd
+                });
+                if (!res.ok) {
+                  const txt = await res.text();
+                  alert("Error " + res.status + ": " + txt);
+                  return;
+                }
+                const j = await res.json();
+                alert(j.message || "Hecho");
+                if (j.success && j.previewDataUrl) {
+                  avatarImg.src = j.previewDataUrl;
+                  avatarModal.hide();
+                }
+              } catch (e) {
+                alert("Error de red.");
+              }
+            });
+          }
+        })();
+    </script>
+}
+
