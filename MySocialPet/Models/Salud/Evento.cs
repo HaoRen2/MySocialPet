@@ -17,8 +17,7 @@ namespace MySocialPet.Models.Salud
         public DateTime FechaHora { get; set; }
 
         [Required]
-        [StringLength(100)]
-        public string TipoEvento { get; set; }
+        public string Color { get; set; }
 
         public string Notas { get; set; }
         public bool NotificacionEnviada { get; set; }

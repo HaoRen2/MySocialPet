@@ -16,7 +16,7 @@ namespace MySocialPet.Models.ViewModel.Salud
         public decimal PesoKg { get; set; }
 
         [Required]
-        [Display(Name = "Longitud (cm)")]
+        [Display(Name = "LongitudLomo (cm)")]
         public decimal LongitudCm { get; set; }
 
         public int? BCS { get; set; }

@@ -24,21 +24,12 @@ namespace MySocialPet.Controllers
         {
 
             var especiesList = new SelectList(_context.Especies.ToList(), "IdEspecie", "Nombre");
-            var categoriasList = new SelectList(_context.Categorias.ToList(), "IdCategoria", "NombreCategoria"); // Asegúrate de que tu propiedad se llame "Nombre" o ajústalo.
-
-            var razasQuery = _context.Razas.AsQueryable();
-            if (IdEspecie.HasValue)
-            {
-                razasQuery = razasQuery.Where(r => r.IdEspecie == IdEspecie.Value);
-            }
-            var razasList = new SelectList(razasQuery.ToList(), "IdRaza", "NombreRaza"); // Ajusta "Nombre" si es necesario.
-
 
             var vm = new SugerenciaViewModel
             {
                 EspeciesSelectList = especiesList,
-                CategoriasSelectList = categoriasList,
-                RazasSelectList = razasList,
+                CategoriasSelectList = new SelectList(Enumerable.Empty<SelectListItem>()),
+                RazasSelectList = new SelectList(Enumerable.Empty<SelectListItem>()),
 
                 IdEspecie = IdEspecie,
                 IdCategoria = IdCategoria,
@@ -54,24 +45,65 @@ namespace MySocialPet.Controllers
 
             if (IdEspecie.HasValue)
             {
-                query = query.Where(s => s.EspeciesSugerencia.Any(es => es.IdEspecie == IdEspecie));
+
+                var categorias = _context.Categorias
+                               .Where(c => c.IdEspecie == IdEspecie.Value)
+                                .ToList();
+
+                vm.CategoriasSelectList = new SelectList(categorias, "IdCategoria", "NombreCategoria", IdCategoria);
+
+                if (IdCategoria.HasValue) 
+                {
+                    var razas = _context.Razas
+                  .Where(r => r.IdCategoria == IdCategoria.Value).ToList();
+
+                    vm.RazasSelectList = new SelectList(razas, "IdRaza", "NombreRaza", IdRaza);
+                }
+
+                query = query.Where(s =>
+                s.EspeciesSugerencia.Any(es => es.IdEspecie == IdEspecie) ||
+                s.RazasSugerencia.Any(rs => rs.Raza.IdEspecie == IdEspecie));
             }
 
             if (IdCategoria.HasValue)
             {
-                query = query.Where(s => s.CategoriaSugerencias.Any(cs => cs.IdCategoria == IdCategoria));
+                query = query.Where(s =>
+                    s.CategoriaSugerencias.Any(cs => cs.IdCategoria == IdCategoria) ||
+                    s.RazasSugerencia.Any(rs => rs.Raza.IdCategoria == IdCategoria)
+                );
             }
 
             if (IdRaza.HasValue)
             {
-                query = query.Where(s => s.RazasSugerencia.Any(rs => rs.IdRaza == IdRaza));
+                query = query.Where(s =>
+                    s.RazasSugerencia.Any(rs => rs.IdRaza == IdRaza)
+                );
             }
 
-            vm.Sugerencias = query.ToList();
+            vm.Sugerencias = query.OrderBy(q => q.Titulo).ToList();
 
             return View(vm);
         }
+        [HttpGet]
+        public IActionResult GetRazasPorCategoria(int idCategoria)
+        {
+            var razas = _context.Razas
+                .Where(r => r.IdCategoria == idCategoria)
+                .Select(r => new { id = r.IdRaza, nombre = r.NombreRaza })
+                .ToList();
 
+            return Json(razas);
+        }
 
+        [HttpGet]
+        public IActionResult GetCategoriasPorEspecie(int idEspecie)
+        {
+            var categorias = _context.Categorias
+                .Where(c => c.IdEspecie == idEspecie)
+                .Select(c => new { id = c.IdCategoria, nombre = c.NombreCategoria })
+                .ToList();
+
+            return Json(categorias);
+        }
     }
 }
