@@ -34,7 +34,6 @@
                     </div>
                 </div>
 
-
                 @{
                     if (Model.Discusion.Mensajes != null && Model.Discusion.Mensajes.Any())
                     {
@@ -72,33 +71,59 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex align-items-center">
-                                                <p class="text-muted small mb-0 me-1 d-none d-sm-block">Mensaje</p>
-                                                <span class="text-muted me-3"># @index</span>
+                                                <div>
+                                                    @{
+                                                        string fechaTexto;
+                                                        var fechaLocal = item.FechaEnvio.ToLocalTime();
+
+                                                        if (fechaLocal.Date == DateTime.Now.Date)
+                                                        {
+                                                            fechaTexto = $"Hoy {fechaLocal:HH:mm}";
+                                                        }
+                                                        else if (fechaLocal.Date == DateTime.Now.AddDays(-1).Date)
+                                                        {
+                                                            fechaTexto = $"Ayer {fechaLocal:HH:mm}";
+                                                        }
+                                                        else
+                                                        {
+                                                            fechaTexto = fechaLocal.ToString("dd/MM/yyyy HH:mm");
+                                                        }
+                                                    }
+
+                                                    <p class="text-muted small mb-0 me-1 d-none d-sm-block">@fechaTexto</p>
+
+                                                    <p class="text-muted small mb-0 me-1 d-none d-sm-block">Mensaje <span class="text-muted me-3"># @index</span></p>
+                                                </div>
                                             </div>
                                         </div>
                                         <hr />
-                                        <img class="m-4" width="150px" src="@Url.Content("~/src/DefaultAvatar/AvatarPerro.png")" alt="Foto de perfil por defecto" />
+                                        @if (item.Imagen != null)
+                                        {
+                                            <img class="m-4 img-thumbnail img-clickable"
+                                                 width="150px"
+                                                 src="data:image/jpeg;base64,@(Convert.ToBase64String(item.Imagen))"
+                                                 alt="Imagen del mensaje"
+                                                 data-full="data:image/jpeg;base64,@(Convert.ToBase64String(item.Imagen))" />
+                                        }
 
                                         <p>@item.ContenidoMensaje</p>
                                     </div>
-
                                 </div>
                             </div>
-                                }
+                        }
                     }
                     else
                     {
                         <div class="bg-white shadow">
                             <div class="list-group list-group-flush p-3 mb-3">
-                        <div class="bg-white shadow">
-                            <div class="p-3">
-                                <p>Aún no hay discusiones en este foro. ¡Sé el primero en iniciar una!</p> [cite: 24, 25]
-                            </div>
+                                <div class="p-3">
+                                    <p>Aún no hay discusiones en este foro. ¡Sé el primero en iniciar una!</p>
                                 </div>
                             </div>
                         </div>
                     }
                 }
+
                 <div class="row bg-white shadow mx-0 py-3 rounded-top rounded-15 border-top-0 ">
                     <div class="d-flex justify-content-between">
                         <a asp-action="Hilos"
@@ -116,6 +141,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-4">
                 <div class="bg-white shadow rounded-15 p-4">
                     <img style="background-image: var(--trending_icon); height: 28px; width: 28px; margin-right: 4px" src="@Url.Content("~/src/foro/icons/Fire.svg")" class="d-inline mb-3" alt="Persona enviando mensaje desde el móvil" />
@@ -143,9 +169,33 @@
                     {
                         <p class="text-muted">No hay hilos en tendencia en este momento.</p>
                     }
-
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal para mostrar imagen -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body p-0 text-center">
+                <img id="modalImage" src="" class="img-fluid rounded" alt="Imagen ampliada" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".img-clickable").forEach(function (img) {
+            img.addEventListener("click", function () {
+                const fullSrc = this.getAttribute("data-full");
+                const modalImg = document.getElementById("modalImage");
+                modalImg.src = fullSrc;
+                const modal = new bootstrap.Modal(document.getElementById("imageModal"));
+                modal.show();
+            });
+        });
+    });
+</script>

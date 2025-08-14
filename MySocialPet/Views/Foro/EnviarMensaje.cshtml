@@ -5,14 +5,20 @@
         <div style="height: 15vh;"></div>
         <div class="row">
             <h2 class="fs-2 fw-bold text-uppercase m-0">@(Model.IdMensajePadre.HasValue ? "Responder a mensaje" : "Nuevo mensaje")</h2>
-            <form asp-action="EnviarMensaje" method="post">
+            <form asp-action="EnviarMensaje" method="post" enctype="multipart/form-data">
                 <input type="hidden" asp-for="IdDiscusion" />
                 <input type="hidden" asp-for="IdMensajePadre" />
 
-                <div class="form-group">
+                <div class="form-group my-4">
                     <label asp-for="Contenido"></label>
                     <textarea asp-for="Contenido" class="form-control"></textarea>
                     <span asp-validation-for="Contenido" class="text-danger"></span>
+                </div>
+
+                <div class="form-group my-4">
+                    <label asp-for="Imagen">Adjuntar imagen</label>
+                    <span asp-validation-for="Imagen" class="text-danger"></span>
+                    <input asp-for="Imagen" name="Imagen" type="file" class="form-control" />
                 </div>
 
                 <button type="submit" class="btn btn-primary">
