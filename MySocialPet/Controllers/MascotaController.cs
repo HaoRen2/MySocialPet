@@ -73,7 +73,6 @@ namespace MySocialPet.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-
         public IActionResult AgregarNota(int id, string descripcion)
         {
             if (!string.IsNullOrWhiteSpace(descripcion))
@@ -130,6 +129,7 @@ namespace MySocialPet.Controllers
                 return NotFound();
 
             var especieViewModel = _mascotaDAL.GetEspecie();
+            var razasViewModel = _mascotaDAL.GetRazaPorEspecie(mascota.Raza.IdEspecie);
 
             var model = new CrearMascotaViewModel
             {
@@ -142,8 +142,9 @@ namespace MySocialPet.Controllers
                 BCS = mascota.BCS,
                 Esterilizada = mascota.Esterilizada,
                 IdRaza = mascota.IdRaza,
+                IdEspecie = mascota.Raza.IdEspecie,
                 Especies = especieViewModel.Especies,
-                Razas = _mascotaDAL.GetRazaPorEspecie(mascota.Raza.IdEspecie)
+                Razas = razasViewModel
             };
 
             return View("EditMascota", model); 
@@ -317,8 +318,6 @@ namespace MySocialPet.Controllers
                 return Json(new { exito = false, mensaje = "Los datos introducidos no son válidos." });
             }
 
-            // --- Obtención de datos de la raza ---
-            // ASUMIMOS que ahora tu clase 'Raza' tiene una propiedad: public double? RatioIdeal { get; set; }
             var raza = _mascotaDAL.GetRazaDeMascota(idRaza);
 
             if (raza == null || raza.Especie == null)

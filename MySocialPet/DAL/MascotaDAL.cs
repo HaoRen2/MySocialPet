@@ -43,9 +43,10 @@ namespace MySocialPet.DAL
                 .ToList();
         }
 
-        public async void UpdateMascota(Mascota mascota) 
+        public async Task UpdateMascota(Mascota mascota) 
         {
             var m = _context.Mascotas.FirstOrDefault(m => m.IdMascota == mascota.IdMascota);
+          
             if (m != null)
             {
                 m = mascota;

@@ -16,7 +16,7 @@
         public int IdMascota { get; set; }
         public string Titulo { get; set; }
         public DateTime FechaHora { get; set; }
-        public string TipoEvento { get; set; }
+        public string Color { get; set; }
         public string Notas { get; set; }
     }
 
