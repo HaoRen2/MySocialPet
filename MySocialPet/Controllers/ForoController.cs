@@ -20,6 +20,9 @@ namespace MySocialPet.Controllers
         {
             IndexForoViewModel vm = new IndexForoViewModel();
 
+            List<Discusion> tendencias = _foroDAL.GetTrendingDiscusionsAsync(null).Result;
+
+            vm.Tendencias = tendencias;
             vm.Foros = _foroDAL.GetForos();
 
             return View(vm);
@@ -39,9 +42,11 @@ namespace MySocialPet.Controllers
             }
 
             List<Discusion> discusiones = _foroDAL.GetDiscusionesPorForo(foro.IdForo);
+            List<Discusion> tendencias = _foroDAL.GetTrendingDiscusionsAsync(null).Result;
 
             vm.Foro = foro;
             vm.Discusions = discusiones;
+            vm.Tendencias = tendencias;
 
             return View(vm);
         }
@@ -51,19 +56,22 @@ namespace MySocialPet.Controllers
         public IActionResult HiloDetails(string slug, int foroId, int discId)
         {
             // buscar foro por slug
-            var foro = _foroDAL.GetForoBySlug(slug);
+            Foro? foro = _foroDAL.GetForoBySlug(slug);
             if (foro == null) return NotFound();
 
             // buscar discusión por id y comprobar que pertenece al foro
-            var disc = _foroDAL.GetDiscusionById(discId);
+            Discusion? disc = _foroDAL.GetDiscusionById(discId);
             if (disc == null || disc.IdForo != foro.IdForo) return NotFound();
+
+            List<Discusion> tendencias = _foroDAL.GetTrendingDiscusionsAsync(null).Result;
 
             var vm = new DetailDiscusionViewModel
             {
                 IdForo = foroId,
                 IdDiscusion = discId,
                 Slug = slug,
-                Discusion = disc
+                Discusion = disc,
+                Tendencias = tendencias
             };
 
             return View(vm);
