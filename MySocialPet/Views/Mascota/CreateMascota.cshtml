@@ -9,7 +9,6 @@
         <h2>Registra nueva mascota 🐾</h2>
         <p class="lead">Completa los datos de tu nuevo amigo. Al seleccionar una raza, verás sus detalles.</p>
     </div>
-    <div asp-validation-summary="All" class="alert alert-danger"></div>
     <div class="row g-4">
         <div class="col-lg-7">
             <div class="card shadow-sm h-100">
@@ -32,7 +31,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label">Especies</label>
-                            <select asp-items="Model.Especies" class="form-select" id="especieSelect">
+                            <select asp-for="IdEspecie" asp-items="Model.Especies" class="form-select" id="especieSelect">
                                 <option value="">Seleccione una especie</option>
                             </select>
                             <span class="text-danger"></span>
@@ -41,7 +40,7 @@
                             <label asp-for="IdRaza" class="form-label"></label>
                             <select asp-for="IdRaza" class="form-select" id="razaSelect">
                                 <option value="">Primero elija una especie</option>
-                                @if (Model.Razas != null)
+                                @if (Model.Razas != null) 
                                 {
                                     foreach (var raza in Model.Razas)
                                     {
@@ -56,18 +55,27 @@
                             <hr />
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label asp-for="PesoKg" class="form-label">Peso (Kg)</label>
                             <input asp-for="PesoKg" id="pesoInput" type="number" inputmode="decimal" class="form-control" step="0.1" />
                             <span asp-validation-for="PesoKg" class="text-danger"></span>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label asp-for="LongitudCm" class="form-label">Longitud (cm)</label>
                             <input asp-for="LongitudCm" id="longitudInput" type="number" inputmode="decimal" class="form-control" step="0.1" />
                             <span asp-validation-for="LongitudCm" class="text-danger"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">BCS (Calculado)</label>
+                        <div class="col-md-12">
+                            <label class="form-label">
+                                Indice corporal (Calculado)
+                                <span class="text-primary"
+                                      data-bs-toggle="tooltip"
+                                      data-bs-placement="top"
+                                      title="IMPORTANTE: Este es un cálculo de orientación basado en promedios
+                                        y no reemplaza la evaluación de un veterinario. La complexión de cada mascota es única.">
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                </span>
+                            </label>
                             <input id="bcsTextoInput" class="form-control" readonly placeholder="Se calculará aquí" />
                             <input asp-for="BCS" id="bcsValorInput" type="hidden" />
                             <span asp-validation-for="BCS" class="text-danger"></span>
@@ -122,6 +130,12 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);});
+
+
             const especieSelect = document.getElementById("especieSelect");
             const razaSelect = document.getElementById("razaSelect");
             const razaInfo = document.getElementById("razaInfo");
@@ -180,9 +194,7 @@
             const bcsTextoInput = document.getElementById("bcsTextoInput");
             const bcsValorInput = document.getElementById("bcsValorInput");
 
-            function calcularYActualizarBCS() {
-                const especieTexto = especieSelect.options[especieSelect.selectedIndex].text.toLowerCase();
-                if (especieTexto === 'pájaro') return;
+           function calcularIndiceCorporal() {
 
                 const peso = parseFloat(pesoInput.value);
                 const longitud = parseFloat(longitudInput.value);
@@ -190,15 +202,15 @@
 
                 if (peso > 0 && longitud > 0 && razaId > 0) {
                     bcsTextoInput.value = "Calculando...";
-                    bcsValorInput.value = ""; // Limpiar valor numérico mientras se calcula
+                    bcsValorInput.value = "";
 
-                    const url = `@Url.Action("CalcularBCS", "Mascota")?pesoKg=${peso}&longitudCm=${longitud}&idRaza=${razaId}`;
+                    const url = `@Url.Action("EstimarIndiceCorporal", "Mascota")?pesoKg=${peso}&longitudLomoCm=${longitud}&idRaza=${razaId}`;
                     fetch(url)
                         .then(response => response.json())
                         .then(data => {
                             if (data) {
-                                bcsTextoInput.value = data.bcsTexto || "";
-                                bcsValorInput.value = data.bcsValor || "";
+                                bcsTextoInput.value = data.textoOrientativo || "";
+                                bcsValorInput.value = data.valorEstimado || "";
                             }
                         })
                         .catch(() => {
@@ -211,9 +223,9 @@
                 }
             }
 
-            pesoInput.addEventListener("input", calcularYActualizarBCS);
-            longitudInput.addEventListener("input", calcularYActualizarBCS);
-            razaSelect.addEventListener("change", calcularYActualizarBCS);
+            pesoInput.addEventListener("input", calcularIndiceCorporal);
+            longitudInput.addEventListener("input", calcularIndiceCorporal);
+            razaSelect.addEventListener("change", calcularIndiceCorporal);
 
         });
     </script>

@@ -13,12 +13,12 @@
                title="Editar">
                 <i class="bi bi-pencil"></i>
             </a>
-            <a href="@Url.Action("DeleteMascota", "Mascota", new { id = mascota.IdMascota })"
-               title="Eliminar"
-               class="btn"
-               onclick="return confirm('¿Estás seguro de eliminar esta mascota?');">
+            <form asp-action="DeleteMascota" asp-controller="Mascota" method="post" onsubmit="return confirm('¿Estás seguro de eliminar esta mascota?');">
+                <input type="hidden" name="id" value="@mascota.IdMascota" />
+                <button type="submit" title="Eliminar" class="btn">
                 <i class="bi bi-trash"></i>
-            </a>
+                </button>
+            </form>
             <a href="@Url.Action("SaludRegistro", "Salud", new { id = mascota.IdMascota })"
                title="Salud"
                class="btn">
@@ -108,12 +108,12 @@
         <div class="bg-light p-2 rounded flex-grow-1">@nota.Descripcion</div>
         <div class="ms-2">
             <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editarNotaModal">
-                Editar
+                <i class="bi bi-pencil"></i>
             </button>
 
             <form asp-action="EliminarNota" asp-route-id="@nota.IdNota" method="post" class="d-inline"
                   onsubmit="return confirm('¿Eliminar esta nota?');">
-                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
             </form>
         </div>
     </div>

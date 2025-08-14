@@ -9,7 +9,6 @@
 
         <!-- LOGIN + HAMBURGUESA en móvil -->
         <div class="d-flex align-items-center d-lg-none">
-            <a href="@Url.Action("Index", "Login")" class="btn fs-4 me-4">&nbsp;Login&nbsp;</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <i class="bi bi-list menu-icon" id="toggleSidebar"></i>
             </button>
@@ -26,11 +25,29 @@
                         </a>
                     </li>
                     <li class="separador-vertical"></li>
-                    <li class="nav-item nav-section">
-                        <a class="nav-link text-white fw-semibold" href="@Url.Action("SaludRegistro", "Salud", new { id = Model })">
-                            <i class="bi bi-heart-pulse me-1"></i>Salud
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Accion
                         </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                 <a class="dropdown-item" href="@Url.Action("SaludRegistro", "Salud", new { id = Model })">
+                            <i class="bi bi-heart-pulse me-1"></i> Salud
+                        </a>
+                            </li>
+                            <li>
+                        <a class="dropdown-item" href="@Url.Action("Vacunas", "Salud", new { id = Model })">
+                            <i class="bi bi-clipboard-plus me-1"></i> Vacuna
+                        </a>
+                            </li>
+                            <li>
+                        <a class="dropdown-item" href="@Url.Action("CalendarioEventos", "Salud", new { id = Model })">
+                            <i class="bi bi-calendar me-1"></i> Evento
+                        </a>
+                            </li> 
+                        </ul>
                     </li>
+
                     <li class="separador-vertical"></li>
                     <li class="nav-item nav-section">
                         <a class="nav-link text-white fw-semibold" href="@Url.Action("ListAlbum", "Albums")">
@@ -39,10 +56,17 @@
                     </li>
                     <li class="separador-vertical"></li>
                     <li class="nav-item nav-section">
+                        <a class="nav-link text-white fw-semibold" href="@Url.Action("Index", "Sugerencia")">
+                            <i class="bi bi-book me-1"></i>Sugerencia
+                        </a>
+                    </li>
+                    <li class="separador-vertical"></li>
+                    <li class="nav-item nav-section">
                         <a class="nav-link text-white fw-semibold" href="@Url.Action("Index", "Foro")">
                             <i class="bi bi-chat-dots me-1"></i>Foro
                         </a>
                     </li>
+                    <li class="separador-vertical"></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="~/src/DefaultAvatar.png"

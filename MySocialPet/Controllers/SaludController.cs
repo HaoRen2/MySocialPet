@@ -86,7 +86,7 @@ namespace MySocialPet.Controllers
                     IdEvento = e.IdEvento,
                     Titulo = e.Titulo,
                     FechaHora = e.FechaHora,
-                    TipoEvento = e.TipoEvento,
+                    Color = e.Color,
                     Notas = e.Notas,
                     IdMascota = e.IdMascota
                 }).ToList()
@@ -105,7 +105,7 @@ namespace MySocialPet.Controllers
                 {
                     Titulo = model.Titulo,
                     FechaHora = model.FechaHora,
-                    TipoEvento = model.TipoEvento,
+                    Color = model.Color,
                     Notas = model.Notas,
                     IdMascota = model.IdMascota
                 };
@@ -131,7 +131,7 @@ namespace MySocialPet.Controllers
                 {
                     eventoExistente.Titulo = model.Titulo;
                     eventoExistente.FechaHora = model.FechaHora;
-                    eventoExistente.TipoEvento = model.TipoEvento;
+                    eventoExistente.Color = model.Color;
                     eventoExistente.Notas = model.Notas;
                     eventoExistente.IdMascota = model.IdMascota;
 
@@ -206,9 +206,17 @@ namespace MySocialPet.Controllers
                 Vacunas = vacunasVM
             };
 
+            var vacunasRegistradasIds = vacunasRegistradas.Select(v => v.IdTipoVacuna).ToList();
+
             ViewBag.Vacunas = _context.TipoVacunas
-                .OrderBy(v => v.Nombre).Select(v => new SelectListItem
-                {Value = v.IdTipoVacuna.ToString(),Text = v.Nombre}).ToList();
+                .Where(v => !vacunasRegistradasIds.Contains(v.IdTipoVacuna))
+                .OrderBy(v => v.Nombre)
+                .Select(v => new SelectListItem
+                {
+                    Value = v.IdTipoVacuna.ToString(),
+                    Text = v.Nombre
+                })
+                .ToList();
 
             return View(viewModel);
         }

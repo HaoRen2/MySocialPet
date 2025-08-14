@@ -2,22 +2,23 @@
 
 @{
     ViewData["Title"] = "Registrar Salud de " + Model.NombreMascota;
-    var vistaActual = "SaludRegistro";
+    var pagina = "Salud";
+
 }
 
 <div class="container pt-nav">
-    <div class="view-switcher mb-3">
+    <div class="auth-tabs mb-3">
         <a asp-action="SaludRegistro"
            asp-controller="Salud"
            asp-route-id="@Model.IdMascota"
-           class="btn @(vistaActual == "SaludRegistro" ? "btn-primary" : "btn-outline-primary")">
+           class="btn @(pagina.ToString() == "Salud" ? "active" : "")">
             Registro Salud
         </a>
         <a asp-action="Vacunas"
            asp-controller="Salud"
            asp-route-id="@Model.IdMascota"
            asp-route-vista="especificaciones"
-           class="btn @(vistaActual == "Vacunas" ? "btn-primary" : "btn-outline-primary")">
+           class="btn @(pagina.ToString() == "Vacuna" ? "active" : "")">
             Registro Vacunas
         </a>
     </div>
@@ -56,7 +57,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">BCS Calculado</label>
+                    <label class="form-label">Indice corporal Calculado</label>
                     <input type="text" class="form-control" readonly id="bcsTextoInput" />
                     <input type="hidden" asp-for="BCS" id="bcsValorInput" />
                     <small>
@@ -118,6 +119,8 @@
 
         document.getElementById("pesoInput").addEventListener("input", EstimarIndiceCorporal);
         document.getElementById("longitudInput").addEventListener("input", EstimarIndiceCorporal);
+        document.getElementById("pesoInput").dispatchEvent(new Event('input'));
+
 
                 const idMascota = @Model.IdMascota;
 
@@ -181,27 +184,24 @@
                                 title: 
                                 {
                                 display: true,
-                                text: 'BCS'
+                                text: 'Indice corporal'
                                 },
                                 min: 1,
                                 max: 9,
                                 ticks: {
                                 stepSize: 1 
                                 },
-                                grid: {
-                                drawOnChartArea: false
-            }
-        }
+                                grid: { drawOnChartArea: false}}
                                 }
                             }
                         });
                     });
 
-                // === 2. Calorías recomendadas ===
                 fetch(`/Salud/CalcularCalorias?idMascota=${idMascota}`)
                     .then(res => res.json())
                     .then(data => {
                         document.getElementById('caloriasValor').textContent = data.calorias;
                     });
+
     </script>
 }

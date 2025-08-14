@@ -23,6 +23,8 @@ namespace MySocialPet.Models.ViewModel.Mascotas
         public bool Esterilizada { get; set; }
         [Required]
         public int IdRaza { get; set; }
+        [Required]
+        public int? IdEspecie { get; set; }
 
         public IEnumerable<SelectListItem>? Especies { get; set; }
         public IEnumerable<SelectListItem>? Razas { get; set; }
