@@ -33,56 +33,72 @@
                         </div>
                     </div>
                 </div>
+
+
                 @{
                     if (Model.Discusion.Mensajes != null && Model.Discusion.Mensajes.Any())
                     {
-                        <div class="bg-white shadow">
+                        @for (int i = 0; i < Model.Discusion.Mensajes.Count; i++)
+                        {
+                            var index = i + 1;
+                            var item = Model.Discusion.Mensajes.ElementAt(i);
+
+                            <div class="bg-white shadow">
                                 <div class="list-group list-group-flush p-3 mb-3">
-                                    @foreach (var item in Model.Discusion.Mensajes)
-                                    {
-                                        <div class="py-2">
-                                            <div class="list-group-item d-flex justify-content-between align-items-center py-1 border-0">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="me-3">
-                                                    
-                                                    <img id="avatarClickable"
-                                                         src="@(Model.IdForo != null
-                                          ? $"data:image/png;base64,{Convert.ToBase64String(null)}"
-                                          : Url.Content("~/src/DefaultAvatar/AvatarPerro.png"))"
-                                                         alt="Avatar"
-                                                         class="rounded-circle mb-3"
-                                                         style="width:140px;height:140px;object-fit:cover;border:4px solid var(--ultralight-green);cursor:pointer;"
-                                                         title="Cambiar avatar (clic)">
-                                                    </div>
-                                                    <div>
-                                                        <h5 class="mb-0 fw-bold">@item.Usuario.Username</h5>
-                                                        <p class="text-muted small mb-0">
-                                                            MySocialPet: Usuario
-                                                        </p>
-                                                    </div>
+                                    <div class="py-2">
+                                        <div class="list-group-item d-flex justify-content-between align-items-center py-1 border-0">
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    @if (item.Discusion.UsuarioCreador.AvatarFoto != null)
+                                                    {
+                                                        <img class="rounded-circle" width="50px" src="data:image/jpeg;base64,@(Convert.ToBase64String(item.Discusion.UsuarioCreador.AvatarFoto))" alt="Foto de perfil" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <img class="rounded-circle" width="50px" src="@Url.Content("~/src/DefaultAvatar/AvatarPerro.png")" alt="Foto de perfil por defecto" />
+                                                    }
                                                 </div>
-                                                <div class="d-flex align-items-center">
-                                                    <p class="text-muted small mb-0 me-1 d-none d-sm-block">Mensaje</p>
-                                                    <span class="text-muted me-3"># @item.IdMensaje</span>
+                                                <div>
+                                                    @if (item.Usuario != null)
+                                                    {
+                                                        <h5 class="mb-0 fw-bold">@item.Usuario.Username</h5>
+                                                        <p class="text-muted small mb-0">MySocialPet: Usuario</p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <h5 class="mb-0 fw-bold">Usuario desconocido</h5>
+                                                        <p class="text-muted small mb-0">MySocialPet: Usuario</p>
+                                                    }
                                                 </div>
                                             </div>
-                                            <hr />
-                                            <p>@item.ContenidoMensaje</p>
+                                            <div class="d-flex align-items-center">
+                                                <p class="text-muted small mb-0 me-1 d-none d-sm-block">Mensaje</p>
+                                                <span class="text-muted me-3"># @index</span>
+                                            </div>
                                         </div>
-                                    }
+                                        <hr />
+                                        <img class="m-4" width="150px" src="@Url.Content("~/src/DefaultAvatar/AvatarPerro.png")" alt="Foto de perfil por defecto" />
+
+                                        <p>@item.ContenidoMensaje</p>
+                                    </div>
+
                                 </div>
-                        </div>
+                            </div>
+                                }
                     }
                     else
                     {
                         <div class="bg-white shadow">
+                            <div class="list-group list-group-flush p-3 mb-3">
+                        <div class="bg-white shadow">
                             <div class="p-3">
-                                <p>Aún no hay discusiones en este foro. ¡Sé el primero en iniciar una!</p>
+                                <p>Aún no hay discusiones en este foro. ¡Sé el primero en iniciar una!</p> [cite: 24, 25]
+                            </div>
+                                </div>
                             </div>
                         </div>
                     }
                 }
-
                 <div class="row bg-white shadow mx-0 py-3 rounded-top rounded-15 border-top-0 ">
                     <div class="d-flex justify-content-between">
                         <a asp-action="Hilos"
@@ -105,6 +121,29 @@
                     <img style="background-image: var(--trending_icon); height: 28px; width: 28px; margin-right: 4px" src="@Url.Content("~/src/foro/icons/Fire.svg")" class="d-inline mb-3" alt="Persona enviando mensaje desde el móvil" />
                     <h3 class="d-inline">Trending</h3>
                     <p style="color: #a4a4a4">Los hilos del momento en MySocialPet</p>
+                    @if (Model.Tendencias != null && Model.Tendencias.Any())
+                    {
+                        <ul class="list-group list-group-flush mt-3">
+                            @foreach (var discusion in Model.Tendencias)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <a asp-action="HiloDetails"
+                                       asp-route-slug="@discusion.Foro.Slug"
+                                       asp-route-foroId="@discusion.IdForo"
+                                       asp-route-discId="@discusion.IdDiscusion"
+                                       class="text-decoration-none text-dark fw-bold">
+                                        @discusion.Titulo
+                                    </a>
+                                    <span class="badge bg-verde rounded-pill">@discusion.Mensajes.Count</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No hay hilos en tendencia en este momento.</p>
+                    }
+
                 </div>
             </div>
         </div>

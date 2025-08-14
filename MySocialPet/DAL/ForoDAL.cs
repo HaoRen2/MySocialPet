@@ -83,5 +83,26 @@ namespace MySocialPet.DAL
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<Discusion>> GetTrendingDiscusionsAsync(int? foroId)
+        {
+            // Obtener la fecha de hace 7 días
+            var sevenDaysAgo = DateTime.UtcNow.AddDays(-7);
+            if(foroId == null)
+            {
+                return await _context.Discusiones
+                .Include(d => d.Mensajes)
+                .Where(d => d.Mensajes.Any(m => m.FechaEnvio >= sevenDaysAgo))
+                .OrderByDescending(d => d.Mensajes.Count(m => m.FechaEnvio >= sevenDaysAgo))
+                .Take(5)
+                .ToListAsync();
+            }
+            return await _context.Discusiones
+                .Where(d => d.IdForo == foroId)
+                .Include(d => d.Mensajes)
+                .Where(d => d.Mensajes.Any(m => m.FechaEnvio >= sevenDaysAgo))
+                .OrderByDescending(d => d.Mensajes.Count(m => m.FechaEnvio >= sevenDaysAgo))
+                .Take(5)
+                .ToListAsync();
+        }
     }
 }
