@@ -39,9 +39,12 @@ namespace MySocialPet.DAL
         public List<Discusion> GetDiscusionesPorForo(int idForo)
         {
             return _context.Discusiones
-                .Where(d => d.IdForo == idForo)
-                .Include(d => d.UsuarioCreador)
-                .ToList();
+            .Include(d => d.Mensajes)
+                .ThenInclude(m => m.Usuario)
+            .Include(d => d.UsuarioCreador)
+            .Where(d => d.IdForo == idForo)
+            .Include(d => d.UsuarioCreador)
+            .ToList();
         }
 
         public Discusion? GetDiscusionById(int id)
@@ -91,6 +94,7 @@ namespace MySocialPet.DAL
             {
                 return await _context.Discusiones
                 .Include(d => d.Mensajes)
+                .Include(f => f.Foro)
                 .Where(d => d.Mensajes.Any(m => m.FechaEnvio >= sevenDaysAgo))
                 .OrderByDescending(d => d.Mensajes.Count(m => m.FechaEnvio >= sevenDaysAgo))
                 .Take(5)
@@ -99,6 +103,7 @@ namespace MySocialPet.DAL
             return await _context.Discusiones
                 .Where(d => d.IdForo == foroId)
                 .Include(d => d.Mensajes)
+                .Include(f => f.Foro)
                 .Where(d => d.Mensajes.Any(m => m.FechaEnvio >= sevenDaysAgo))
                 .OrderByDescending(d => d.Mensajes.Count(m => m.FechaEnvio >= sevenDaysAgo))
                 .Take(5)

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using MySocialPet.Models.Foros;
+﻿using MySocialPet.Models.Foros;
 
 namespace MySocialPet.Models.ViewModel.Foros
 {

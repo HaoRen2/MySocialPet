@@ -67,7 +67,7 @@ namespace MySocialPet.Controllers
 
             var vm = new DetailDiscusionViewModel
             {
-                IdForo = foroId,
+                IdForo = foro.IdForo,
                 IdDiscusion = discId,
                 Slug = slug,
                 Discusion = disc,
@@ -146,11 +146,22 @@ namespace MySocialPet.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
+            byte[] fotoData = null;
+            if (vm.Imagen != null && vm.Imagen.Length > 0)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await vm.Imagen.CopyToAsync(memoryStream);
+                    fotoData = memoryStream.ToArray();
+                }
+            }
+
             var mensaje = new Mensaje
             {
                 IdDiscusion = vm.IdDiscusion,
                 IdMensajePadre = vm.IdMensajePadre,
                 ContenidoMensaje = vm.Contenido,
+                Imagen = fotoData,
                 FechaEnvio = DateTime.Now,
                 IdUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value)
             };

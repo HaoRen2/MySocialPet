@@ -14,6 +14,8 @@ namespace MySocialPet.Models.Foros
         public string ContenidoMensaje { get; set; }
         public DateTime FechaEnvio { get; set; }
 
+        public byte[]? Imagen { get; set; }
+
         public int IdUsuario { get; set; }
         [ForeignKey("IdUsuario")]
         public virtual Usuario Usuario { get; set; }
