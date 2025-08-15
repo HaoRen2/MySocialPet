@@ -13,12 +13,12 @@
                title="Editar">
                 <i class="bi bi-pencil"></i>
             </a>
-            <a href="@Url.Action("DeleteMascota", "Mascota", new { id = mascota.IdMascota })"
-               title="Eliminar"
-               class="btn"
-               onclick="return confirm('¿Estás seguro de eliminar esta mascota?');">
+            <form asp-action="DeleteMascota" asp-controller="Mascota" method="post" onsubmit="return confirm('¿Estás seguro de eliminar esta mascota?');">
+                <input type="hidden" name="id" value="@mascota.IdMascota" />
+                <button type="submit" title="Eliminar" class="btn">
                 <i class="bi bi-trash"></i>
-            </a>
+                </button>
+            </form>
             <a href="@Url.Action("SaludRegistro", "Salud", new { id = mascota.IdMascota })"
                title="Salud"
                class="btn">
@@ -102,12 +102,48 @@
             <hr />
             @if (Model.Notas != null && Model.Notas.Any())
             {
-                foreach (var nota in Model.Notas)
-                {
-                    <div class="mb-2">
-                        <div class="bg-light p-2 rounded">@nota.Descripcion</div>
+                @foreach (var nota in Model.Notas)
+{
+    <div class="mb-2 d-flex justify-content-between align-items-start">
+        <div class="bg-light p-2 rounded flex-grow-1">@nota.Descripcion</div>
+        <div class="ms-2">
+            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editarNotaModal">
+                <i class="bi bi-pencil"></i>
+            </button>
+
+            <form asp-action="EliminarNota" asp-route-id="@nota.IdNota" method="post" class="d-inline"
+                  onsubmit="return confirm('¿Eliminar esta nota?');">
+                <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para editar esta nota -->
+    <div class="modal fade" id="editarNotaModal" tabindex="-1" aria-labelledby="editarNotaModalLabel_@nota.IdNota" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form asp-action="EditNota" asp-controller="Mascota" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editarNotaModalLabel_@nota.IdNota">Editar Nota</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
-                }
+                    <div class="modal-body">
+                        <input type="hidden" name="IdNota" value="@nota.IdNota" />
+                        <input type="hidden" name="IdMascota" value="@nota.IdMascota" />
+                        <div class="mb-3">
+                            <label for="descripcion_@nota.IdNota" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="descripcion_@nota.IdNota" name="Descripcion" rows="3" maxlength="150">@nota.Descripcion</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
             }
             else
             {
@@ -115,4 +151,7 @@
             }
         </div>
     </div>
+
+
 </div>
+

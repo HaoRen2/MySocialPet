@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MySocialPet.DAL;
@@ -8,16 +9,19 @@ using MySocialPet.Models.ViewModel.Salud;
 
 namespace MySocialPet.Controllers
 {
+    [Authorize]
     public class SaludController : Controller
     {
 
         private readonly AppDbContexto _context;
+        private readonly SaludDAL _saludDAL;
         private readonly MascotaDAL _mascotaDAL;
 
 
-        public SaludController(AppDbContexto context, MascotaDAL mascotaDAL)
+        public SaludController(AppDbContexto context, SaludDAL saludDAL, MascotaDAL mascotaDAL)
         {
             _context = context;
+            _saludDAL = saludDAL;
             _mascotaDAL = mascotaDAL;
         }
 
@@ -68,11 +72,7 @@ namespace MySocialPet.Controllers
         [HttpGet]
         public async Task<IActionResult> CalendarioEventos(int id)
         {
-            var mascota = await _context.Mascotas
-                    .Include(m => m.Eventos)
-                    .Include(m => m.Raza)
-                        .ThenInclude(r => r.Especie)
-                    .FirstOrDefaultAsync(m => m.IdMascota == id);
+            var mascota = _saludDAL.GetEventosMascota(id);
 
             if (mascota == null)
                 return NotFound();
@@ -86,7 +86,7 @@ namespace MySocialPet.Controllers
                     IdEvento = e.IdEvento,
                     Titulo = e.Titulo,
                     FechaHora = e.FechaHora,
-                    TipoEvento = e.TipoEvento,
+                    Color = e.Color,
                     Notas = e.Notas,
                     IdMascota = e.IdMascota
                 }).ToList()
@@ -105,13 +105,12 @@ namespace MySocialPet.Controllers
                 {
                     Titulo = model.Titulo,
                     FechaHora = model.FechaHora,
-                    TipoEvento = model.TipoEvento,
+                    Color = model.Color,
                     Notas = model.Notas,
                     IdMascota = model.IdMascota
                 };
 
-                _context.Eventos.Add(nuevoEvento);
-                await _context.SaveChangesAsync();
+               _saludDAL.InsertMascota(nuevoEvento);
 
                 return RedirectToAction("CalendarioEventos", new { id = model.IdMascota });
             }
@@ -132,7 +131,7 @@ namespace MySocialPet.Controllers
                 {
                     eventoExistente.Titulo = model.Titulo;
                     eventoExistente.FechaHora = model.FechaHora;
-                    eventoExistente.TipoEvento = model.TipoEvento;
+                    eventoExistente.Color = model.Color;
                     eventoExistente.Notas = model.Notas;
                     eventoExistente.IdMascota = model.IdMascota;
 
@@ -207,9 +206,17 @@ namespace MySocialPet.Controllers
                 Vacunas = vacunasVM
             };
 
+            var vacunasRegistradasIds = vacunasRegistradas.Select(v => v.IdTipoVacuna).ToList();
+
             ViewBag.Vacunas = _context.TipoVacunas
-                .OrderBy(v => v.Nombre).Select(v => new SelectListItem
-                {Value = v.IdTipoVacuna.ToString(),Text = v.Nombre}).ToList();
+                .Where(v => !vacunasRegistradasIds.Contains(v.IdTipoVacuna))
+                .OrderBy(v => v.Nombre)
+                .Select(v => new SelectListItem
+                {
+                    Value = v.IdTipoVacuna.ToString(),
+                    Text = v.Nombre
+                })
+                .ToList();
 
             return View(viewModel);
         }

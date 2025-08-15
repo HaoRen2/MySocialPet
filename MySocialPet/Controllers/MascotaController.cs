@@ -8,6 +8,7 @@ using MySocialPet.Models.Salud;
 using MySocialPet.Models.ViewModel;
 using MySocialPet.Models.ViewModel.Mascotas;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace MySocialPet.Controllers
 {
@@ -15,7 +16,6 @@ namespace MySocialPet.Controllers
     public class MascotaController : Controller
     {
         private readonly MascotaDAL _mascotaDAL;
-
         public MascotaController(MascotaDAL mascotaDAL)
         {
             _mascotaDAL = mascotaDAL;
@@ -72,6 +72,7 @@ namespace MySocialPet.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult AgregarNota(int id, string descripcion)
         {
             if (!string.IsNullOrWhiteSpace(descripcion))
@@ -87,6 +88,29 @@ namespace MySocialPet.Controllers
 
             return RedirectToAction("Details", new { id });
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarNota(int id)
+        {
+            var nota = _mascotaDAL.GetNotabyId(id);
+            if (nota != null)
+            {
+                await _mascotaDAL.DeleteNota(nota);
+                return RedirectToAction("Details", new { id = nota.IdMascota });
+            }
+
+            return NotFound();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditNota(Nota nota)
+        {
+           await _mascotaDAL.UpdateNota(nota);
+           return RedirectToAction("Details", new { id = nota.IdMascota });
+        }
+
 
 
         [HttpGet]
@@ -105,6 +129,7 @@ namespace MySocialPet.Controllers
                 return NotFound();
 
             var especieViewModel = _mascotaDAL.GetEspecie();
+            var razasViewModel = _mascotaDAL.GetRazaPorEspecie(mascota.Raza.IdEspecie);
 
             var model = new CrearMascotaViewModel
             {
@@ -117,8 +142,9 @@ namespace MySocialPet.Controllers
                 BCS = mascota.BCS,
                 Esterilizada = mascota.Esterilizada,
                 IdRaza = mascota.IdRaza,
+                IdEspecie = mascota.Raza.IdEspecie,
                 Especies = especieViewModel.Especies,
-                Razas = _mascotaDAL.GetRazaPorEspecie(mascota.Raza.IdEspecie)
+                Razas = razasViewModel
             };
 
             return View("EditMascota", model); 
@@ -173,7 +199,6 @@ namespace MySocialPet.Controllers
                     nombre = raza.Categoria?.NombreCategoria
                 }
             };
-
             return Json(resultado);
         }
 
@@ -286,65 +311,77 @@ namespace MySocialPet.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> CalcularBCS(double pesoKg, double longitudCm, int idRaza)
+        public async Task<IActionResult> EstimarIndiceCorporal(double pesoKg, double longitudLomoCm, int idRaza)
         {
-            if (pesoKg <= 0 || longitudCm <= 0 || idRaza <= 0)
+            if (pesoKg <= 0 || longitudLomoCm <= 0 || idRaza <= 0)
             {
-                return Json(new { bcsValor = 0, bcsTexto = "" });
+                return Json(new { exito = false, mensaje = "Los datos introducidos no son válidos." });
             }
 
             var raza = _mascotaDAL.GetRazaDeMascota(idRaza);
 
-            if (raza == null || raza.Especie == null || string.IsNullOrEmpty(raza.Tamanyo))
+            if (raza == null || raza.Especie == null)
             {
-                return Json(new { bcsValor = 0, bcsTexto = "Raza no encontrada" });
+                return Json(new { exito = false, mensaje = "Raza no encontrada o datos incompletos." });
             }
 
             string especie = raza.Especie.Nombre.ToLower();
-            string tamano = raza.Tamanyo.ToLower();
+            string tamano = raza.Tamanyo?.ToLower() ?? "";
+            int ratioIdeal = 0;
+            // --- CÁLCULO DEL RATIO IDEAL (Lógica mejorada) ---
+            // double? ratioIdeal = null;
 
-            // Calcular ratio tipo IMC: peso en kg / (longitud en metros)^2
-            double longitudMetros = longitudCm / 100.0;
-            double ratioActual = pesoKg / Math.Pow(longitudMetros, 2);
-
-            // Valores de IMC aproximados para ideal según especie/tamaño
-            double ratioIdeal;
+            // 1. Prioridad: Usar el ratio específico de la raza si existe en la BD.
+            /*
+            if (raza.RatioIdeal != null && raza.RatioIdeal > 0)
+            {
+                ratioIdeal = raza.RatioIdeal;
+            }
+            */
+            // 2. Fallback: Si no hay ratio específico, usar la lógica general por tamaño.
             if (especie == "perro")
             {
                 if (tamano.Contains("toy") || tamano.Contains("pequeño")) ratioIdeal = 28;
                 else if (tamano.Contains("mediano")) ratioIdeal = 30;
                 else if (tamano.Contains("grande")) ratioIdeal = 32;
                 else if (tamano.Contains("gigante")) ratioIdeal = 34;
-                else ratioIdeal = 30;
+                else ratioIdeal = 30; // Default para perros
             }
             else if (especie == "gato")
             {
-                ratioIdeal = 30; // Gatos adultos estándar
-            }
-            else
-            {
-                return Json(new { bcsValor = 0, bcsTexto = "No aplicable" });
+                // Para gatos, es mejor tener ratios por raza. Si no, usamos un default genérico
+                // pero somos conscientes de su alta imprecisión.
+                ratioIdeal = 30; // Default para gatos (con sus limitaciones ya discutidas)
             }
 
-            // Calcular desviación en porcentaje
+            if (ratioIdeal <= 0)
+            {
+                return Json(new { exito = false, mensaje = "No se pudo determinar un ratio ideal para esta especie o raza." });
+            }
+
+            // --- CÁLCULO DEL ÍNDICE ACTUAL Y LA DESVIACIÓN ---
+            double longitudMetros = longitudLomoCm / 100.0;
+            double ratioActual = pesoKg / Math.Pow(longitudMetros, 2);
             double desviacion = (ratioActual - ratioIdeal) / ratioIdeal * 100;
 
-            // Escala BCS estándar (1 a 9)
-            int bcsValor;
-            string bcsTexto;
+            // --- MAPEO A UNA ESCALA ORIENTATIVA ---
+            int valorEstimado;
+            string textoOrientativo;
 
-            if (desviacion <= -40) { bcsValor = 1; bcsTexto = "1 - Emaciado"; }
-            else if (desviacion <= -30) { bcsValor = 2; bcsTexto = "2 - Muy Delgado"; }
-            else if (desviacion <= -20) { bcsValor = 3; bcsTexto = "3 - Delgado"; }
-            else if (desviacion <= -10) { bcsValor = 4; bcsTexto = "4 - Ligeramente Delgado"; }
-            else if (desviacion <= 10) { bcsValor = 5; bcsTexto = "5 - Ideal"; }
-            else if (desviacion <= 20) { bcsValor = 6; bcsTexto = "6 - Ligeramente Sobrepeso"; }
-            else if (desviacion <= 30) { bcsValor = 7; bcsTexto = "7 - Sobrepeso"; }
-            else if (desviacion <= 40) { bcsValor = 8; bcsTexto = "8 - Obeso"; }
-            else { bcsValor = 9; bcsTexto = "9 - Obesidad Severa"; }
+            if (desviacion <= -35) { valorEstimado = 1; textoOrientativo = "1/9 - Posiblemente muy delgado"; }
+            else if (desviacion <= -20) { valorEstimado = 3; textoOrientativo = "3/9 - Posiblemente delgado"; }
+            else if (desviacion <= -10) { valorEstimado = 4; textoOrientativo = "4/9 - Posiblemente en el límite inferior del ideal"; }
+            else if (desviacion <= 10) { valorEstimado = 5; textoOrientativo = "5/9 - Aparentemente en un rango de peso ideal"; }
+            else if (desviacion <= 20) { valorEstimado = 6; textoOrientativo = "6/9 - Posiblemente en el límite superior del ideal"; }
+            else if (desviacion <= 35) { valorEstimado = 7; textoOrientativo = "7/9 - Posiblemente con sobrepeso"; }
+            else { valorEstimado = 9; textoOrientativo = "9/9 - Posiblemente con obesidad"; }
 
-            return Json(new { bcsValor, bcsTexto });
+            // --- MENSAJE DE ADVERTENCIA (EL CAMBIO MÁS IMPORTANTE) ---
+            return Json(new
+            {
+                valorEstimado,
+                textoOrientativo,
+            });
         }
-
     }
 }

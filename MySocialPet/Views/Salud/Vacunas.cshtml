@@ -2,25 +2,30 @@
 
 @{
     ViewData["Title"] = "Registrar Salud de " + Model.NombreMascota;
-    var vistaActual = "Vacunas";
+    var pagina = "Vacuna";
 }
 
 <div class="container pt-nav">
-    <div class="view-switcher mb-3">
-        <a asp-action="SaludRegistro"
-           asp-controller="Salud"
-           asp-route-id="@Model.IdMascota"
-           class="btn @(vistaActual == "SaludRegistro" ? "btn-primary" : "btn-outline-primary")">
-            Registro Salud
-        </a>
-        <a asp-action="Vacunas"
-           asp-controller="Salud"
-           asp-route-id="@Model.IdMascota"
-           asp-route-vista="especificaciones"
-           class="btn @(vistaActual == "Vacunas" ? "btn-primary" : "btn-outline-primary")">
-            Registro Vacunas
-        </a>
+    <div class="auth-tabs mb-3">
+            <a asp-action="SaludRegistro"
+               asp-controller="Salud"
+               asp-route-id="@Model.IdMascota"
+               class="btn @(pagina.ToString() == "Salud" ? "active" : "")">
+                Registro Salud
+            </a>
+            <a asp-action="Vacunas"
+               asp-controller="Salud"
+               asp-route-id="@Model.IdMascota"
+               asp-route-vista="especificaciones"
+               class="btn @(pagina.ToString() == "Vacuna" ? "active" : "")">
+                Registro Vacunas
+            </a>
     </div>
+    @await Component.InvokeAsync("MascotaSelector", new {
+    mascotaIdActual = Model.IdMascota,
+        controlador = "Salud",
+        accion = "Vacunas"
+        })
     <h2 class="mb-4">
         📋 Plan de Vacunación para
         <strong>@Model.NombreMascota</strong> (@Model.NombreEspecie)
