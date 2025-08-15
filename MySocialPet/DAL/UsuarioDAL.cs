@@ -168,6 +168,13 @@ namespace MySocialPet.DAL
         }
 
         // --- Avatar ---
+        public async Task<byte[]?> GetAvatarAsync(int idUsuario)
+        {
+            var u = await _context.Usuarios.FirstOrDefaultAsync(x => x.IdUsuario == idUsuario);
+            return u?.AvatarFoto;
+        }
+
+
         public async Task<bool> UpdateAvatarAsync(int idUsuario, byte[] avatarBytes)
         {
             var u = await _context.Usuarios.FirstOrDefaultAsync(x => x.IdUsuario == idUsuario);
@@ -176,6 +183,7 @@ namespace MySocialPet.DAL
             await _context.SaveChangesAsync();
             return true;
         }
+
 
         public async Task<bool> RemoveAvatarAsync(int idUsuario)
         {
