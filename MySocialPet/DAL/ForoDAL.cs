@@ -39,9 +39,20 @@ namespace MySocialPet.DAL
         public List<Discusion> GetDiscusionesPorForo(int idForo)
         {
             return _context.Discusiones
-                .Where(d => d.IdForo == idForo)
+            .Include(d => d.Mensajes)
+                .ThenInclude(m => m.Usuario)
+            .Include(d => d.UsuarioCreador)
+            .Where(d => d.IdForo == idForo)
+            .Include(d => d.UsuarioCreador)
+            .ToList();
+        }
+
+        public Discusion? GetDiscusionById(int id)
+        {
+            return _context.Discusiones
+                .Include(d => d.Mensajes)
                 .Include(d => d.UsuarioCreador)
-                .ToList();
+                .FirstOrDefault(x => x.IdDiscusion == id);
         }
 
         public List<SelectListItem> GetForosPorEspecieSelectList(int idEspecie)
@@ -54,6 +65,49 @@ namespace MySocialPet.DAL
                     Text = f.Nombre
                 })
                 .ToList();
+        }
+
+        public Foro? GetForoBySlug(string slug)
+        {
+            return _context.Foros
+                .Include(f => f.Discusiones)
+                    .ThenInclude(d => d.Mensajes)
+                .FirstOrDefault(f => f.Slug.ToLower() == slug.ToLower());
+        }
+
+        public void CrearHilo(Discusion discusion)
+        {
+            _context.Discusiones.Add(discusion);
+            _context.SaveChanges();
+        }
+        public async Task CrearMensaje(Mensaje mensaje)
+        {
+            _context.Mensajes.Add(mensaje);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<Discusion>> GetTrendingDiscusionsAsync(int? foroId)
+        {
+            // Obtener la fecha de hace 7 días
+            var sevenDaysAgo = DateTime.UtcNow.AddDays(-7);
+            if(foroId == null)
+            {
+                return await _context.Discusiones
+                .Include(d => d.Mensajes)
+                .Include(f => f.Foro)
+                .Where(d => d.Mensajes.Any(m => m.FechaEnvio >= sevenDaysAgo))
+                .OrderByDescending(d => d.Mensajes.Count(m => m.FechaEnvio >= sevenDaysAgo))
+                .Take(5)
+                .ToListAsync();
+            }
+            return await _context.Discusiones
+                .Where(d => d.IdForo == foroId)
+                .Include(d => d.Mensajes)
+                .Include(f => f.Foro)
+                .Where(d => d.Mensajes.Any(m => m.FechaEnvio >= sevenDaysAgo))
+                .OrderByDescending(d => d.Mensajes.Count(m => m.FechaEnvio >= sevenDaysAgo))
+                .Take(5)
+                .ToListAsync();
         }
     }
 }

@@ -1,0 +1,201 @@
+﻿@model MySocialPet.Models.ViewModel.Foros.DetailDiscusionViewModel
+
+@{
+    ViewData["Title"] = "Detalles del hilo";
+}
+
+<div class="bg-foro pb-5">
+    <div class="container">
+        <div style="height: 15vh;"></div>
+        <div class="row">
+            <div class="col-8">
+                <div class="bg-white shadow rounded-15 border-bottom-0">
+                    <div class="p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <h1 class="fs-3 fw-bold text-uppercase m-0">@Model.Discusion.Titulo</h1>
+                                <p class="text-muted small mb-0">@Model.Discusion.Descripcion</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3 bg-lightgreen py-2 px-3">
+                        <h2 class="fs-4 fw-bold m-0">Mensajes</h2>
+                        <div class="dropdown">
+                            <span type="button" id="dropdownFilter" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img class="btn btn-light p-1" width="35px" src="@Url.Content("~/src/foro/icons/Filtro.svg")" />
+                            </span>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownFilter">
+                                <li><a class="dropdown-item" href="#" data-filter="recentes">Más recientes</a></li>
+                                <li><a class="dropdown-item" href="#" data-filter="antiguos">Más antiguos</a></li>
+                                <li><a class="dropdown-item" href="#" data-filter="mensajes">Más mensajes</a></li>
+                                <li><a class="dropdown-item" href="#" data-filter="sin-responder">Sin responder</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                @{
+                    if (Model.Discusion.Mensajes != null && Model.Discusion.Mensajes.Any())
+                    {
+                        @for (int i = 0; i < Model.Discusion.Mensajes.Count; i++)
+                        {
+                            var index = i + 1;
+                            var item = Model.Discusion.Mensajes.ElementAt(i);
+
+                            <div class="bg-white shadow">
+                                <div class="list-group list-group-flush p-3 mb-3">
+                                    <div class="py-2">
+                                        <div class="list-group-item d-flex justify-content-between align-items-center py-1 border-0">
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    @if (item.Discusion.UsuarioCreador.AvatarFoto != null)
+                                                    {
+                                                        <img class="rounded-circle" width="50px" src="data:image/jpeg;base64,@(Convert.ToBase64String(item.Discusion.UsuarioCreador.AvatarFoto))" alt="Foto de perfil" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <img class="rounded-circle" width="50px" src="@Url.Content("~/src/DefaultAvatar/AvatarPerro.png")" alt="Foto de perfil por defecto" />
+                                                    }
+                                                </div>
+                                                <div>
+                                                    @if (item.Usuario != null)
+                                                    {
+                                                        <h5 class="mb-0 fw-bold">@item.Usuario.Username</h5>
+                                                        <p class="text-muted small mb-0">MySocialPet: Usuario</p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <h5 class="mb-0 fw-bold">Usuario desconocido</h5>
+                                                        <p class="text-muted small mb-0">MySocialPet: Usuario</p>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    @{
+                                                        string fechaTexto;
+                                                        var fechaLocal = item.FechaEnvio.ToLocalTime();
+
+                                                        if (fechaLocal.Date == DateTime.Now.Date)
+                                                        {
+                                                            fechaTexto = $"Hoy {fechaLocal:HH:mm}";
+                                                        }
+                                                        else if (fechaLocal.Date == DateTime.Now.AddDays(-1).Date)
+                                                        {
+                                                            fechaTexto = $"Ayer {fechaLocal:HH:mm}";
+                                                        }
+                                                        else
+                                                        {
+                                                            fechaTexto = fechaLocal.ToString("dd/MM/yyyy HH:mm");
+                                                        }
+                                                    }
+
+                                                    <p class="text-muted small mb-0 me-1 d-none d-sm-block">@fechaTexto</p>
+
+                                                    <p class="text-muted small mb-0 me-1 d-none d-sm-block">Mensaje <span class="text-muted me-3"># @index</span></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        @if (item.Imagen != null)
+                                        {
+                                            <img class="m-4 img-thumbnail img-clickable"
+                                                 width="150px"
+                                                 src="data:image/jpeg;base64,@(Convert.ToBase64String(item.Imagen))"
+                                                 alt="Imagen del mensaje"
+                                                 data-full="data:image/jpeg;base64,@(Convert.ToBase64String(item.Imagen))" />
+                                        }
+
+                                        <p>@item.ContenidoMensaje</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="bg-white shadow">
+                            <div class="list-group list-group-flush p-3 mb-3">
+                                <div class="p-3">
+                                    <p>Aún no hay discusiones en este foro. ¡Sé el primero en iniciar una!</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+                <div class="row bg-white shadow mx-0 py-3 rounded-top rounded-15 border-top-0 ">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Hilos"
+                           asp-route-slug="@Model.Slug"
+                           class="text-decoration-none btn btn-verde border-1 border-verde">
+                            <i class="bi bi-arrow-left ">Volver</i>
+                        </a>
+                        <a asp-action="EnviarMensaje"
+                           asp-route-slug="@Model.Slug"
+                           asp-route-foroId="@Model.IdForo"
+                           asp-route-discId="@Model.IdDiscusion"
+                           class="btn btn-verde border-1 border-verde">
+                            Nuevo Mensaje
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-4">
+                <div class="bg-white shadow rounded-15 p-4">
+                    <img style="background-image: var(--trending_icon); height: 28px; width: 28px; margin-right: 4px" src="@Url.Content("~/src/foro/icons/Fire.svg")" class="d-inline mb-3" alt="Persona enviando mensaje desde el móvil" />
+                    <h3 class="d-inline">Trending</h3>
+                    <p style="color: #a4a4a4">Los hilos del momento en MySocialPet</p>
+                    @if (Model.Tendencias != null && Model.Tendencias.Any())
+                    {
+                        <ul class="list-group list-group-flush mt-3">
+                            @foreach (var discusion in Model.Tendencias)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <a asp-action="HiloDetails"
+                                       asp-route-slug="@discusion.Foro.Slug"
+                                       asp-route-foroId="@discusion.IdForo"
+                                       asp-route-discId="@discusion.IdDiscusion"
+                                       class="text-decoration-none text-dark fw-bold">
+                                        @discusion.Titulo
+                                    </a>
+                                    <span class="badge bg-verde rounded-pill">@discusion.Mensajes.Count</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No hay hilos en tendencia en este momento.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para mostrar imagen -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body p-0 text-center">
+                <img id="modalImage" src="" class="img-fluid rounded" alt="Imagen ampliada" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".img-clickable").forEach(function (img) {
+            img.addEventListener("click", function () {
+                const fullSrc = this.getAttribute("data-full");
+                const modalImg = document.getElementById("modalImage");
+                modalImg.src = fullSrc;
+                const modal = new bootstrap.Modal(document.getElementById("imageModal"));
+                modal.show();
+            });
+        });
+    });
+</script>

@@ -5,13 +5,13 @@
     ViewData["Title"] = "Foro - comunidad";
 }
 
-<div class=" pt-nav test">
-
-    <div class="container-fluid w-75 mt-5">
+<div class="bg-foro">
+    <div class="container pb-5">
+        <div style="height: 20vh"></div>
         <div class="row">
             <div class="col-8">
-                <div class="bg-light shadow rounded-3 p-4">
-                    <h1 class="mb-5">Zona categorías</h1>
+                <div class="bg-white shadow rounded-15 p-4">
+                    <h1 class="mb-5 fw-bold fs-3">Zona categorías</h1>
                     @{
                         foreach (var item in Model.Foros)
                         {
@@ -25,7 +25,10 @@
                                         <p>@item.Descripcion</p>
                                     </div>
                                 </div>
-                                <span class="btn btn-verde fs-6 py-1">Ir</span>
+                                <a asp-controller="Foro" asp-action="Hilos" asp-route-slug="@item.Slug" class="btn btn-verde border border-verde fs-6 py-1">
+                                    Ir
+                                </a>
+
                             </div>
                             <hr />
                         }
@@ -35,15 +38,35 @@
                 </div>
             </div>
             <div class="col-4">
-                <div class="bg-light shadow rounded p-4">
+                <div class="bg-white shadow rounded-15 p-4">
                     <img style="background-image: var(--trending_icon); height: 28px; width: 28px; margin-right: 4px" src="@Url.Content("~/src/foro/icons/Fire.svg")" class="d-inline mb-3" alt="Persona enviando mensaje desde el móvil" />
                     <h3 class="d-inline">Trending</h3>
                     <p style="color: #a4a4a4">Los hilos del momento en MySocialPet</p>
+                    @if (Model.Tendencias != null && Model.Tendencias.Any())
+                    {
+                        <ul class="list-group list-group-flush mt-3">
+                            @foreach (var discusion in Model.Tendencias)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <a asp-action="HiloDetails"
+                                       asp-route-slug="@discusion.Foro.Slug"
+                                       asp-route-foroId="@discusion.IdForo"
+                                       asp-route-discId="@discusion.IdDiscusion"
+                                       class="text-decoration-none text-dark fw-bold">
+                                        @discusion.Titulo
+                                    </a>
+                                    <span class="badge bg-verde rounded-pill">@discusion.Mensajes.Count</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No hay hilos en tendencia en este momento.</p>
+                    }
                 </div>
             </div>
         </div>
-
     </div>
 </div>
-
 

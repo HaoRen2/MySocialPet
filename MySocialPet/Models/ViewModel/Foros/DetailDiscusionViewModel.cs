@@ -4,7 +4,11 @@ namespace MySocialPet.Models.ViewModel.Foros
 {
     public class DetailDiscusionViewModel
     {
-        public Foro Foro { get; set; } = new Foro();
-        public Discusion? DetailDiscusion { get; set; } = new Discusion();
+        public string Slug { get; set; }
+        public int IdForo { get; set; }
+        public int IdDiscusion { get; set; }
+        public Discusion? Discusion { get; set; } = new Discusion();
+        public List<Discusion>? Tendencias { get; set; }
+
     }
 }

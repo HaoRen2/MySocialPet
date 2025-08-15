@@ -1,0 +1,146 @@
+﻿@model MySocialPet.Models.ViewModel.Foros.ListaDiscusionesViewModel;
+
+@{
+    ViewData["Title"] = "Hilos de discusiones";
+}
+
+<div class="bg-foro pb-5">
+    <div class="container">
+        <div style="height: 15vh;"></div>
+        <div class="row">
+            <div class="col-8">
+                <div class="bg-white shadow rounded-15">
+                    <div class="p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h1 class="fs-2 fw-bold text-uppercase m-0">@Model.Foro?.Nombre</h1>
+                                <p class="text-muted small mb-0">@Model.Foro?.Descripcion</p>
+                            </div>
+                            <div>
+                                <a asp-action="Index" asp-controller="Foro" class="text-decoration-none btn btn-verde border-1 border-verde">
+                                    <i class="bi bi-arrow-left ">Volver</i>
+                                </a>
+                                <a asp-action="NuevoHilo" asp-route-foroId="@Model.Foro?.IdForo"
+                                   class="btn btn-verde border-1 border-verde">
+                                    Nuevo hilo
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3 bg-lightgreen py-2 px-3">
+                        <h2 class="fs-4 fw-bold m-0">Hilos</h2>
+                        <div class="dropdown">
+                            <span type="button" id="dropdownFilter" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img class="btn btn-light p-1" width="35px" src="@Url.Content("~/src/foro/icons/Filtro.svg")" />
+                            </span>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownFilter">
+                                <li><a class="dropdown-item" href="#" data-filter="recentes">Más recientes</a></li>
+                                <li><a class="dropdown-item" href="#" data-filter="antiguos">Más antiguos</a></li>
+                                <li><a class="dropdown-item" href="#" data-filter="mensajes">Más mensajes</a></li>
+                                <li><a class="dropdown-item" href="#" data-filter="sin-responder">Sin responder</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="list-group list-group-flush p-3 mb-3">
+                        @{
+                            if (Model.Discusions != null && Model.Discusions.Any())
+                            {
+                                foreach (var item in Model.Discusions)
+                                {
+                                    var ultimo = (item.Mensajes != null && item.Mensajes.Any())
+                                    ? item.Mensajes.OrderByDescending(m => m.FechaEnvio).FirstOrDefault()
+                                    : null;
+
+                                    <div class="py-2">
+                                        <a asp-action="HiloDetails"
+                                           asp-route-foroId="@Model.Foro?.IdForo"
+                                           asp-route-slug="@Model.Foro?.Slug"
+                                           asp-route-discId="@item.IdDiscusion"
+                                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    <i class="bi bi-envelope fs-4 text-muted"></i>
+                                                </div>
+                                                <div>
+                                                    <h5 class="mb-0 fw-bold">@item.Titulo</h5>
+                                                    <p class="text-muted small mb-0">
+                                                        @if (ultimo != null)
+                                                        {
+                                                            <span>- Actualizado @ultimo.FechaEnvio.ToLongDateString()</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>- No hay mensajes</span>
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <p class="text-muted small mb-0 me-3 d-none d-sm-block">Último mensaje</p>
+                                                <i class="bi bi-chat-text me-1 text-muted"></i>
+                                                <span class="text-muted me-3">@((item.Mensajes != null) ? item.Mensajes.Count : 0)</span>
+                                                <i class="bi bi-chevron-right text-muted"></i>
+                                            </div>
+                                        </a>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p>Aún no hay discusiones en este foro. ¡Sé el primero en iniciar una!</p>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="bg-white shadow rounded-15 p-4">
+                    <img style="background-image: var(--trending_icon); height: 28px; width: 28px; margin-right: 4px"
+                         src="@Url.Content("~/src/foro/icons/Fire.svg")"
+                         class="d-inline mb-3"
+                         alt="Persona enviando mensaje desde el móvil" />
+                    <h3 class="d-inline">Trending</h3>
+                    <p style="color: #a4a4a4">Los hilos del momento en MySocialPet</p>
+                    @if (Model.Tendencias != null && Model.Tendencias.Any())
+                    {
+                        <ul class="list-group list-group-flush mt-3">
+                            @foreach (var discusion in Model.Tendencias)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <a asp-action="HiloDetails"
+                                       asp-route-slug="@discusion.Foro.Slug"
+                                       asp-route-foroId="@discusion.IdForo"
+                                       asp-route-discId="@discusion.IdDiscusion"
+                                       class="text-decoration-none text-dark fw-bold">
+                                        @discusion.Titulo
+                                    </a>
+                                    <span class="badge bg-verde rounded-pill">@((discusion.Mensajes != null) ? discusion.Mensajes.Count : 0)</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No hay hilos en tendencia en este momento.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+                $(document).ready(function () {
+                    $('.dropdown-item').on('click', function (e) {
+                        e.preventDefault();
+                        var filterText = $(this).text();
+                        var filterValue = $(this).data('filter');
+
+                        $('#filter-text').text('Filtrar: ' + filterText);
+                        console.log("Filtro seleccionado:" + filterValue);
+            });
+        });
+    </script>
+}

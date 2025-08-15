@@ -4,7 +4,8 @@ namespace MySocialPet.Models.ViewModel.Foros
 {
     public class ListaDiscusionesViewModel
     {
+        public List<Discusion>? Tendencias { get; set; }
         public Foro Foro { get; set; } = new Foro();
-        public List<Discusion>? DetailDiscusion { get; set; }
+        public List<Discusion>? Discusions { get; set; }
     }
 }
