@@ -27,6 +27,8 @@ namespace MySocialPet.DAL
         {
             return _context.Albumes
                 .Include(a => a.Fotos)
+                    .ThenInclude(f => f.MascotasEtiquetadas)
+                        .ThenInclude(fe => fe.Mascota)
                 .FirstOrDefault(a => a.IdAlbum == idAlbum);
         }
 
@@ -72,6 +74,7 @@ namespace MySocialPet.DAL
                     .ThenInclude(fe => fe.Mascota)
                 .FirstOrDefault(f => f.IdFoto == idFoto);
         }
+
         public async Task InsertFoto(int idAlbum, string titulo, IFormFile foto, string descripcion, DateTime fecha, List<int> mascotasIds)
         {
             using var ms = new MemoryStream();
@@ -102,6 +105,26 @@ namespace MySocialPet.DAL
                     _context.FotoEtiquetaMascotas.Add(etiqueta);
                 }
                 await _context.SaveChangesAsync();
+            }
+        }
+        public async Task DeleteFoto(int idFoto)
+        {
+            // Primero, eliminamos las etiquetas de mascota asociadas a la foto.
+            var etiquetas = await _context.FotoEtiquetaMascotas
+                .Where(e => e.IdFoto == idFoto)
+                .ToListAsync();
+
+            if (etiquetas.Any())
+            {
+                _context.FotoEtiquetaMascotas.RemoveRange(etiquetas);
+            }
+
+            // Luego, buscamos y eliminamos la foto.
+            var foto = await _context.FotoAlbumes.FindAsync(idFoto);
+            if (foto != null)
+            {
+                _context.FotoAlbumes.Remove(foto);
+                await _context.SaveChangesAsync(); // Guardamos todos los cambios en la base de datos.
             }
         }
     }

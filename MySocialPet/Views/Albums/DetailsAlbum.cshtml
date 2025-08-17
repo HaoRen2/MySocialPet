@@ -1,44 +1,91 @@
 ﻿@model MySocialPet.Models.ViewModel.Albums.DetailAlbumViewModel
 @{
     var mascotasUsuario = ViewBag.MascotasUsuario;
-
     ViewData["Title"] = "Detalles Álbum";
+    var albumName = Model.DetailAlbum.NombreAlbum;
 }
 
-<div class="container mt-4">
-    <h2>@Model.DetailAlbum.NombreAlbum</h2>
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 mb-4">
+        <div class="card-header bg-lightgreen text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">@albumName</h4>
+            <span class="badge bg-light text-dark">@Model.DetailAlbum.Fotos.Count() fotos</span>
+        </div>
 
-    <div class="row">
-        @if (Model.DetailAlbum.Fotos != null && Model.DetailAlbum.Fotos.Any())
-        {
-            foreach (var foto in Model.DetailAlbum.Fotos)
-            {
-                var base64Image = Convert.ToBase64String(foto.Foto);
-                var imgSrc = $"data:image/png;base64,{base64Image}";
+        <div class="card-body">
+            <div class="row g-4">
+                @if (Model.DetailAlbum.Fotos != null && Model.DetailAlbum.Fotos.Any())
+                {
+                    foreach (var foto in Model.DetailAlbum.Fotos)
+                    {
+                        var base64Image = Convert.ToBase64String(foto.Foto);
+                        var imgSrc = $"data:image/png;base64,{base64Image}";
+                        var taggedPets = foto.MascotasEtiquetadas != null && foto.MascotasEtiquetadas.Any()
+                        ? string.Join(", ", foto.MascotasEtiquetadas.Select(m => m.Mascota.Nombre))
+                        : "Ninguna";
 
-                <div class="col-md-3 mb-3">
-                    <div class="card shadow-sm">
-                        <img src="@imgSrc" class="card-img-top" alt="@foto.Titulo" style="height: 200px; object-fit: cover;">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">@foto.Titulo</h5>
-                            <a asp-action="DetailsFoto" asp-controller="Albums" asp-route-id="@foto.IdFoto" class="btn btn-outline-primary btn-sm">
-                                Ver Detalles
-                            </a>
+                        <div class="col-md-3">
+                            <div class="card shadow-sm border-0 overflow-hidden" style="transition: transform 0.3s;">
+
+                                <div data-fancybox="gallery"
+                                     data-src="@imgSrc"
+                                     data-caption="
+                                        <div class='custom-caption'>
+                                            <h5>@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(foto.Titulo))</h5>
+                                            <p>@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(foto.Descripcion))</p>
+                                            <p><strong>Fecha:</strong> @foto.Fecha.ToString("dd/MM/yyyy")</p>
+                                            <p><strong>Mascotas:</strong> @Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(taggedPets))</p>
+                                            <div class='d-flex justify-content-center mt-2'>
+                                                <a href='@Url.Action("EditarFoto", "Albums", new { id = foto.IdFoto })'
+                                                   class='btn btn-outline-light me-2'
+                                                   target='_blank'
+                                                   title='Editar foto'>
+                                                    <i class='bi bi-pencil-square'></i>
+                                                </a>
+
+                                                <!-- Formulario simplificado, sin action -->
+                                                <form method='post'
+                                                      class='delete-photo-form'
+                                                      style='display: inline;'  
+                                                      data-idfoto='@foto.IdFoto'
+                                                      data-delete-url='@Url.Action("DeleteFoto", "Albums")'>
+                                                    <input type='hidden' name='id' value='@foto.IdFoto' />
+                                                    <button type='submit' title='Eliminar foto' class='btn btn-outline-danger'>
+                                                        <i class='bi bi-trash'></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>">
+
+                                    <img src="@imgSrc"
+                                         class="card-img-top"
+                                         alt="@foto.Titulo"
+                                         style="height: 200px; object-fit: cover; cursor: pointer; transition: opacity 0.3s;">
+                                </div>
+                                <div class="card-body text-center p-2">
+                                    <h6 class="card-title mb-0">@foto.Titulo</h6>
+                                </div>
+                            </div>
                         </div>
+                    }
+
+                    @* Este es el token que el JavaScript buscará en la página para validar la petición *@
+                    @Html.AntiForgeryToken()
+                }
+                else
+                {
+                    <div class="col-12 text-center">
+                        <p class="text-muted">No hay fotos en este álbum aún. ¡Agrega algunas!</p>
                     </div>
-                </div>
-            }
-        }
-        else
-        {
-            <p>No hay fotos en este álbum aún.</p>
-        }
+                }
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Botón flotante -->
-<button class="btn btn-primary rounded-circle shadow-lg"
-        style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; font-size: 28px; line-height: 1;"
+<button class="btn btn-outline-light rounded-circle shadow-lg"
+        style="position: fixed; bottom: 405px; right: 50px; width: 60px; height: 60px; font-size: 28px; line-height: 1; box-shadow: 0 0 20px rgba(0,0,0,0.875);"
         data-bs-toggle="modal" data-bs-target="#modalInsertarFoto">
     +
 </button>
@@ -49,27 +96,33 @@
         <div class="modal-content">
             <form asp-action="InsertarFoto" asp-controller="Albums" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="IdAlbum" value="@Model.DetailAlbum.IdAlbum" />
+
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalInsertarFotoLabel">Agregar Foto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
+
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Título</label>
                         <input type="text" name="Titulo" class="form-control" required />
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label">Foto</label>
                         <input type="file" name="Foto" class="form-control" accept="image/*" required />
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label">Descripción</label>
                         <textarea name="Descripcion" class="form-control"></textarea>
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label">Fecha</label>
                         <input type="date" name="Fecha" class="form-control" required />
                     </div>
+
                     @if (mascotasUsuario != null)
                     {
                         <div class="mb-3">
@@ -89,6 +142,7 @@
                         </div>
                     }
                 </div>
+
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success">Subir Foto</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -97,3 +151,38 @@
         </div>
     </div>
 </div>
+
+<style>
+    .fancybox-caption {
+        text-align: center;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+    }
+
+    .custom-caption {
+        position: relative;
+    }
+
+        .custom-caption .album-name {
+            position: absolute;
+            top: -50px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+        }
+
+        .custom-caption h5 {
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        .custom-caption p {
+            margin-bottom: 5px;
+        }
+</style>
+
+<script type="module" src="@Url.Content("~/js/Class.js")"></script>

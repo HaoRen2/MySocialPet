@@ -4,49 +4,57 @@
     ViewData["Title"] = "Mis Álbumes";
 }
 
-<div class="container mb-5">
-    <h2>Mis Álbumes</h2>
+<div class="container mb-5 mt-5">
+    <h2 class="mb-4">Mis Álbumes</h2>
 
-    <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var album in Model.ListAlbums)
         {
             <div class="col">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                    @if (album.FotoReciente != null && album.FotoReciente.Length > 0)
-                    {
-                        var base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(album.FotoReciente);
-                            <img src="@base64Image" class="card-img-top" alt="Foto de @album.NombreAlbum" style="max-height: 200px; object-fit: cover;" />
-                    }else
-                    {
-                        <img src="foto.jpg" class="card-img-top" alt="Sin foto" style="max-height: 200px; object-fit: cover;" />
-                    }
-                    <h5 class="card-title">@album.NombreAlbum</h5>
-                        <p class="card-text">
-                            <strong>ID Álbum:</strong> @album.IdAlbum<br />
-                            <strong>ID Usuario:</strong> @album.IdUsuario
-                        </p>
-
-                        <a href="@Url.Action("DetailsAlbum", "Albums", new { idAlbum = album.IdAlbum })" class="btn btn-verde mt-2">
-                            Ver Fotos
-                        </a>
+                <div class="card h-100 shadow-lg border-0 overflow-hidden" style="transition: transform 0.3s;">
+                    <div class="card-body text-center p-0">
+                        @if (album.FotoReciente != null && album.FotoReciente.Length > 0)
+                        {
+                            var base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(album.FotoReciente);
+                            <img src="@base64Image" class="card-img-top" alt="Foto de @album.NombreAlbum" style="height: 200px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <img src="foto.jpg" class="card-img-top" alt="Sin foto" style="height: 200px; object-fit: cover;" />
+                        }
+                        <div class="p-3">
+                            <h5 class="card-title">@album.NombreAlbum</h5>
+                            <p class="card-text text-muted small">
+                                <strong>ID Álbum:</strong> @album.IdAlbum<br />
+                                <strong>ID Usuario:</strong> @album.IdUsuario
+                            </p>
+                            <a href="@Url.Action("DetailsAlbum", "Albums", new { idAlbum = album.IdAlbum })" class="btn btn-verde w-100">
+                                Ver Fotos
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         }
 
-        <!-- Tarjeta para crear nuevo álbum -->
+        <!-- Tarjeta para crear nuevo álbum (made it stand out with primary color accent) -->
         <div class="col">
-            <div class="card h-100 text-center shadow-sm" style="min-height: 300px;">
-                <a href="@Url.Action("CrearAlbum", "Albums")" class="text-decoration-none text-dark h-100 w-100">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center h-100">
-                        <div class="d-flex justify-content-center align-items-center mb-3" style="width: 100px; height: 100px;">
+            <div class="card h-100 shadow-lg border-0 text-center" style="background-color: #f8f9fa; transition: transform 0.3s;">
+                <a href="@Url.Action("CrearAlbum", "Albums")" class="text-decoration-none text-dark h-100 d-flex align-items-center justify-content-center">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-center align-items-center mb-3 bg-primary text-white rounded-circle" style="width: 80px; height: 80px; margin: 0 auto;">
                             <span style="font-size: 3rem; font-weight: bold;">+</span>
                         </div>
-                        <p class="card-text fw-semibold">Crear nuevo álbum</p>
+                        <p class="card-text fw-bold mt-3">Crear nuevo álbum</p>
                     </div>
                 </a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>

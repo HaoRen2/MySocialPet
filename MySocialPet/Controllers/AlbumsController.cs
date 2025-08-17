@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySocialPet.DAL;
 using MySocialPet.Models.Albums;
+using MySocialPet.Models.Foros;
 using MySocialPet.Models.ViewModel.Albums;
 using System.Security.Claims;
 
@@ -70,7 +71,7 @@ namespace MySocialPet.Controllers
         }
 
         [HttpGet]
-        public IActionResult DetailsFoto(int id)
+        public IActionResult DetailsFoto(int id)//esto ahora sera para EditarFoto
         {
             var fotoVM = _albumDAL.GetFotoPorId(id);
             if (fotoVM == null)
@@ -96,5 +97,38 @@ namespace MySocialPet.Controllers
 
             return RedirectToAction("DetailsAlbum", new { idAlbum = IdAlbum });
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteFoto(int id)
+        {
+            // Primero, obtenemos la foto para saber a qué álbum pertenece y así poder redirigir correctamente.
+            var foto = _albumDAL.GetFotoPorId(id);
+            if (foto == null)
+            {
+                return NotFound();
+            }
+
+            // Guardamos el ID del álbum antes de que la foto sea eliminada.
+            var idAlbum = foto.IdAlbum;
+
+            try
+            {
+                await _albumDAL.DeleteFoto(id);
+                TempData["Success"] = "Foto eliminada correctamente."; // Mensaje de éxito opcional
+            }
+            catch (Exception ex)
+            {
+                // Es una buena práctica registrar el error en un log
+                // Log.Error(ex, "Error al eliminar la foto");
+                TempData["Error"] = "Error al eliminar la foto: " + ex.Message;
+            }
+
+            // Redirigimos de vuelta a la página de detalles del álbum.
+            return RedirectToAction("DetailsAlbum", new { idAlbum = idAlbum });
+        }
+
+
+
     }
 }
