@@ -292,3 +292,23 @@ a.dropdown-item:hover{
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
 }
+
+/* Abre el dropdown al pasar el mouse SOLO en ≥ lg */
+@media (min-width: 992px) {
+    .navbar .dropdown:hover > .dropdown-menu {
+        display: block;
+        margin-top: 12px;
+    }
+
+    .navbar .dropdown:hover > .dropdown-toggle {
+        opacity: .95;
+    }
+}
+
+/* Posicionamiento: ahora sí cuelga del <li> (position-relative) */
+.navbar .dropdown.position-relative .dropdown-menu {
+    top: 100%;
+    left: 0; /* o usa right:0 si lo quieres alineado al borde derecho del botón */
+    /* right: 0; left: auto;   <-- alternativa si prefieres alinear al extremo derecho */
+}
+
