@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MySocialPet.Models.Albums;
 using MySocialPet.Models.ViewModel.Albums;
@@ -67,6 +68,53 @@ namespace MySocialPet.DAL
             return album.IdAlbum; // Devolvemos el Id recién creado
         }
 
+        public async Task UpdateAlbumName(int idAlbum, string nuevoNombre)
+        {
+            var album = await _context.Albumes.FindAsync(idAlbum);
+            if (album == null)
+            {
+                throw new Exception("El álbum no existe.");
+            }
+
+            album.NombreAlbum = nuevoNombre;
+            _context.Albumes.Update(album);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAlbum(int idAlbum)
+        {
+            // Buscamos el álbum con sus fotos y etiquetas
+            var album = await _context.Albumes
+                .Include(a => a.Fotos)
+                    .ThenInclude(f => f.MascotasEtiquetadas)
+                .FirstOrDefaultAsync(a => a.IdAlbum == idAlbum);
+
+            if (album == null)
+            {
+                throw new Exception("El álbum no existe.");
+            }
+
+            // 1️⃣ Eliminar etiquetas de cada foto
+            foreach (var foto in album.Fotos)
+            {
+                if (foto.MascotasEtiquetadas != null && foto.MascotasEtiquetadas.Any())
+                {
+                    _context.FotoEtiquetaMascotas.RemoveRange(foto.MascotasEtiquetadas);
+                }
+            }
+
+            // 2️⃣ Eliminar fotos del álbum (si hay)
+            if (album.Fotos != null && album.Fotos.Any())
+            {
+                _context.FotoAlbumes.RemoveRange(album.Fotos);
+            }
+
+            // 3️⃣ Eliminar álbum
+            _context.Albumes.Remove(album);
+
+            await _context.SaveChangesAsync();
+        }
+
         public FotoAlbum GetFotoPorId(int idFoto)
         {
             return _context.FotoAlbumes
@@ -74,6 +122,13 @@ namespace MySocialPet.DAL
                     .ThenInclude(fe => fe.Mascota)
                 .FirstOrDefault(f => f.IdFoto == idFoto);
         }
+
+        public async Task UpdateFoto(FotoAlbum foto)
+        {
+            _context.FotoAlbumes.Update(foto);
+            await _context.SaveChangesAsync();
+        }
+
 
         public async Task InsertFoto(int idAlbum, string titulo, IFormFile foto, string descripcion, DateTime fecha, List<int> mascotasIds)
         {

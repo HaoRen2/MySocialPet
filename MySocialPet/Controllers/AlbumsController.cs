@@ -71,19 +71,121 @@ namespace MySocialPet.Controllers
         }
 
         [HttpGet]
-        public IActionResult DetailsFoto(int id)//esto ahora sera para EditarFoto
+        public IActionResult EditarFoto(int idFoto)
         {
-            var fotoVM = _albumDAL.GetFotoPorId(id);
-            if (fotoVM == null)
+            var foto = _albumDAL.GetFotoPorId(idFoto);
+
+            if (foto == null)
                 return NotFound();
 
-            var viewModel = new DetailsFotoViewModel
+            var model = new EditarFotoViewModel
             {
-                Foto = fotoVM
+                IdFoto = foto.IdFoto,
+                IdAlbum = foto.IdAlbum,
+                Titulo = foto.Titulo,
+                Descripcion = foto.Descripcion,
+                Fecha = foto.Fecha,
+                NuevaFoto = foto.Foto
             };
 
+            //ViewBag.ImagenActual = foto.Foto; // para mostrar en la vista
 
-            return View("DetailsFoto", viewModel);
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarFoto(EditarFotoViewModel model, IFormFile? nuevaFoto)
+        {
+            if (!ModelState.IsValid)
+            {
+                // volvemos a pasar la foto actual por ViewBag para que se muestre otra vez
+                var fotoActual = _albumDAL.GetFotoPorId(model.IdFoto);
+                if (fotoActual != null)
+                {
+                    ViewBag.ImagenActual = fotoActual.Foto;
+                }
+                return View("EditarFoto", model);
+            }
+
+            try
+            {
+                // 1️⃣ Recuperamos la foto original de la BD
+                var foto = _albumDAL.GetFotoPorId(model.IdFoto);
+                if (foto == null)
+                    return NotFound();
+
+                // 2️⃣ Actualizamos los campos editables
+                foto.Titulo = model.Titulo;
+                foto.Descripcion = model.Descripcion;
+                foto.Fecha = model.Fecha;
+
+                // 3️⃣ Si hay nueva imagen, reemplazamos los bytes
+                if (nuevaFoto != null && nuevaFoto.Length > 0)
+                {
+                    using var ms = new MemoryStream();
+                    await nuevaFoto.CopyToAsync(ms);
+                    foto.Foto = ms.ToArray();
+                }
+
+                // 4️⃣ Guardamos en BD
+                await _albumDAL.UpdateFoto(foto);
+
+                TempData["Success"] = "Foto actualizada correctamente.";
+                return RedirectToAction("DetailsAlbum", new { idAlbum = foto.IdAlbum });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "Error al actualizar la foto: " + ex.Message);
+
+                // si falla, mostramos otra vez la foto actual
+                var fotoActual = _albumDAL.GetFotoPorId(model.IdFoto);
+                if (fotoActual != null)
+                {
+                    ViewBag.ImagenActual = fotoActual.Foto;
+                }
+
+                return View("EditarFoto", model);
+            }
+        }
+        [HttpGet]
+        public IActionResult EditarAlbum(int idAlbum)
+        {
+            var album = _albumDAL.GetAlbumPorId(idAlbum);
+            if (album == null)
+            {
+                return NotFound(); // Retorna un error 404 si el álbum no se encuentra
+            }
+
+            var model = new EditarAlbumViewModel
+            {
+                IdAlbum = album.IdAlbum,
+                NombreAlbum = album.NombreAlbum
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarAlbum(EditarAlbumViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model); // Vuelve a mostrar la vista si la validación falla
+            }
+
+            try
+            {
+                await _albumDAL.UpdateAlbumName(model.IdAlbum, model.NombreAlbum);
+                TempData["Success"] = "Álbum actualizado correctamente.";
+                return RedirectToAction("ListAlbum");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "Error al actualizar el álbum: " + ex.Message);
+                return View(model);
+            }
         }
 
         [HttpPost]
@@ -100,32 +202,41 @@ namespace MySocialPet.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteFoto(int id)
+        public async Task<IActionResult> DeleteAlbum(int idAlbum)
         {
-            // Primero, obtenemos la foto para saber a qué álbum pertenece y así poder redirigir correctamente.
-            var foto = _albumDAL.GetFotoPorId(id);
-            if (foto == null)
-            {
-                return NotFound();
-            }
-
-            // Guardamos el ID del álbum antes de que la foto sea eliminada.
-            var idAlbum = foto.IdAlbum;
-
             try
             {
-                await _albumDAL.DeleteFoto(id);
-                TempData["Success"] = "Foto eliminada correctamente."; // Mensaje de éxito opcional
+                // ✅ Llamamos al DAL para que elimine el álbum y sus fotos asociadas
+                await _albumDAL.DeleteAlbum(idAlbum);
+
+                TempData["Success"] = "Álbum eliminado correctamente junto con sus fotos.";
             }
             catch (Exception ex)
             {
-                // Es una buena práctica registrar el error en un log
-                // Log.Error(ex, "Error al eliminar la foto");
-                TempData["Error"] = "Error al eliminar la foto: " + ex.Message;
+                // Registrar el error (log recomendado)
+                TempData["Error"] = "Error al eliminar el álbum: " + ex.Message;
             }
 
-            // Redirigimos de vuelta a la página de detalles del álbum.
-            return RedirectToAction("DetailsAlbum", new { idAlbum = idAlbum });
+            // Redirigir de vuelta a la lista de álbumes
+            return RedirectToAction("ListAlbum");
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteFoto(int idAlbum)
+        {
+            try
+            {
+                await _albumDAL.DeleteAlbum(idAlbum);
+                TempData["Success"] = "Álbum eliminado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error al eliminar el álbum: " + ex.Message;
+            }
+
+            return RedirectToAction("ListAlbum");
         }
 
 

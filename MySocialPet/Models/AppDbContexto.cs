@@ -48,6 +48,7 @@ public class AppDbContexto : DbContext
         modelBuilder.Entity<FotoEtiquetaMascota>()
             .HasKey(fe => new { fe.IdFoto, fe.IdMascota });
 
+        // Relaciones explícitas para FotoEtiquetaMascota
         modelBuilder.Entity<FotoEtiquetaMascota>()
             .HasOne(fe => fe.FotoAlbum)
             .WithMany(f => f.MascotasEtiquetadas)
@@ -58,8 +59,10 @@ public class AppDbContexto : DbContext
             .WithMany(m => m.FotosEtiquetadas)
             .HasForeignKey(fe => fe.IdMascota);
 
+        // Clave compuesta para CategoriaSugerencia
         modelBuilder.Entity<CategoriaSugerencia>()
         .HasKey(cs => new { cs.IdCategoria, cs.IdSugerencia });
+
 
     }
 }
