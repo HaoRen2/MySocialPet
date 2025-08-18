@@ -5,7 +5,7 @@
     var Evento = Model.Evento;
 }
 
-<div class="container pt-nav test">
+<div class="container pt-nav test mb-2">
     <div class="card shadow rounded pb-1">
         <div class="position-absolute top-0 end-0 p-2 d-flex gap-1">
             <a href="@Url.Action("EditMascota", "Mascota", new { id = mascota.IdMascota })"
@@ -86,72 +86,84 @@
             </div>
         </div>
     </div>
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5>Notas sobre @mascota.Nombre</h5>
-        </div>
-        <div class="card-body">
-            <form asp-action="AgregarNota" asp-controller="Mascota" method="post">
-                <input type="hidden" name="id" value="@mascota.IdMascota" />
-                <div class="mb-3">
-                    <textarea name="descripcion" class="form-control" placeholder="Escribe una nota..." rows="3" maxlength="150"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Guardar nota</button>
-            </form>
-
-            <hr />
-            @if (Model.Notas != null && Model.Notas.Any())
-            {
-                @foreach (var nota in Model.Notas)
-{
-    <div class="mb-2 d-flex justify-content-between align-items-start">
-        <div class="bg-light p-2 rounded flex-grow-1">@nota.Descripcion</div>
-        <div class="ms-2">
-            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editarNotaModal">
-                <i class="bi bi-pencil"></i>
-            </button>
-
-            <form asp-action="EliminarNota" asp-route-id="@nota.IdNota" method="post" class="d-inline"
-                  onsubmit="return confirm('¿Eliminar esta nota?');">
-                <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
-            </form>
-        </div>
+   <div class="card shadow-sm mt-4">
+    <div class="card-header bg-lightgreen text-white">
+        <h5 class="mb-0">Notas sobre @mascota.Nombre</h5>
     </div>
+    <div class="card-body">
+        <!-- Formulario para agregar nota -->
+        <form asp-action="AgregarNota" asp-controller="Mascota" method="post" class="mb-3">
+            <input type="hidden" name="id" value="@mascota.IdMascota" />
+            <div class="mb-3">
+                <textarea name="descripcion" class="form-control" placeholder="Escribe una nota..." rows="3" maxlength="150"></textarea>
+                <div class="form-text text-muted">Máximo 150 caracteres.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Guardar nota
+            </button>
+        </form>
 
-    <!-- Modal para editar esta nota -->
-    <div class="modal fade" id="editarNotaModal" tabindex="-1" aria-labelledby="editarNotaModalLabel_@nota.IdNota" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form asp-action="EditNota" asp-controller="Mascota" method="post">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editarNotaModalLabel_@nota.IdNota">Editar Nota</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="IdNota" value="@nota.IdNota" />
-                        <input type="hidden" name="IdMascota" value="@nota.IdMascota" />
-                        <div class="mb-3">
-                            <label for="descripcion_@nota.IdNota" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="descripcion_@nota.IdNota" name="Descripcion" rows="3" maxlength="150">@nota.Descripcion</textarea>
+        <hr />
+
+        <!-- Listado de notas -->
+        @if (Model.Notas != null && Model.Notas.Any())
+        {
+            <div class="list-group">
+                @foreach (var nota in Model.Notas)
+                {
+                    <div class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <p class="mb-1">@nota.Descripcion</p>
+                        </div>
+                        <div class="ms-2">
+                            <!-- Botón Editar -->
+                            <button type="button" class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#editarNotaModal_@nota.IdNota">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+
+                            <!-- Botón Eliminar -->
+                            <form asp-action="EliminarNota" asp-route-id="@nota.IdNota" method="post" class="d-inline" 
+                                  onsubmit="return confirm('¿Eliminar esta nota?');">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+
+                    <!-- Modal Editar Nota -->
+                    <div class="modal fade" id="editarNotaModal_@nota.IdNota" tabindex="-1" aria-labelledby="editarNotaModalLabel_@nota.IdNota" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form asp-action="EditNota" asp-controller="Mascota" method="post">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editarNotaModalLabel_@nota.IdNota">Editar Nota</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <input type="hidden" name="IdNota" value="@nota.IdNota" />
+                                        <input type="hidden" name="IdMascota" value="@nota.IdMascota" />
+                                        <div class="mb-3">
+                                            <label for="descripcion_@nota.IdNota" class="form-label">Descripción</label>
+                                            <textarea class="form-control" id="descripcion_@nota.IdNota" name="Descripcion" rows="3" maxlength="150">@nota.Descripcion</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Guardar</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                </form>
+                }
             </div>
-        </div>
+        }
+        else
+        {
+            <p class="text-muted">No hay notas aún.</p>
+        }
     </div>
-}
-            }
-            else
-            {
-                <p class="text-muted">No hay notas aún.</p>
-            }
-        </div>
-    </div>
-
-
+</div>
 </div>
 
