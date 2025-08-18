@@ -51,32 +51,6 @@ namespace MySocialPet.Controllers
             return View(vm);
         }
 
-
-        [HttpGet("Foro/Hilos/{slug}/{foroId}/{discId}")]
-        public IActionResult HiloDetails(string slug, int foroId, int discId)
-        {
-            // buscar foro por slug
-            Foro? foro = _foroDAL.GetForoBySlug(slug);
-            if (foro == null) return NotFound();
-
-            // buscar discusión por id y comprobar que pertenece al foro
-            Discusion? disc = _foroDAL.GetDiscusionById(discId);
-            if (disc == null || disc.IdForo != foro.IdForo) return NotFound();
-
-            List<Discusion> tendencias = _foroDAL.GetTrendingDiscusionsAsync(null).Result;
-
-            var vm = new DetailDiscusionViewModel
-            {
-                IdForo = foro.IdForo,
-                IdDiscusion = discId,
-                Slug = slug,
-                Discusion = disc,
-                Tendencias = tendencias
-            };
-
-            return View(vm);
-        }
-
         [HttpGet]
         public IActionResult NuevoHilo(int foroId)
         {
@@ -90,6 +64,46 @@ namespace MySocialPet.Controllers
             var vm = new NuevoHiloViewModel
             {
                 IdForo = foroId
+            };
+
+            return View(vm);
+        }
+
+        [HttpGet("Foro/Hilos/{slug}/{foroId}/{discId}")]
+        public IActionResult HiloDetails(string slug, int foroId, int discId, string? ordenarPor)
+        {
+            // buscar foro por slug
+            Foro? foro = _foroDAL.GetForoBySlug(slug);
+            if (foro == null) return NotFound();
+
+            // buscar discusión por id y comprobar que pertenece al foro
+            Discusion? disc = _foroDAL.GetDiscusionById(discId);
+            if (disc == null || disc.IdForo != foro.IdForo) return NotFound();
+
+            List<Discusion> tendencias = _foroDAL.GetTrendingDiscusionsAsync(null).Result;
+
+            // Lógica para ordenar los mensajes
+            if (disc.Mensajes != null)
+            {
+                switch (ordenarPor)
+                {
+                    case "antiguos":
+                        disc.Mensajes = disc.Mensajes.OrderBy(m => m.FechaEnvio).ToList();
+                        break;
+                    case "recientes":
+                    default: // Por defecto, ordena por más recientes
+                        disc.Mensajes = disc.Mensajes.OrderByDescending(m => m.FechaEnvio).ToList();
+                        break;
+                }
+            }
+
+            var vm = new DetailDiscusionViewModel
+            {
+                IdForo = foro.IdForo,
+                IdDiscusion = discId,
+                Slug = slug,
+                Discusion = disc,
+                Tendencias = tendencias
             };
 
             return View(vm);
@@ -173,6 +187,25 @@ namespace MySocialPet.Controllers
                 : "Mensaje añadido correctamente.";
 
             return RedirectToAction("HiloDetails", new { slug = slug, foroId = vm.IdForo, discId = vm.IdDiscusion });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarMensaje(int id)
+        {
+            // Validar que el usuario actual es el creador del mensaje
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var mensaje = await _foroDAL.GetMensajeById(id);
+
+            if (mensaje == null || mensaje.IdUsuario != userId)
+            {
+                return Forbid(); // O una vista de error, si lo prefieres
+            }
+
+            await _foroDAL.EliminarMensaje(id);
+
+            // Puedes redireccionar al mismo hilo después de eliminar el mensaje
+            return RedirectToAction("HiloDetails", "Foro", new { slug = mensaje.Discusion.Foro.Slug, foroId = mensaje.Discusion.IdForo, discId = mensaje.IdDiscusion });
         }
 
     }
