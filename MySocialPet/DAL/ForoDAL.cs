@@ -51,6 +51,7 @@ namespace MySocialPet.DAL
         {
             return _context.Discusiones
                 .Include(d => d.Mensajes)
+                    .ThenInclude(u => u.Usuario)
                 .Include(d => d.UsuarioCreador)
                 .FirstOrDefault(x => x.IdDiscusion == id);
         }
@@ -108,6 +109,24 @@ namespace MySocialPet.DAL
                 .OrderByDescending(d => d.Mensajes.Count(m => m.FechaEnvio >= sevenDaysAgo))
                 .Take(5)
                 .ToListAsync();
+        }
+
+        public async Task<Mensaje?> GetMensajeById(int id)
+        {
+            return await _context.Mensajes
+                .Include(m => m.Discusion)
+                .ThenInclude(d => d.Foro)
+                .FirstOrDefaultAsync(m => m.IdMensaje == id);
+        }
+
+        public async Task EliminarMensaje(int idMensaje)
+        {
+            var mensaje = await _context.Mensajes.FindAsync(idMensaje);
+            if (mensaje != null)
+            {
+                _context.Mensajes.Remove(mensaje);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }
