@@ -110,7 +110,7 @@ namespace MySocialPet.Controllers
                     IdMascota = model.IdMascota
                 };
 
-               _saludDAL.InsertMascota(nuevoEvento);
+                _saludDAL.InsertMascota(nuevoEvento);
 
                 return RedirectToAction("CalendarioEventos", new { id = model.IdMascota });
             }
@@ -187,6 +187,8 @@ namespace MySocialPet.Controllers
 
                 return new VacunaDetalleViewModel
                 {
+                    IdTipoVacuna = lv.TipoVacuna.IdTipoVacuna,
+                    IdVacunaRegistro = registro?.IdVacunaRegistro,
                     NombreVacuna = lv.TipoVacuna.Nombre,
                     EdadRecomendada = lv.EdadRecomendada,
                     EsRefuerzo = lv.EsRefuerzo,
@@ -235,7 +237,24 @@ namespace MySocialPet.Controllers
             _context.VacunaRegistros.Add(registro);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Vacunas","Salud", new { id = IdMascota });
+            return RedirectToAction("Vacunas", "Salud", new { id = IdMascota });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarVacuna(int IdVacunaRegistro, DateTime Fecha)
+        {
+            var registro = await _context.VacunaRegistros.FindAsync(IdVacunaRegistro);
+
+            if (registro == null)
+                return NotFound();
+
+            registro.Fecha = Fecha;
+
+            _context.Update(registro);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Vacunas), new { id = registro.IdMascota });
         }
 
         [HttpGet]
@@ -295,7 +314,7 @@ namespace MySocialPet.Controllers
 
             // --- Obtención de datos de la raza ---
             // ASUMIMOS que ahora tu clase 'Raza' tiene una propiedad: public double? RatioIdeal { get; set; }
-            var raza =  _mascotaDAL.GetRazaDeMascota(idRaza);
+            var raza = _mascotaDAL.GetRazaDeMascota(idRaza);
 
             if (raza == null || raza.Especie == null)
             {
@@ -304,7 +323,7 @@ namespace MySocialPet.Controllers
 
             string especie = raza.Especie.Nombre.ToLower();
             string tamano = raza.Tamanyo?.ToLower() ?? "";
-            int ratioIdeal = 0;
+            double ratioIdeal = 0;
             // --- CÁLCULO DEL RATIO IDEAL (Lógica mejorada) ---
             // double? ratioIdeal = null;
 
@@ -316,7 +335,7 @@ namespace MySocialPet.Controllers
             }
             */
             // 2. Fallback: Si no hay ratio específico, usar la lógica general por tamaño.
-             if (especie == "perro")
+            if (especie == "perro")
             {
                 if (tamano.Contains("toy") || tamano.Contains("pequeño")) ratioIdeal = 28;
                 else if (tamano.Contains("mediano")) ratioIdeal = 30;
@@ -345,12 +364,14 @@ namespace MySocialPet.Controllers
             int valorEstimado;
             string textoOrientativo;
 
-            if (desviacion <= -35) { valorEstimado = 1; textoOrientativo = "1/9 - Posiblemente muy delgado"; }
+            if (desviacion <= -40) { valorEstimado = 1; textoOrientativo = "1/9 - Posiblemente muy emaciado"; }
+            else if (desviacion <= -30) { valorEstimado = 2; textoOrientativo = "2/9 - Posiblemente muy delgado"; }
             else if (desviacion <= -20) { valorEstimado = 3; textoOrientativo = "3/9 - Posiblemente delgado"; }
             else if (desviacion <= -10) { valorEstimado = 4; textoOrientativo = "4/9 - Posiblemente en el límite inferior del ideal"; }
             else if (desviacion <= 10) { valorEstimado = 5; textoOrientativo = "5/9 - Aparentemente en un rango de peso ideal"; }
             else if (desviacion <= 20) { valorEstimado = 6; textoOrientativo = "6/9 - Posiblemente en el límite superior del ideal"; }
-            else if (desviacion <= 35) { valorEstimado = 7; textoOrientativo = "7/9 - Posiblemente con sobrepeso"; }
+            else if (desviacion <= 30) { valorEstimado = 7; textoOrientativo = "7/9 - Posiblemente con sobrepeso"; }
+            else if (desviacion <= 40) { valorEstimado = 8; textoOrientativo = "8/9 - Posiblemente con sobrepeso severa"; }
             else { valorEstimado = 9; textoOrientativo = "9/9 - Posiblemente con obesidad"; }
 
             // --- MENSAJE DE ADVERTENCIA (EL CAMBIO MÁS IMPORTANTE) ---
