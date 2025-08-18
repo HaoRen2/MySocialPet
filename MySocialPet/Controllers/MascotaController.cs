@@ -39,7 +39,7 @@ namespace MySocialPet.Controllers
                 BCS = a.BCS,
                 Esterilizada = a.Esterilizada,
                 NombreRaza = a.Raza.NombreRaza,
-                Evento = a.Eventos .Where(e => e.FechaHora > DateTime.Now).
+                Evento = a.Eventos.Where(e => e.FechaHora > DateTime.Now).
                 OrderBy(e => (e.FechaHora - DateTime.Now).TotalSeconds).FirstOrDefault()
             }).ToList();
 
@@ -107,8 +107,8 @@ namespace MySocialPet.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditNota(Nota nota)
         {
-           await _mascotaDAL.UpdateNota(nota);
-           return RedirectToAction("Details", new { id = nota.IdMascota });
+            await _mascotaDAL.UpdateNota(nota);
+            return RedirectToAction("Details", new { id = nota.IdMascota });
         }
 
 
@@ -124,7 +124,7 @@ namespace MySocialPet.Controllers
         [HttpGet]
         public IActionResult EditMascota(int id)
         {
-            var mascota = _mascotaDAL.GetMascotaById(id); 
+            var mascota = _mascotaDAL.GetMascotaById(id);
             if (mascota == null)
                 return NotFound();
 
@@ -147,7 +147,7 @@ namespace MySocialPet.Controllers
                 Razas = razasViewModel
             };
 
-            return View("EditMascota", model); 
+            return View("EditMascota", model);
         }
 
         [HttpPost]
@@ -269,7 +269,7 @@ namespace MySocialPet.Controllers
             {
                 var especieData = _mascotaDAL.GetEspecie();
                 model.Especies = especieData.Especies;
-                model.Razas = _mascotaDAL.GetRazaPorEspecie(model.IdRaza); 
+                model.Razas = _mascotaDAL.GetRazaPorEspecie(model.IdRaza);
                 return View("EditMascota", model);
             }
 
@@ -368,12 +368,14 @@ namespace MySocialPet.Controllers
             int valorEstimado;
             string textoOrientativo;
 
-            if (desviacion <= -35) { valorEstimado = 1; textoOrientativo = "1/9 - Posiblemente muy delgado"; }
+            if (desviacion <= -40) { valorEstimado = 1; textoOrientativo = "1/9 - Posiblemente muy emaciado"; }
+            else if (desviacion <= -30) { valorEstimado = 2; textoOrientativo = "2/9 - Posiblemente muy delgado"; }
             else if (desviacion <= -20) { valorEstimado = 3; textoOrientativo = "3/9 - Posiblemente delgado"; }
             else if (desviacion <= -10) { valorEstimado = 4; textoOrientativo = "4/9 - Posiblemente en el límite inferior del ideal"; }
             else if (desviacion <= 10) { valorEstimado = 5; textoOrientativo = "5/9 - Aparentemente en un rango de peso ideal"; }
             else if (desviacion <= 20) { valorEstimado = 6; textoOrientativo = "6/9 - Posiblemente en el límite superior del ideal"; }
-            else if (desviacion <= 35) { valorEstimado = 7; textoOrientativo = "7/9 - Posiblemente con sobrepeso"; }
+            else if (desviacion <= 30) { valorEstimado = 7; textoOrientativo = "7/9 - Posiblemente con sobrepeso"; }
+            else if (desviacion <= 40) { valorEstimado = 8; textoOrientativo = "8/9 - Posiblemente con sobrepeso severa"; }
             else { valorEstimado = 9; textoOrientativo = "9/9 - Posiblemente con obesidad"; }
 
             // --- MENSAJE DE ADVERTENCIA (EL CAMBIO MÁS IMPORTANTE) ---

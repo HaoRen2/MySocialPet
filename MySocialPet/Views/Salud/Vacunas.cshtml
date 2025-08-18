@@ -7,19 +7,19 @@
 
 <div class="container pt-nav">
     <div class="auth-tabs mb-3">
-            <a asp-action="SaludRegistro"
-               asp-controller="Salud"
-               asp-route-id="@Model.IdMascota"
-               class="btn @(pagina.ToString() == "Salud" ? "active" : "")">
-                Registro Salud
-            </a>
-            <a asp-action="Vacunas"
-               asp-controller="Salud"
-               asp-route-id="@Model.IdMascota"
-               asp-route-vista="especificaciones"
-               class="btn @(pagina.ToString() == "Vacuna" ? "active" : "")">
-                Registro Vacunas
-            </a>
+        <a asp-action="SaludRegistro"
+           asp-controller="Salud"
+           asp-route-id="@Model.IdMascota"
+           class="btn @(pagina.ToString() == "Salud" ? "active" : "")">
+            Registro Salud
+        </a>
+        <a asp-action="Vacunas"
+           asp-controller="Salud"
+           asp-route-id="@Model.IdMascota"
+           asp-route-vista="especificaciones"
+           class="btn @(pagina.ToString() == "Vacuna" ? "active" : "")">
+            Registro Vacunas
+        </a>
     </div>
     @await Component.InvokeAsync("MascotaSelector", new {
     mascotaIdActual = Model.IdMascota,
@@ -52,6 +52,7 @@
                     <th>Notas</th>
                     <th>Fecha Aplicación</th>
                     <th>Estado</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -95,6 +96,23 @@
                                 <span class="badge bg-warning text-dark">
                                     <i class="bi bi-exclamation-circle"></i> Pendiente
                                 </span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (vacuna.Aplicada)
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                        data-bs-toggle="modal"
+                                        title="Editar"
+                                        data-bs-target="#editarVacunaModal-@vacuna.IdVacunaRegistro">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-outline-primary" disabled>
+                                    <i class="bi bi-pencil"></i>
+                                </button>
                             }
                         </td>
                     </tr>
@@ -141,3 +159,36 @@
         </div>
     </div>
 </div>
+
+@foreach (var vacuna in Model.Vacunas.Where(v => v.Aplicada))
+{
+    <div class="modal fade" id="editarVacunaModal-@vacuna.IdVacunaRegistro" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form asp-action="EditarVacuna" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-header">
+                        <h5 class="modal-title">Editar vacuna aplicada</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="IdVacunaRegistro" value="@vacuna.IdVacunaRegistro" />
+                        <div class="mb-3">
+                            <label class="form-label">Vacuna</label>
+                            <input type="text" class="form-control" value="@vacuna.NombreVacuna" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Fecha de aplicación</label>
+                            <input name="Fecha" type="date" class="form-control"
+                                   value="@vacuna.FechaAplicacion?.ToString("yyyy-MM-dd")" required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
