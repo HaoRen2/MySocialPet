@@ -21,10 +21,22 @@
                     <input asp-for="Imagen" name="Imagen" type="file" class="form-control" />
                 </div>
 
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" onclick="desactivar()">
                     @(Model.IdMensajePadre.HasValue ? "Responder" : "Enviar")
                 </button>
             </form>
         </div>
     </div>
 </div>
+<script>
+    function desactivar() {
+      const submitButton = document.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      submitButton.innerText = 'Enviando...';
+
+      setTimeout(() => {
+        submitButton.disabled = false;
+        submitButton.innerText = 'Enviar';
+      }, 5000);
+    }
+</script>
