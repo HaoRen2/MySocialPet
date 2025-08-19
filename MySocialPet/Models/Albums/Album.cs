@@ -21,9 +21,10 @@ namespace MySocialPet.Models.Albums
 
 
         public int IdUsuario { get; set; }
+
         [ForeignKey("IdUsuario")]
         public virtual Usuario Usuario { get; set; }
-
+        
         public virtual ICollection<FotoAlbum> Fotos { get; set; }
 
         [NotMapped]

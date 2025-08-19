@@ -1,0 +1,14 @@
+﻿using MySocialPet.Models.Albums;
+
+namespace MySocialPet.Models.ViewModel.Albums
+{
+    public class EditarFotoViewModel
+    {
+        public int IdFoto { get; set; }
+        public int IdAlbum { get; set; }
+        public string Titulo { get; set; }
+        public string Descripcion { get; set; }
+        public DateTime Fecha { get; set; }
+        public byte[]? NuevaFoto { get; set; } // opcional
+    }
+}

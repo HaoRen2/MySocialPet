@@ -86,7 +86,22 @@ public class AppDbContexto : DbContext
 
         // Clave compuesta para la tabla de relación FotoEtiquetaMascota
         modelBuilder.Entity<FotoEtiquetaMascota>()
-            .HasKey(fem => new { fem.IdFoto, fem.IdMascota });
+            .HasKey(fe => new { fe.IdFoto, fe.IdMascota });
+
+        // Relaciones explícitas para FotoEtiquetaMascota
+        modelBuilder.Entity<FotoEtiquetaMascota>()
+            .HasOne(fe => fe.FotoAlbum)
+            .WithMany(f => f.MascotasEtiquetadas)
+            .HasForeignKey(fe => fe.IdFoto);
+
+        modelBuilder.Entity<FotoEtiquetaMascota>()
+            .HasOne(fe => fe.Mascota)
+            .WithMany(m => m.FotosEtiquetadas)
+            .HasForeignKey(fe => fe.IdMascota);
+
+        // Clave compuesta para CategoriaSugerencia
+        modelBuilder.Entity<CategoriaSugerencia>()
+        .HasKey(cs => new { cs.IdCategoria, cs.IdSugerencia });
 
 
     }

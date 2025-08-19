@@ -7,11 +7,11 @@ namespace MySocialPet.Models.Albums
     public class FotoEtiquetaMascota
     {
         // Clave primaria compuesta configurada en ApplicationDbContext
-        public int IdFoto { get; set; }
-        public int IdMascota { get; set; }
+        public int? IdFoto { get; set; }
+        public int? IdMascota { get; set; }
 
-        public virtual FotoAlbum FotoAlbum { get; set; }
-        public virtual Mascota Mascota { get; set; }
+        public virtual FotoAlbum? FotoAlbum { get; set; }
+        public virtual Mascota? Mascota { get; set; }
     }
 
 }

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Crear nueva mascota";
 }
 
-<div class="container pt-nav">
+<div class="container pt-nav mb-2">
     <div class="text-center mb-4">
         <h2>Modificar mascota 🐾</h2>
         <p class="lead">Completa los datos de tu nuevo amigo. Al seleccionar una raza, verás sus detalles.</p>
@@ -58,12 +58,12 @@
 
                         <div class="col-md-6">
                             <label asp-for="PesoKg" class="form-label">Peso (Kg)</label>
-                            <input asp-for="PesoKg" id="pesoInput" type="number" inputmode="decimal" class="form-control" />
+                            <input asp-for="PesoKg" id="pesoInput" type="number" inputmode="decimal" class="form-control" step="0.01  />
                             <span asp-validation-for="PesoKg" class="text-danger"></span>
                         </div>
                         <div class="col-md-6">
                             <label asp-for="LongitudCm" class="form-label">LongitudLomo (cm)</label>
-                            <input asp-for="LongitudCm" id="longitudInput" type="number" inputmode="decimal" class="form-control" />
+                            <input asp-for="LongitudCm" id="longitudInput" type="number" inputmode="decimal" class="form-control" step="0.01  />
                             <span asp-validation-for="LongitudCm" class="text-danger"></span>
                         </div>
                         <div class="col-12">

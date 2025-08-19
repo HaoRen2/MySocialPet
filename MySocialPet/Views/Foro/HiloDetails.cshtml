@@ -25,10 +25,26 @@
                                 <img class="btn btn-light p-1" width="35px" src="@Url.Content("~/src/foro/icons/Filtro.svg")" />
                             </span>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownFilter">
-                                <li><a class="dropdown-item" href="#" data-filter="recentes">Más recientes</a></li>
-                                <li><a class="dropdown-item" href="#" data-filter="antiguos">Más antiguos</a></li>
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-action="HiloDetails"
+                                       asp-route-slug="@Model.Slug"
+                                       asp-route-foroId="@Model.IdForo"
+                                       asp-route-discId="@Model.IdDiscusion"
+                                       asp-route-ordenarPor="recientes">Más recientes</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-action="HiloDetails"
+                                       asp-route-slug="@Model.Slug"
+                                       asp-route-foroId="@Model.IdForo"
+                                       asp-route-discId="@Model.IdDiscusion"
+                                       asp-route-ordenarPor="antiguos">Más antiguos</a>
+                                </li>
+                                <!-- Más tarde se implementa esto:
                                 <li><a class="dropdown-item" href="#" data-filter="mensajes">Más mensajes</a></li>
                                 <li><a class="dropdown-item" href="#" data-filter="sin-responder">Sin responder</a></li>
+                                -->
                             </ul>
                         </div>
                     </div>
@@ -99,7 +115,7 @@
                                         <hr />
                                         @if (item.Imagen != null)
                                         {
-                                            <img class="m-4 img-thumbnail img-clickable"
+                                            <img style="cursor:pointer;" class="m-4 img-thumbnail img-clickable"
                                                  width="150px"
                                                  src="data:image/jpeg;base64,@(Convert.ToBase64String(item.Imagen))"
                                                  alt="Imagen del mensaje"
@@ -107,6 +123,17 @@
                                         }
 
                                         <p>@item.ContenidoMensaje</p>
+                                        @if (User.Identity.IsAuthenticated && item.Usuario?.Username == User.Identity.Name)
+                                        {
+                                            @using (Html.BeginForm("EliminarMensaje", "Foro", new { id = item.IdMensaje }, FormMethod.Post, true, new { style = "display:inline;" }))
+                                            {
+                                                //@Html.AntiForgeryToken()
+                                                <button type="submit" class="text-danger btn-sm p-1 ms-2 border-0 bg-transparent"
+                                                        onclick="return confirm('¿Estás seguro de que quieres eliminar este mensaje?');">
+                                                    <i. class="bi bi-trash"></i.> Eliminar
+                                                </button>
+                                            }
+                                        }
                                     </div>
                                 </div>
                             </div>

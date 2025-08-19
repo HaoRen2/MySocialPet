@@ -29,6 +29,6 @@ namespace MySocialPet.Models.Albums
         [ForeignKey("IdAlbum")]
         public virtual Album Album { get; set; }
 
-        public virtual ICollection<FotoEtiquetaMascota> MascotasEtiquetadas { get; set; } //(puede ser NULL) hacer un desplegable en insertar foto con las mascotas del user
+        public virtual ICollection<FotoEtiquetaMascota>? MascotasEtiquetadas { get; set; } //(puede ser NULL) hacer un desplegable en insertar foto con las mascotas del user
     }
 }
