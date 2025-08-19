@@ -19,6 +19,7 @@ namespace MySocialPet.Models.Albums
         [StringLength(100)]
         public string NombreAlbum { get; set; }
 
+
         public int IdUsuario { get; set; }
 
         [ForeignKey("IdUsuario")]

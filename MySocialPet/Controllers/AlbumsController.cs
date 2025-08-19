@@ -3,6 +3,7 @@ using MySocialPet.DAL;
 using MySocialPet.Models.Albums;
 using MySocialPet.Models.Foros;
 using MySocialPet.Models.ViewModel.Albums;
+using MySocialPet.Models.ViewModel.Mascotas;
 using System.Security.Claims;
 
 namespace MySocialPet.Controllers
@@ -42,6 +43,8 @@ namespace MySocialPet.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 model.IdUsuario = int.Parse(userId);
+                // Guardar el álbum
+                await _albumDAL.InsertAlbum(model);
                 
                 // Guardar el álbum y obtener su Id
                 var nuevoAlbumId = await _albumDAL.InsertAlbum(model);

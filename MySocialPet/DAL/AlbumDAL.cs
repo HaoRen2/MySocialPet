@@ -18,6 +18,8 @@ namespace MySocialPet.DAL
 
         public List<Album> GetAlbumesPorUsuario(string userId)
         {
+            int id = int.Parse(userId);
+
             return _context.Albumes
                 .Where(a => a.IdUsuario.ToString() == userId)
                 .Include(a => a.Fotos)
