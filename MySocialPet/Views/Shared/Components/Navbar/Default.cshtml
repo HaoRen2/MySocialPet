@@ -34,10 +34,15 @@
                            aria-haspopup="true">
                             <i class="bi bi-house-heart me-1"></i>Mis Mascotas
                         </a>
-
                         <ul class="dropdown-menu shadow rounded-3 p-2"
                             aria-labelledby="misMascotasDropdown"
                             data-bs-auto-close="outside" style="min-width: 220px;">
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center py-2"
+                                   asp-controller="Mascota" asp-action="ListaMascota" asp-route-id="@Model">
+                                   <i class="bi bi-list me-2"></i> Lista Mascota
+                                </a>
+                            </li>
                             <li>
                                 <a class="dropdown-item d-flex align-items-center py-2"
                                    asp-controller="Salud" asp-action="SaludRegistro" asp-route-id="@Model">

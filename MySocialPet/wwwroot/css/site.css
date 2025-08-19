@@ -295,7 +295,7 @@ a.dropdown-item:hover{
 @media (min-width: 992px) {
     .navbar .dropdown:hover > .dropdown-menu {
         display: block;
-        margin-top: 12px;
+        margin-top: 0px;
     }
 
     .navbar .dropdown:hover > .dropdown-toggle {
