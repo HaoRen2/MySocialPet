@@ -29,6 +29,7 @@ builder.Services.AddScoped<SaludDAL>();
 builder.Services.AddScoped<ForoDAL>();
 builder.Services.AddScoped<AlbumDAL>();
 builder.Services.AddScoped<SugerenciaDAL>();
+builder.Services.AddScoped<ProtectoraDAL>();
 
 
 var app = builder.Build();

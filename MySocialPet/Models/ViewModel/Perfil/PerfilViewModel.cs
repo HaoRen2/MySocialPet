@@ -14,7 +14,6 @@ namespace MySocialPet.Models.ViewModel.Perfil
         public DateTime FechaRegistro { get; set; }
 
         public string? TipoUsuarioNombre { get; set; }
-        public string? ProtectoraNombre { get; set; }
 
         // Datos personales (opcionales, editables en "Cuenta")
         public string? Nombre { get; set; }

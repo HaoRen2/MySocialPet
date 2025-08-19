@@ -3,6 +3,7 @@ using MySocialPet.Models.Albums;
 using MySocialPet.Models.Autenticacion;
 using MySocialPet.Models.Foros;
 using MySocialPet.Models.Mascotas;
+using MySocialPet.Models.Protectora;
 using MySocialPet.Models.Salud;
 using MySocialPet.Models.Sugerencias;
 

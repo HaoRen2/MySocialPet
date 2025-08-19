@@ -32,13 +32,11 @@ html, body, * {
    CLASES DE DEPURACIÓN (Quitar estilos visuales para test)
 ------------------------------------------------------------ */
 /* ------------------ HOVER EFECTO TEST ------------------ */
-/* Añade borde punteado gris y fondo gris claro al hacer hover */
-/*
+
 .test:hover {
-    background-color: rgba(97, 97, 97, 0.1); /* Gris claro transparente 
+    background-color: rgba(97, 97, 97, 0.1); 
     cursor: pointer;
 }
-*/
 
 .btn-verde:hover {
     border: 2px solid rgba(97, 97, 97, 1); /* Gris oscuro */

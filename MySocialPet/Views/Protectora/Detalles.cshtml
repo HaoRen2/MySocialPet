@@ -1,0 +1,347 @@
+﻿@model MySocialPet.Models.ViewModel.Protectora.ProtectoraViewModel
+@using MySocialPet.Models.Mascotas;
+@{
+    ViewData["Title"] = "Protectora – Detalle";
+
+    // Construimos una dirección completa y escapada para el mapa
+    var addrParts = new[] { Model.Direccion, Model.CodigoPostal, Model.Ciudad, Model.Provincia }
+        .Where(s => !string.IsNullOrWhiteSpace(s));
+    var addr = string.Join(", ", addrParts);
+    var addrQuery = string.IsNullOrWhiteSpace(addr) ? null : Uri.EscapeDataString(addr);
+}
+
+<div class="container pt-nav">
+
+    <!-- Encabezado -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex align-items-start gap-3">
+
+                <!-- Logo -->
+                <img src="~/src/DefaultAvatar/AvatarProtectora.png"
+                     alt="Logo @Model.Nombre"
+                     class="rounded-circle border"
+                     style="width:96px;height:96px;object-fit:cover;" />
+
+                <!-- Título + badges -->
+                <div class="flex-grow-1">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                        <div>
+                            <h2 class="fw-bold mb-1">@Model.Nombre</h2>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-success-subtle text-success border">
+                                    <i class="bi bi-bone me-1"></i> @Model.NumPerros Perros
+                                </span>
+                                <span class="badge bg-primary-subtle text-primary border">
+                                    <i class="bi bi-emoji-smile me-1"></i> @Model.NumGatos Gatos
+                                </span>
+                                <span class="badge bg-danger-subtle text-danger border">
+                                    <i class="bi bi-heart-fill me-1"></i> Total: @Model.NumMascotas
+                                </span>
+                                @if (!string.IsNullOrWhiteSpace(Model.Ciudad))
+                                {
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="bi bi-geo-alt me-1"></i> @Model.Ciudad
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Acciones rápidas -->
+                        <div class="d-flex flex-wrap gap-2">
+                            @if (!string.IsNullOrWhiteSpace(Model.Web))
+                            {
+                                <a href="@Model.Web" target="_blank" rel="noopener" class="btn btn-outline-primary">
+                                    <i class="bi bi-globe me-1"></i> Visitar Web
+                                </a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.Email))
+                            {
+                                <a href="mailto:@Model.Email" class="btn btn-outline-secondary">
+                                    <i class="bi bi-envelope me-1"></i> Email
+                                </a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Model.Telefono))
+                            {
+                                <a href="tel:@Model.Telefono" class="btn btn-outline-secondary">
+                                    <i class="bi bi-telephone me-1"></i> Llamar
+                                </a>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Descripción corta -->
+                    <p class="text-muted mt-3 mb-0">
+                        @(string.IsNullOrWhiteSpace(Model.Introduccion)
+                                                ? "Esta protectora todavía no ha añadido descripción."
+                                                : Model.Introduccion)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="protectoraTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="info-tab" data-bs-toggle="tab"
+                    data-bs-target="#tab-info" type="button" role="tab">
+                Información
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="mascotas-tab" data-bs-toggle="tab"
+                    data-bs-target="#tab-mascotas" type="button" role="tab">
+                Mascotas disponibles
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="ubicacion-tab" data-bs-toggle="tab"
+                    data-bs-target="#tab-ubicacion" type="button" role="tab">
+                Ubicación / Mapa
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="contacto-tab" data-bs-toggle="tab"
+                    data-bs-target="#tab-contacto" type="button" role="tab">
+                Contacto
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content py-4">
+
+        <!-- INFO -->
+        <div class="tab-pane fade show active" id="tab-info" role="tabpanel" aria-labelledby="info-tab">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="fw-semibold mb-3">Sobre la protectora</h5>
+                    <p class="text-justify mb-0">
+                        @(string.IsNullOrWhiteSpace(Model.Descripcion)
+                                                ? "Sin información adicional."
+                                                : Model.Descripcion)
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MASCOTAS -->
+        <div class="tab-pane fade" id="tab-mascotas" role="tabpanel" aria-labelledby="mascotas-tab">
+            @{
+                var mascotas = ViewBag.Mascotas as IEnumerable<Mascota> ?? Enumerable.Empty<Mascota>();
+
+                string EdadTexto(DateTime? nac)
+                {
+                    if (!nac.HasValue) return "Edad N/D";
+                    var months = (int)((DateTime.Today - nac.Value.Date).TotalDays / 30.4375);
+                    var y = months / 12; var m = months % 12;
+                    if (y > 0 && m > 0) return $"{y} años · {m} meses";
+                    if (y > 0) return $"{y} años";
+                    return $"{m} meses";
+                }
+            }
+
+            @if (mascotas.Any())
+            {
+                <div class="row g-4">
+                    @foreach (var m in mascotas)
+                    {
+                        <div class="col-12 col-sm-6 col-lg-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <img src="@(m.Foto == null ? Url.Content("~/src/DefaultAvatar/AvatarMascota.png")
+                                                                                        : Url.Action("Foto", "Media", new { id = m.IdMascota }))"
+                             class="card-img-top" alt="@m.Nombre" style="height:200px;object-fit:cover;" />
+                        <div class="card-body">
+                            <h5 class="card-title mb-1">@m.Nombre</h5>
+                            <p class="text-muted mb-2">
+                                @(m.Raza?.Especie?.Nombre ?? "—") · @(m.Raza?.NombreRaza ?? "Raza N/D")
+                            </p>
+                            <p class="mb-2 small text-muted">
+                                @EdadTexto(m.Nacimiento) · @m.Genero ·
+                                @(m.Esterilizada ? "Esterilizado/a" : "Sin esterilizar")
+                            </p>
+                            <span class="badge bg-light text-dark border">@m.EstadoAdopcion</span>
+                        </div>
+                    </div>
+                </div>
+                                }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-light border" role="alert">
+                    <i class="bi bi-info-circle me-2"></i>
+                    No hay mascotas publicadas por esta protectora.
+                </div>
+            }
+        </div>
+
+        <!-- UBICACIÓN -->
+        <div class="tab-pane fade" id="tab-ubicacion" role="tabpanel" aria-labelledby="ubicacion-tab">
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="fw-semibold mb-3">Mapa</h5>
+
+                            @if (!string.IsNullOrWhiteSpace(addrQuery))
+                            {
+                                <!-- Map embed basado en la dirección (sin API key) -->
+                                <div class="ratio ratio-16x9 rounded overflow-hidden">
+                                    <iframe src="https://www.google.com/maps?q=@addrQuery&output=embed"
+                                            style="border:0;" allowfullscreen="" loading="lazy"
+                                            referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    <a class="link-underline link-underline-opacity-0"
+                                       href="https://www.google.com/maps/search/?api=1&query=@addrQuery"
+                                       target="_blank" rel="noopener">
+                                        Abrir en Google Maps
+                                    </a>
+                                </small>
+                            }
+                            else
+                            {
+                                <div class="map-placeholder rounded" style="height: 340px;"></div>
+                                <small class="text-muted d-block mt-2">
+                                    Dirección no disponible.
+                                </small>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="fw-semibold mb-3">Dirección y acceso</h5>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="bi bi-geo-alt me-2"></i>
+                                    @(string.IsNullOrWhiteSpace(Model.Direccion) && string.IsNullOrWhiteSpace(Model.Ciudad)
+                                                                        ? "—"
+                                                                        : $"{Model.Direccion} {(string.IsNullOrWhiteSpace(Model.CodigoPostal) ? "" : "· " + Model.CodigoPostal)} {(Model.Ciudad ?? "")} {(Model.Provincia ?? "")}")
+                                </li>
+                                @if (!string.IsNullOrWhiteSpace(Model.Telefono))
+                                {
+                                    <li class="mb-2"><i class="bi bi-telephone me-2"></i> <a href="tel:@Model.Telefono">@Model.Telefono</a></li>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.Email))
+                                {
+                                    <li class="mb-2"><i class="bi bi-envelope me-2"></i> <a href="mailto:@Model.Email">@Model.Email</a></li>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.Web))
+                                {
+                                    <li><i class="bi bi-link-45deg me-2"></i> <a href="@Model.Web" target="_blank" rel="noopener">@Model.Web</a></li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTACTO -->
+        <div class="tab-pane fade" id="tab-contacto" role="tabpanel" aria-labelledby="contacto-tab">
+            <div class="row g-4">
+                <!-- Formulario de contacto -->
+                <div class="col-lg-7">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="fw-semibold mb-3">Enviar un mensaje</h5>
+
+                            <form asp-controller="Protectora"
+                                  asp-action="EnviarMensaje"
+                                  asp-route-id="@Model.IdProtectora"
+                                  method="post" novalidate>
+                                @Html.AntiForgeryToken()
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-muted">Tu nombre</label>
+                                        <input class="form-control" name="nombre" placeholder="Nombre y apellidos" required />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-muted">Email</label>
+                                        <input class="form-control" type="email" name="email" placeholder="tu@email.com" required />
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small text-muted">Asunto</label>
+                                        <input class="form-control" name="asunto" placeholder="Voluntariado / Adopción / Donación..." required />
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small text-muted">Mensaje</label>
+                                        <textarea class="form-control" name="mensaje" rows="5" placeholder="Escribe tu mensaje..." required></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <button class="btn btn-primary">
+                                            <i class="bi bi-send me-1"></i> Enviar
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <small class="text-muted d-block mt-3">* Si aún no implementas el endpoint, esta maqueta no enviará el mensaje.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info de contacto -->
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="fw-semibold mb-3">Contacto directo</h5>
+                            <ul class="list-unstyled mb-0">
+                                @if (!string.IsNullOrWhiteSpace(Model.Telefono))
+                                {
+                                    <li class="mb-2"><i class="bi bi-telephone me-2"></i> <a href="tel:@Model.Telefono">@Model.Telefono</a></li>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.Email))
+                                {
+                                    <li class="mb-2"><i class="bi bi-envelope me-2"></i> <a href="mailto:@Model.Email">@Model.Email</a></li>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.Web))
+                                {
+                                    <li class="mb-2"><i class="bi bi-link-45deg me-2"></i> <a href="@Model.Web" target="_blank" rel="noopener">@Model.Web</a></li>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(addr) && addrQuery != null)
+                                {
+                                    <li>
+                                        <i class="bi bi-geo me-2"></i>
+                                        <a href="https://www.google.com/maps/search/?api=1&query=@addrQuery"
+                                           target="_blank" rel="noopener">Abrir en Maps</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /CONTACTO -->
+
+    </div>
+</div>
+
+<style>
+    .badge.bg-success-subtle {
+        background-color: #e6f4ea;
+    }
+
+    .badge.bg-primary-subtle {
+        background-color: #e7f0ff;
+    }
+
+    .badge.bg-danger-subtle {
+        background-color: #ffe8ea;
+    }
+
+    .text-justify {
+        text-align: justify;
+    }
+
+    .map-placeholder {
+        background: repeating-linear-gradient(45deg, #f2f2f2, #f2f2f2 10px, #e6e6e6 10px, #e6e6e6 20px);
+        border: 1px dashed #cfcfcf;
+        height: 340px;
+    }
+</style>

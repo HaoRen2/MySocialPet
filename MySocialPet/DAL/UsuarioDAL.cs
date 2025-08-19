@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MySocialPet.Models;
 using MySocialPet.Models.Autenticacion;
+using MySocialPet.Models.Mascotas;
 using MySocialPet.Models.ViewModel.Perfil;
 using MySocialPet.Tools;
 
@@ -117,7 +118,6 @@ namespace MySocialPet.DAL
                     // Usa el nombre correcto según tu entidad TipoUsuario:
                     // TipoUsuarioNombre = u.TipoUsuario != null ? u.TipoUsuario.NombreTipo : null,
                     TipoUsuarioNombre = null,
-                    ProtectoraNombre = u.Protectora != null ? u.Protectora.Nombre : null,
 
                     // Datos personales
                     Nombre = u.Nombre,
@@ -207,6 +207,26 @@ namespace MySocialPet.DAL
             return true;
         }
 
+public async Task<List<Mascota>> GetMascotasDeUsuarioAsync(
+    int idUsuario,
+    int take = 12,
+    bool soloEnAdopcion = true)
+    {
+        var q = _context.Mascotas
+            .AsNoTracking()
+            .Include(m => m.Raza)
+                .ThenInclude(r => r.Especie)
+            .Where(m => m.IdUsuario == idUsuario);
 
+        if (soloEnAdopcion)
+            q = q.Where(m => m.EstadoAdopcion == "En Adopcion"); // ajusta al valor que uses
+
+        return await q
+            .OrderByDescending(m => m.IdMascota)
+            .Take(take)
+            .ToListAsync();
     }
+
+
+}
 }

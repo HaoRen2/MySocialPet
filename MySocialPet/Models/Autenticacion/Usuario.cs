@@ -53,7 +53,6 @@ namespace MySocialPet.Models.Autenticacion
         public virtual ICollection<Album> Albumes { get; set; }
         public virtual ICollection<Discusion> DiscusionesCreadas { get; set; }
         public virtual ICollection<Mensaje> Mensajes { get; set; }
-        public virtual Protectora Protectora { get; set; }
 
         // =======================
         // Recuperación de contraseña
