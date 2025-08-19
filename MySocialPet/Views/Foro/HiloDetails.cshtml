@@ -123,13 +123,16 @@
                                         }
 
                                         <p>@item.ContenidoMensaje</p>
-                                        @using (Html.BeginForm("EliminarMensaje", "Foro", new { id = item.IdMensaje }, FormMethod.Post, true, new { style = "display:inline;" }))
+                                        @if (User.Identity.IsAuthenticated && item.Usuario?.Username == User.Identity.Name)
                                         {
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="text-danger btn-sm p-1 ms-2 border-0 bg-transparent"
-                                                    onclick="return confirm('¿Estás seguro de que quieres eliminar este mensaje?');">
-                                                <i class="bi bi-trash"></i> Eliminar
-                                            </button>
+                                            @using (Html.BeginForm("EliminarMensaje", "Foro", new { id = item.IdMensaje }, FormMethod.Post, true, new { style = "display:inline;" }))
+                                            {
+                                                //@Html.AntiForgeryToken()
+                                                <button type="submit" class="text-danger btn-sm p-1 ms-2 border-0 bg-transparent"
+                                                        onclick="return confirm('¿Estás seguro de que quieres eliminar este mensaje?');">
+                                                    <i. class="bi bi-trash"></i.> Eliminar
+                                                </button>
+                                            }
                                         }
                                     </div>
                                 </div>
