@@ -15,7 +15,7 @@ namespace MySocialPet.ViewsComponents
 
         public async Task<IViewComponentResult> InvokeAsync(int mascotaIdActual, string controlador, string accion)
         {
-            var usuarioId = ObtenerUsuarioIdActual(); // Implementa según tu auth
+            var usuarioId = ObtenerUsuarioIdActual(); 
 
             var mascotas = _context.Mascotas
                 .Where(m => m.IdUsuario == usuarioId)

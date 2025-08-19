@@ -17,6 +17,7 @@ namespace MySocialPet.Models.ViewModel.Autenticacion
         [Required(ErrorMessage = "La contraseña es obligatoria.")]
         [DataType(DataType.Password)]
         [Display(Name = "Contraseña")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres.")]
         public string Password { get; set; }
 
         [Required(ErrorMessage = "Debe confirmar la contraseña")]

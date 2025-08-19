@@ -8,11 +8,9 @@
 <div class="welcome-section container test">
     <div class="container my-5 text-lg-start text-center test">
             <h2 class="fw-bold display-6">@ViewData["Title"]</h2>
-                    @await Component.InvokeAsync("MascotaSelector", new {
-    mascotaIdActual = Model.IdMascota,
-        controlador = "Salud", 
-        accion = "CalendarioEventos" 
-        })
+            @await Component.InvokeAsync("MascotaSelector", new { mascotaIdActual = Model.IdMascota,
+            controlador = "Salud", 
+            accion = "CalendarioEventos" })
     </div>
 
 <div id="calendar"></div>
@@ -41,7 +39,7 @@
                     <input type="hidden" name="IdMascota" value="@Model.IdMascota" />
                     <div class="mb-3">
                         <label class="form-label">Título</label>
-                        <input type="text" name="Titulo" class="form-control" required />
+                        <input type="text" name="Titulo" class="form-control" maxlength="50" required />
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Fecha y hora</label>
@@ -59,7 +57,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Notas</label>
-                        <textarea name="Notas" class="form-control"></textarea>
+                        <textarea name="Notas" class="form-control" maxlength="100"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -103,6 +101,9 @@
                 right: 'dayGridMonth,listWeek'
             },
             selectable: true,
+            validRange: {
+            start: '2000-01-01'
+            },
             events: eventos,
 
             dateClick: function (info) {

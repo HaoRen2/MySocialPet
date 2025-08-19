@@ -16,6 +16,7 @@
     {
         public int? IdTipoVacuna { get; set; }
         public int? IdVacunaRegistro { get; set; }
+        public int? IdEspecie { get; set; }
         public string NombreVacuna { get; set; }
         public string? EdadRecomendada { get; set; }
         public bool EsRefuerzo { get; set; }

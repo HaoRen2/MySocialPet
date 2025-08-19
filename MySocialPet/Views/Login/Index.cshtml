@@ -33,7 +33,12 @@
             <input asp-for="Password" type="password" class="form-control" placeholder="********" />
             <span asp-validation-for="Password" class="text-danger small"></span>
         </div>
-
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="text-danger">
+                @ViewData.ModelState[""].Errors.First().ErrorMessage
+            </div>
+        }
         <div class="text-center mt-3  text-lg-start">
             <a asp-action="RecuperarContrasenya" asp-controller="Login" class=" text-primary">¿Has olvidado tu contraseña?</a>
         </div>
@@ -41,6 +46,7 @@
         <div class="d-grid ">
             <button type="submit" class="btn static">Entrar</button>
         </div>
+
     </form>
 
 </div>

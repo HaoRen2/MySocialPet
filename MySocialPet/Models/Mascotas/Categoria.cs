@@ -17,7 +17,6 @@ namespace MySocialPet.Models.Mascotas
         public int IdEspecie { get; set; }
         [ForeignKey("IdEspecie")]
         public virtual Especie Especie { get; set; }
-
         public virtual ICollection<Raza> Razas { get; set; }
         public virtual ICollection<CategoriaSugerencia> CategoriaSugerencias { get; set; }
     }

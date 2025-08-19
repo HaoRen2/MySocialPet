@@ -38,6 +38,7 @@ namespace MySocialPet.Controllers
         {
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult RecuperarContrasenya(RecuperarContrasenyaViewModel model)

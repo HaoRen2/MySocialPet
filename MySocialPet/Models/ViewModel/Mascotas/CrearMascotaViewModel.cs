@@ -7,21 +7,28 @@ namespace MySocialPet.Models.ViewModel.Mascotas
     {
 
         public int? Id { get; set; }
-        [Required]
+        [Required(ErrorMessage = "El nombre obligatorio.")]
         public string Nombre { get; set; }
         public DateTime? Nacimiento { get; set; }
-        [Range(0, double.MaxValue, ErrorMessage = "Solo números positivos")]
+
+        [Required(ErrorMessage = "El peso es obligatorio.")]
+        [Range(0, 500, ErrorMessage = "Solo números positivos")]
         public decimal PesoKg { get; set; }
-        [Range(0, double.MaxValue, ErrorMessage = "Solo números positivos")]
+
+        [Required(ErrorMessage = "La longitud es obligatorio.")]
+
+        [Range(0, 500, ErrorMessage = "Solo números positivos")]
         public decimal LongitudCm { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "El genero es obligatorio.")]
         public string Genero { get; set; }
 
         public IFormFile? Foto { get; set; }
 
         public int? BCS { get; set; }
         public bool Esterilizada { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "La raza es obligatorio.")]
         public int IdRaza { get; set; }
         [Required]
         public int? IdEspecie { get; set; }

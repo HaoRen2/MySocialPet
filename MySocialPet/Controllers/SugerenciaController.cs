@@ -33,20 +33,20 @@ namespace MySocialPet.Controllers
                 IdEspecie = IdEspecie,
                 IdCategoria = IdCategoria,
                 IdRaza = IdRaza,
-                Sugerencias = new List<Sugerencia>() // vacío por defecto
+                Sugerencias = new List<Sugerencia>() 
             };
 
-            // si no hay especie -> nada
             if (!IdEspecie.HasValue)
                 return View(vm);
 
-            // cargamos categorías de la especie
-            var categorias = _context.Categorias
-                .Where(c => c.IdEspecie == IdEspecie.Value)
-                .ToList();
-            vm.CategoriasSelectList = new SelectList(categorias, "IdCategoria", "NombreCategoria", IdCategoria);
+            if (IdEspecie.HasValue)
+            {
+                var categorias = _context.Categorias
+                    .Where(c => c.IdEspecie == IdEspecie.Value)
+                    .ToList();
+                vm.CategoriasSelectList = new SelectList(categorias, "IdCategoria", "NombreCategoria", IdCategoria);
+            }
 
-            // cargamos razas si hay categoría
             if (IdCategoria.HasValue)
             {
                 var razas = _context.Razas
@@ -61,23 +61,16 @@ namespace MySocialPet.Controllers
                 .Include(s => s.RazasSugerencia).ThenInclude(rs => rs.Raza)
                 .AsQueryable();
 
-            // siempre especie
-            query = query.Where(s =>
-                s.EspeciesSugerencia.Any(es => es.IdEspecie == IdEspecie) ||
-                s.RazasSugerencia.Any(rs => rs.Raza.IdEspecie == IdEspecie)
-            );
-
-            // si hay categoría, añadimos también categoría
+        
             if (IdCategoria.HasValue)
             {
                 query = query.Where(s =>
                     s.CategoriaSugerencias.Any(cs => cs.IdCategoria == IdCategoria) ||
                     s.RazasSugerencia.Any(rs => rs.Raza.IdCategoria == IdCategoria)
-                    || s.EspeciesSugerencia.Any(es => es.IdEspecie == IdEspecie) // mantener especie
+                    || s.EspeciesSugerencia.Any(es => es.IdEspecie == IdEspecie) 
                 );
             }
 
-            // si hay raza, añadimos también raza
             if (IdRaza.HasValue)
             {
                 query = query.Where(s =>

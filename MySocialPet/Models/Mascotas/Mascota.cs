@@ -27,9 +27,11 @@ namespace MySocialPet.Models.Mascotas
 
         [DataType(DataType.Date)]
         public DateTime? Nacimiento { get; set; }
+        [Required]
 
         [Column(TypeName = "decimal(5, 2)")]
         public decimal PesoKg { get; set; }
+        [Required]
 
         [Column(TypeName = "decimal(5, 2)")]
         public decimal LongitudCm { get; set; }

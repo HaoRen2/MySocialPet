@@ -6,6 +6,7 @@ using MySocialPet.DAL;
 using MySocialPet.Models.Mascotas;
 using MySocialPet.Models.Salud;
 using MySocialPet.Models.ViewModel.Salud;
+using System.Linq;
 
 namespace MySocialPet.Controllers
 {
@@ -28,12 +29,10 @@ namespace MySocialPet.Controllers
         [HttpGet]
         public async Task<IActionResult> SaludRegistro(int id)
         {
-            var mascota = await _context.Mascotas
-                .Include(m => m.Raza)
-                .FirstOrDefaultAsync(m => m.IdMascota == id);
+            var mascota = _mascotaDAL.GetMascotaById(id);
 
             if (mascota == null)
-                return NotFound();
+                return RedirectToAction("ListaMascota","Mascota");
 
             var model = new SaludRegistroViewModel
             {
@@ -75,7 +74,7 @@ namespace MySocialPet.Controllers
             var mascota = _saludDAL.GetEventosMascota(id);
 
             if (mascota == null)
-                return NotFound();
+                return RedirectToAction("ListaMascota", "Mascota");
 
             var viewModel = new CalendarioEventosViewModel
             {
@@ -161,44 +160,15 @@ namespace MySocialPet.Controllers
         [HttpGet]
         public async Task<IActionResult> Vacunas(int id)
         {
-            var mascota = await _context.Mascotas
-           .Include(m => m.Raza)
-           .ThenInclude(r => r.Especie)
-           .FirstOrDefaultAsync(m => m.IdMascota == id);
+            var mascota = await _saludDAL.GetMascotaAsync(id);
 
             if (mascota == null)
-                return NotFound();
+                return RedirectToAction("ListaMascota", "Mascota");
 
-            var idEspecie = mascota.Raza.IdEspecie;
+            var listaVacunas = await _saludDAL.GetListaVacunasAsync(mascota.Raza.IdEspecie);
+            var vacunasRegistradas = await _saludDAL.GetVacunasRegistradasAsync(id);
 
-            var listaVacunas = await _context.ListaVacunas
-                .Include(lv => lv.TipoVacuna)
-                .Where(lv => lv.IdEspecie == idEspecie)
-                .ToListAsync();
-
-            var vacunasRegistradas = await _context.VacunaRegistros
-                .Where(v => v.IdMascota == id)
-                .Include(v => v.TipoVacuna)
-                .ToListAsync();
-
-            var vacunasVM = listaVacunas.Select(lv =>
-            {
-                var registro = vacunasRegistradas.FirstOrDefault(v => v.IdTipoVacuna == lv.IdTipoVacuna);
-
-                return new VacunaDetalleViewModel
-                {
-                    IdTipoVacuna = lv.TipoVacuna.IdTipoVacuna,
-                    IdVacunaRegistro = registro?.IdVacunaRegistro,
-                    NombreVacuna = lv.TipoVacuna.Nombre,
-                    EdadRecomendada = lv.EdadRecomendada,
-                    EsRefuerzo = lv.EsRefuerzo,
-                    Descripcion = lv.Descripcion,
-                    Aplicada = registro != null,
-                    FechaAplicacion = registro?.Fecha,
-                    Esencial = lv.Esencial,
-                    Notas = lv.Notas,
-                };
-            }).ToList();
+            var vacunasVM = MapVacunas(listaVacunas, vacunasRegistradas);
 
             var viewModel = new VacunaMascotaViewModel
             {
@@ -208,20 +178,16 @@ namespace MySocialPet.Controllers
                 Vacunas = vacunasVM
             };
 
-            var vacunasRegistradasIds = vacunasRegistradas.Select(v => v.IdTipoVacuna).ToList();
-
-            ViewBag.Vacunas = _context.TipoVacunas
-                .Where(v => !vacunasRegistradasIds.Contains(v.IdTipoVacuna))
-                .OrderBy(v => v.Nombre)
-                .Select(v => new SelectListItem
-                {
-                    Value = v.IdTipoVacuna.ToString(),
-                    Text = v.Nombre
-                })
+            var vacunasRegistradasIds = vacunasRegistradas
+                .Select(v => v.IdTipoVacuna)
                 .ToList();
+
+            ViewBag.Vacunas = await _saludDAL.GetVacunasDisponiblesAsync(vacunasRegistradasIds, mascota.Raza.IdEspecie);
 
             return View(viewModel);
         }
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -380,6 +346,29 @@ namespace MySocialPet.Controllers
                 valorEstimado,
                 textoOrientativo,
             });
+        }
+        private List<VacunaDetalleViewModel> MapVacunas(List<ListaVacuna> listaVacunas,List<VacunaRegistro> vacunasRegistradas)
+        {
+            return listaVacunas.Select(lv =>
+            {
+                var registro = vacunasRegistradas
+                    .FirstOrDefault(v => v.IdTipoVacuna == lv.IdTipoVacuna);
+
+                return new VacunaDetalleViewModel
+                {
+                    IdTipoVacuna = lv.TipoVacuna.IdTipoVacuna,
+                    IdEspecie = lv.IdEspecie,
+                    IdVacunaRegistro = registro?.IdVacunaRegistro,
+                    NombreVacuna = lv.TipoVacuna.Nombre,
+                    EdadRecomendada = lv.EdadRecomendada,
+                    EsRefuerzo = lv.EsRefuerzo,
+                    Descripcion = lv.Descripcion,
+                    Aplicada = registro != null,
+                    FechaAplicacion = registro?.Fecha,
+                    Esencial = lv.Esencial,
+                    Notas = lv.Notas,
+                };
+            }).ToList();
         }
     }
 }

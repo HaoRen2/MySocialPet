@@ -17,7 +17,7 @@ namespace MySocialPet.Models.ViewModel.Mascotas
         [Display(Name = "Peso (kg)")]
         public decimal? PesoKg { get; set; }
 
-        [Display(Name = "Longitud (cm)")]
+        [Display(Name = "Longitud Lomo (cm)")]
         public decimal? LongitudCm { get; set; }
 
         [StringLength(10)]
@@ -25,7 +25,7 @@ namespace MySocialPet.Models.ViewModel.Mascotas
 
         public byte[] Foto { get; set; }
 
-        [Display(Name = "BCS")]
+        [Display(Name = "Indice Corporal")]
         public int? BCS { get; set; }
 
         [Display(Name = "Esterilizado/a")]

@@ -11,12 +11,14 @@ namespace MySocialPet.Models.ViewModel.Salud
         [Display(Name = "Fecha")]
         public DateTime Fecha { get; set; } = DateTime.Today;
 
-        [Required]
+        [Required(ErrorMessage = "El peso es obligatorio.")]
+        [Range(0, 500, ErrorMessage = "Solo números positivos")]
         [Display(Name = "Peso (kg)")]
         public decimal PesoKg { get; set; }
 
-        [Required]
-        [Display(Name = "LongitudLomo (cm)")]
+        [Required(ErrorMessage = "El peso es obligatorio.")]
+        [Range(0, 500, ErrorMessage = "Solo números positivos")]
+        [Display(Name = "Longitud Lomo (cm)")]
         public decimal LongitudCm { get; set; }
 
         public int? BCS { get; set; }

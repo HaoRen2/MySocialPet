@@ -22,7 +22,7 @@
                         </div>
                         <div class="col-md-6">
                             <label asp-for="Nacimiento" class="form-label"></label>
-                            <input asp-for="Nacimiento" class="form-control" type="date" />
+                            <input asp-for="Nacimiento" class="form-control" min="2000-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" type="date" />
                             <span asp-validation-for="Nacimiento" class="text-danger"></span>
                         </div>
 
