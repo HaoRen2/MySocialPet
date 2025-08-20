@@ -1,11 +1,8 @@
-﻿using MySocialPet.Models.Albums;
-using System.ComponentModel.DataAnnotations;
-
-namespace MySocialPet.Models.ViewModel.Albums
+﻿namespace MySocialPet.Models.ViewModel.Mascotas
 {
-    public class ListaAlbumViewModel
+    public class MascotasPaginadasViewModel
     {
-        public List<Album> ListAlbums { get; set; } = new List<Album>();
+        public List<ListaMascotaViewModel> Mascotas { get; set; }
 
         public int PaginaActual { get; set; }
         public int TotalPaginas { get; set; }

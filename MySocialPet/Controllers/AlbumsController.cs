@@ -18,16 +18,41 @@ namespace MySocialPet.Controllers
             _albumDAL = albumDAL;
         }
 
+
         [HttpGet]
-        public IActionResult ListAlbum()
+        public IActionResult ListAlbum(int pagina = 1)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var vm = new ListaAlbumViewModel
+            if (string.IsNullOrEmpty(userId))
             {
-                ListAlbums = _albumDAL.GetAlbumesPorUsuario(userId)
+                return Challenge();
+            }
+
+            int tamanoPagina = 5;
+
+            var todosLosAlbumes = _albumDAL.GetAlbumesPorUsuario(userId);
+
+            var totalAlbumes = todosLosAlbumes.Count();
+
+            var albumesDeLaPagina = todosLosAlbumes
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .ToList(); 
+
+            var viewModel = new ListaAlbumViewModel
+            {
+                ListAlbums = albumesDeLaPagina,
+
+                PaginaActual = pagina,
+                TotalPaginas = (int)Math.Ceiling(totalAlbumes / (double)tamanoPagina)
             };
 
-            return View(vm);
+            if (viewModel.TotalPaginas == 0)
+            {
+                viewModel.TotalPaginas = 1;
+            }
+
+            return View(viewModel);
         }
 
         [HttpGet]
@@ -44,8 +69,6 @@ namespace MySocialPet.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 model.IdUsuario = int.Parse(userId);
-                // Guardar el álbum
-                await _albumDAL.InsertAlbum(model);
                 
                 // Guardar el álbum y obtener su Id
                 var nuevoAlbumId = await _albumDAL.InsertAlbum(model);

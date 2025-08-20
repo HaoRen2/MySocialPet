@@ -8,6 +8,8 @@
     <h2 class="mb-4">Mis Álbumes</h2>
 
     <div class="row row-cols-1 row-cols-md-3 g-4">
+
+        @* 2. El bucle ahora itera sobre la propiedad 'ListAlbums' de tu modelo *@
         @foreach (var album in Model.ListAlbums)
         {
             <div class="col">
@@ -16,16 +18,16 @@
                     <a href="@Url.Action("DetailsAlbum", "Albums", new { idAlbum = album.IdAlbum })"
                        class="stretched-link"
                        style="z-index: 0;">
-                    @if (album.FotoReciente != null && album.FotoReciente.Length > 0)
-                    {
-                        var base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(album.FotoReciente);
-                        <img src="@base64Image" class="card-img-top" alt="Foto de @album.NombreAlbum" style="height: 200px; object-fit: cover;" />
-                    }
-                    else
-                    {
-                        <img src="https://st2.depositphotos.com/2586633/46477/v/450/depositphotos_464771766-stock-illustration-no-photo-or-blank-image.jpg"
-                             class="card-img-top" alt="Sin foto" style="height: 200px; object-fit: cover;" />
-                    }
+                        @if (album.FotoReciente != null && album.FotoReciente.Length > 0)
+                        {
+                            var base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(album.FotoReciente);
+                            <img src="@base64Image" class="card-img-top" alt="Foto de @album.NombreAlbum" style="height: 200px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <img src="https://st2.depositphotos.com/2586633/46477/v/450/depositphotos_464771766-stock-illustration-no-photo-or-blank-image.jpg"
+                                 class="card-img-top" alt="Sin foto" style="height: 200px; object-fit: cover;" />
+                        }
                     </a>
                     <div class="card-body d-flex justify-content-between align-items-center position-relative">
                         <h5 class="card-title mb-0">@album.NombreAlbum</h5>
@@ -35,15 +37,13 @@
                             <button class='btn btn-verde btn-sm me-2 position-relative'
                                     title='Editar álbum'
                                     data-bs-toggle="modal"
-                                    data-bs-target="#modalEditarAlbum_@album.IdAlbum"
-                                    data-album-id="@album.IdAlbum"
-                                    data-album-name="@album.NombreAlbum">
+                                    data-bs-target="#modalEditarAlbum_@album.IdAlbum">
                                 <i class='bi bi-pencil-square'></i>
                             </button>
 
-
+                            <!-- Botón Eliminar -->
                             <form method='post'
-                                  action='@Url.Action("DeleteAlbum", "Albums") '
+                                  action='@Url.Action("DeleteAlbum", "Albums")'
                                   onsubmit="return confirm('¿Seguro que deseas eliminar este álbum?');"
                                   class="position-relative"
                                   style='display:inline;'>
@@ -55,11 +55,9 @@
                             </form>
                         </div>
                     </div>
-
-                    
                 </div>
             </div>
-            <!-- formulario de cambiar nombre de album -->
+            <!-- Modal para editar (se genera uno por cada álbum) -->
             <div class="modal fade" id="modalEditarAlbum_@album.IdAlbum" tabindex="-1" aria-labelledby="modalEditarAlbumLabel_@album.IdAlbum" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -92,7 +90,7 @@
             </div>
         }
 
-        <!-- Tarjeta para crear nuevo álbum -->
+        <!-- Tarjeta para crear nuevo álbum (siempre visible) -->
         <div class="col">
             <div class="card h-100 shadow-lg border-0 text-center" style="background-color: #f8f9fa; transition: transform 0.3s;">
                 <a href="@Url.Action("CrearAlbum", "Albums")" class="stretched-link text-decoration-none text-dark">
@@ -106,6 +104,28 @@
             </div>
         </div>
     </div>
+
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav aria-label="Navegación de álbumes" class="mt-5 d-flex justify-content-center">
+            <ul class="pagination">
+                <li class="page-item @(Model.TienePaginaAnterior ? "" : "disabled")">
+                    <a class="page-link" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a>
+                </li>
+
+                @for (int i = 1; i <= Model.TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                        <a class="page-link" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@i">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(Model.TienePaginaSiguiente ? "" : "disabled")">
+                    <a class="page-link" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    }
 </div>
 
 <style>
