@@ -132,19 +132,15 @@ namespace MySocialPet.DAL
         }
 
 
-        public async Task InsertFoto(int idAlbum, string titulo, IFormFile foto, string descripcion, DateTime fecha, List<int> mascotasIds)
+        public async Task InsertFoto(int idAlbum, string titulo, byte[] fotoBytes, string descripcion, DateTime fecha, List<int> mascotasIds)
         {
-            using var ms = new MemoryStream();
-            await foto.CopyToAsync(ms);
-            var bytes = ms.ToArray();
-
             var fotoAlbum = new FotoAlbum
             {
                 IdAlbum = idAlbum,
                 Titulo = titulo,
                 Descripcion = descripcion,
                 Fecha = fecha,
-                Foto = bytes
+                Foto = fotoBytes // Se usa directamente el array de bytes
             };
 
             _context.FotoAlbumes.Add(fotoAlbum);
