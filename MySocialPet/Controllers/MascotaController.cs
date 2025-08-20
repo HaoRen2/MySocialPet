@@ -278,7 +278,7 @@ namespace MySocialPet.Controllers
                 return View(model);
             }
         }
-
+        //
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditMascota(CrearMascotaViewModel model)
