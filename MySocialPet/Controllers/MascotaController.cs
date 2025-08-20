@@ -297,7 +297,7 @@ namespace MySocialPet.Controllers
 
             try
             {
-                _mascotaDAL.UpdateMascota(mascota);
+                await _mascotaDAL.UpdateMascota(mascota);
                 return RedirectToAction("ListaMascota");
             }
             catch (Exception ex)
