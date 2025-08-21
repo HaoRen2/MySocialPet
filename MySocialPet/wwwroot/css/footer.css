@@ -1,0 +1,71 @@
+﻿/* ------------------------------------------------------------
+   FOOTER
+------------------------------------------------------------ */
+
+.site-footer {
+    background-color: #3a433c;
+    color: #ffffff;
+    font-family: "Figtree", sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+    /* Títulos */
+    .site-footer h5,
+    .site-footer h6 {
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Listas */
+    .site-footer ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    .site-footer li {
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    /* Enlaces */
+    .site-footer a {
+        color: #ffffff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+        .site-footer a:hover {
+            color: #d1e7dd;
+            text-decoration: underline;
+        }
+
+    /* Divider */
+    .site-footer hr {
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        opacity: 1;
+    }
+
+    /* Iconos sociales */
+    .site-footer .bi {
+        font-size: 1.3rem;
+        transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+        .site-footer .bi:hover {
+            color: #d1e7dd;
+            transform: scale(1.2);
+        }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .site-footer {
+        text-align: center;
+    }
+
+        .site-footer .row > div {
+            margin-bottom: 1.5rem;
+        }
+}

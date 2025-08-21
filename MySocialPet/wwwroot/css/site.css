@@ -9,15 +9,11 @@
     --bg-foro: rgb(245, 245, 245);
 }
 
-html, body, * {
-    font-family: 'Quicksand', sans-serif !important;
-}
-
-
 /* Espacio para compensar el navbar fijo arriba (fixed-top) */
 .pt-nav {
     margin-top: 12vh;
 }
+
 /* ------------------------------------------------------------
    ESTILOS GENERALES
     ------------------------------------------------------------ */
@@ -47,21 +43,21 @@ html, body, * {
 }
 
 
+
 .quitar-violeta {
-    border: 2px dashed rgba(111, 0, 255, 1); /* Violeta */
+    border: 1px dashed rgba(111, 0, 255, 1); /* Violeta */
     background-color: rgba(111, 0, 255, 0.1); /* Violeta transparente */
 }
 
 .quitar-amarillo {
-    border: 2px dashed rgba(255, 247, 8, 1); /* Amarillo */
+    border: 1px dashed rgba(255, 247, 8, 1); /* Amarillo */
     background-color: rgba(255, 247, 8, 0.1); /* Amarillo transparente */
 }
 
 .quitar-rojo {
-    border: 2px dashed rgba(244, 67, 54, 1); /* Rojo */
+    border: 1px dashed rgba(244, 67, 54, 1); /* Rojo */
     background-color: rgba(244, 67, 54, 0.1); /* Rojo transparente */
 }
-
 
 /* ------------------------------------------------------------
    COLORES PERSONALIZADOS
@@ -87,105 +83,26 @@ html, body, * {
     color: #4a5c4f !important;
 }
 
-/* ------------------------------------------------------------
-   NAVBAR
------------------------------------------------------------- */
-
-.navbar {
-    background-color: #9BB29D !important; /* Verde oliva claro */
-    max-height: 12vh;
-    box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.25); /* Sombra sutil */
-    z-index: 1000; /* Por encima del contenido */
-    padding: 1.0rem 4.5rem; /* Espaciado interior (top/bottom y laterales) */
-}
-
-
-/* Marca (nombre/logo del sitio) */
-.navbar-brand {
-    display: flex;
-    align-items: center;
-    font-weight: 700;
-    font-size: 2rem;
-    color: white !important;
-    margin-right: 1rem;
-}
-
-/* Contenedor de los enlaces (ul) - Alineación vertical centrada */
-.navbar-nav {
-    display: flex;
-    align-items: center; /* Centra verticalmente los ítems */
-    gap: 0.75rem; /* Espacio entre elementos */
-    padding-right: 2.25rem;
-}
-
-/* Enlaces de navegación */
-.navbar .nav-link {
-    color: white !important;
-    font-weight: bold;
-    font-size: 1.5rem; /* fs-3 */
-    transition: color 0.2s ease-in-out;
-
-}
-
-/* Efecto al poner el raton encima */
-.navbar .nav-link:hover {
-     color: #eeeeee !important;
-}
-
-.separador-vertical {
-    display: inline-block;
-    width: 2px; /* igual que border-right */
-    height: 40px; /* más centrado y discreto */
-    background-color: #71a17e; /* mismo color */
-    margin: 0 0.5rem;
-    align-self: center;
-}
-
-/* ------------------------------------------------------------
-   BOTONES GENERALES
------------------------------------------------------------- */
 .btn {
     position: relative;
-    background-color: #7A927E;
     color: white;
     font-weight: bold;
-    padding: 11px 20px;
-    font-size: 1.25rem;
+    align-content: center;
+    font-size: 1.75rem;
     border: none;
-    border-radius: 10px;
+    border-radius: 5px;
     overflow: hidden;
     transition: all 0.3s ease-in-out;
 }
 
-    /* ------------------ SOLO PARA BOTONES CON ANIMACIÓN ------------------ */
-    .btn.animated:hover {
-        background-color: #ffffff !important;
-        color: #7a927e !important;
-        cursor: pointer;
-    }
 
-    /* Línea subrayada animada */
-    .btn.animated::after {
-        content: '';
-        position: absolute;
-        left: 20%;
-        bottom: 8px;
-        width: 60%;
-        height: 2px;
-        background-color: #5d6f62;
-        transform: scaleX(0);
-        transform-origin: center;
-        transition: transform 0.3s ease-in-out;
-    }
-
-    .btn.animated:hover::after {
-        transform: scaleX(1);
-    }
 
 
 .welcome-section {
     min-height: 88vh;
     margin-top: 12vh;
+    justify-content: center;
+    display: flex;
 }
 
 

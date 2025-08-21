@@ -4,16 +4,16 @@
     ViewData["Title"] = "Mi perfil";
 }
 
-<div class="container pt-nav">
-    <div class="row g-4">
+<div class="welcome-section quitar-amarillo">
+    <div class="row g-4 quitar-violeta m-5 w-75">
         <!-- Izquierda: avatar + resumen -->
         <div class="col-lg-4">
             <div class="card shadow-sm">
                 <div class="card-body text-center">
                     <img id="avatarClickable"
                          src="@(Model.AvatarFoto != null
-                                                              ? $"data:image/png;base64,{Convert.ToBase64String(Model.AvatarFoto)}"
-                                                              : Url.Content("~/src/DefaultAvatar/AvatarPerro.png"))"
+                                                     ? $"data:image/png;base64,{Convert.ToBase64String(Model.AvatarFoto)}"
+                                                     : Url.Content("~/src/DefaultAvatar/AvatarPerro.png"))"
                          alt="Avatar"
                          class="rounded-circle mb-3"
                          style="width:140px;height:140px;object-fit:cover;border:4px solid var(--ultralight-green);cursor:pointer;"
@@ -27,125 +27,187 @@
             <div class="card shadow-sm mt-3">
                 <div class="card-header bg-ultralightgreen fw-bold">Resumen</div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between py-1"><span>Mascotas</span><strong>@Model.MascotasCount</strong></div>
-                    <div class="d-flex justify-content-between py-1"><span>Álbumes</span><strong>@Model.AlbumesCount</strong></div>
-                    <div class="d-flex justify-content-between py-1"><span>Discusiones</span><strong>@Model.DiscusionesCount</strong></div>
-                    <div class="d-flex justify-content-between py-1"><span>Mensajes</span><strong>@Model.MensajesCount</strong></div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span>Mascotas</span><strong>@Model.MascotasCount</strong>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span>Álbumes</span><strong>@Model.AlbumesCount</strong>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span>Discusiones</span><strong>@Model.DiscusionesCount</strong>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span>Mensajes</span><strong>@Model.MensajesCount</strong>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Derecha -->
+        <!-- Derecha: SIN tabs, en una sola columna -->
         <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-ultralightgreen">
-                    <ul class="nav nav-tabs card-header-tabs" id="profileTabs" role="tablist">
-                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#cuenta" type="button">Cuenta</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#seguridad" type="button">Seguridad</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#privacidad" type="button">Privacidad</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#actividad" type="button">Actividad</button></li>
-                    </ul>
+
+            <!-- Cuenta -->
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-header bg-ultralightgreen fw-bold border-0 section-title">
+                    <i class="bi bi-person-gear me-2"></i> Cuenta
                 </div>
-
                 <div class="card-body">
-                    <div class="tab-content">
-                        <!-- CUENTA -->
-                        <div class="tab-pane fade show active" id="cuenta">
-                            <form id="cuentaForm" asp-controller="Perfil" asp-action="SaveCuenta" method="post">
-                                @Html.AntiForgeryToken()
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Nombre de usuario</label>
-                                        <input name="Username" value="@Model.Username" class="form-control" required />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Nombre</label>
-                                        <input name="Nombre" value="@Model.Nombre" class="form-control" />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Apellido</label>
-                                        <input name="Apellido" value="@Model.Apellido" class="form-control" />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Teléfono</label>
-                                        <input name="Telefono" value="@Model.Telefono" class="form-control" />
-                                    </div>
-                                    <div class="col-md-12">
-                                        <label class="form-label">Dirección</label>
-                                        <input name="Direccion" value="@Model.Direccion" class="form-control" />
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Ciudad</label>
-                                        <input name="Ciudad" value="@Model.Ciudad" class="form-control" />
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Provincia</label>
-                                        <input name="Provincia" value="@Model.Provincia" class="form-control" />
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Código postal</label>
-                                        <input name="CodigoPostal" value="@Model.CodigoPostal" class="form-control" />
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn animated mt-3">Guardar cambios</button>
-                            </form>
+                    <form id="cuentaForm" asp-controller="Perfil" asp-action="SaveCuenta" method="post" class="needs-validation" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <h6 class="fw-bold text-muted mb-2">Identidad</h6>
+
+                        <div class="form-floating mb-3">
+                            <input name="Username" value="@Model.Username" class="form-control" id="fldUsername" placeholder=" " required autocomplete="username">
+                            <label for="fldUsername">Nombre de usuario</label>
+                            <div class="invalid-feedback">El nombre de usuario es obligatorio.</div>
                         </div>
 
-                        <!-- SEGURIDAD -->
-                        <div class="tab-pane fade" id="seguridad">
-                            <div class="card mb-3">
-                                <div class="card-header fw-bold">Correo electrónico</div>
-                                <div class="card-body">
-                                    <div class="mb-2 text-muted">Email actual: <strong>@Model.Email</strong></div>
-                                    <form id="emailForm" asp-controller="Perfil" asp-action="ChangeEmail" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <div class="row g-3">
-                                            <div class="col-md-6"><input name="NewEmail" type="email" placeholder="Nuevo email" class="form-control" required /></div>
-                                            <div class="col-md-6"><input name="ConfirmNewEmail" type="email" placeholder="Confirmar email" class="form-control" required /></div>
-                                            <div class="col-md-6"><input name="Password" type="password" placeholder="Contraseña" class="form-control" required /></div>
-                                        </div>
-                                        <button type="submit" class="btn animated mt-3">Actualizar email</button>
-                                    </form>
-                                </div>
-                            </div>
+                        <div class="form-floating mb-3">
+                            <input name="Nombre" value="@Model.Nombre" class="form-control" id="fldNombre" placeholder=" " autocomplete="given-name">
+                            <label for="fldNombre">Nombre</label>
+                        </div>
 
-                            <div class="card">
-                                <div class="card-header fw-bold">Contraseña</div>
-                                <div class="card-body">
-                                    <form id="passwordForm" asp-controller="Perfil" asp-action="ChangePassword" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <div class="row g-3">
-                                            <div class="col-md-4"><input name="CurrentPassword" type="password" placeholder="Actual" class="form-control" required /></div>
-                                            <div class="col-md-4"><input name="NewPassword" type="password" placeholder="Nueva" class="form-control" required /></div>
-                                            <div class="col-md-4"><input name="ConfirmNewPassword" type="password" placeholder="Confirmar" class="form-control" required /></div>
-                                        </div>
-                                        <button type="submit" class="btn btn-verde mt-3">Cambiar contraseña</button>
-                                    </form>
-                                </div>
+                        <div class="form-floating mb-3">
+                            <input name="Apellido" value="@Model.Apellido" class="form-control" id="fldApellido" placeholder=" " autocomplete="family-name">
+                            <label for="fldApellido">Apellido</label>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="fw-bold text-muted mb-2">Contacto</h6>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                            <div class="form-floating">
+                                <input name="Telefono" value="@Model.Telefono" class="form-control" id="fldTelefono" placeholder=" " inputmode="tel" autocomplete="tel">
+                                <label for="fldTelefono">Teléfono</label>
                             </div>
                         </div>
 
-                        <!-- PRIVACIDAD -->
-                        <div class="tab-pane fade" id="privacidad">
-                            <p class="text-justify mb-2">Configura quién puede ver tu perfil y tu actividad.</p>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="perfilPublico" checked>
-                                <label class="form-check-label" for="perfilPublico">Perfil público</label>
+                        <div class="form-floating mb-3">
+                            <input name="Direccion" value="@Model.Direccion" class="form-control" id="fldDireccion" placeholder=" " autocomplete="street-address">
+                            <label for="fldDireccion">Dirección</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input name="Ciudad" value="@Model.Ciudad" class="form-control" id="fldCiudad" placeholder=" " autocomplete="address-level2">
+                            <label for="fldCiudad">Ciudad</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input name="Provincia" value="@Model.Provincia" class="form-control" id="fldProvincia" placeholder=" " autocomplete="address-level1">
+                            <label for="fldProvincia">Provincia</label>
+                        </div>
+
+                        <div class="input-group mb-2">
+                            <span class="input-group-text"><i class="bi bi-mailbox"></i></span>
+                            <div class="form-floating">
+                                <input name="CodigoPostal" value="@Model.CodigoPostal" class="form-control" id="fldCP" placeholder=" " inputmode="numeric" autocomplete="postal-code" maxlength="10">
+                                <label for="fldCP">Código postal</label>
                             </div>
                         </div>
 
-                        <!-- ACTIVIDAD -->
-                        <div class="tab-pane fade" id="actividad">
-                            <div class="row g-3">
-                                <div class="col-sm-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="text-muted">Mascotas añadidas</div><div class="display-6 fw-bold">@Model.MascotasCount</div></div></div></div>
-                                <div class="col-sm-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="text-muted">Álbumes</div><div class="display-6 fw-bold">@Model.AlbumesCount</div></div></div></div>
-                                <div class="col-sm-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="text-muted">Mensajes foro</div><div class="display-6 fw-bold">@Model.MensajesCount</div></div></div></div>
-                            </div>
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <button type="reset" class="btn btn-outline-secondary">Restablecer</button>
+                            <button type="submit" class="btn btn-verde">
+                                <i class="bi bi-check2-circle me-1"></i> Guardar cambios
+                            </button>
                         </div>
-
-                    </div>
+                    </form>
                 </div>
             </div>
+
+            <!-- Seguridad -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-ultralightgreen fw-bold border-0 section-title">
+                    <i class="bi bi-shield-lock me-2"></i> Seguridad
+                </div>
+                <div class="card-body">
+
+                    <!-- Email -->
+                    <div class="card mb-3 border-0 shadow-sm card-slim">
+                        <div class="card-header fw-bold bg-light border-0">
+                            <i class="bi bi-envelope-at me-2"></i> Correo electrónico
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2 text-muted">Email actual: <strong>@Model.Email</strong></div>
+                            <form id="emailForm" asp-controller="Perfil" asp-action="ChangeEmail" method="post" class="needs-validation" novalidate>
+                                @Html.AntiForgeryToken()
+
+                                <div class="form-floating mb-3">
+                                    <input name="NewEmail" type="email" class="form-control" id="fldNewEmail" placeholder=" " required autocomplete="email">
+                                    <label for="fldNewEmail">Nuevo email</label>
+                                    <div class="invalid-feedback">Introduce un correo válido.</div>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input name="ConfirmNewEmail" type="email" class="form-control" id="fldConfirmEmail" placeholder=" " required autocomplete="email">
+                                    <label for="fldConfirmEmail">Confirmar email</label>
+                                    <div class="invalid-feedback">Debe coincidir con el nuevo email.</div>
+                                </div>
+
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text"><i class="bi bi-key"></i></span>
+                                    <div class="form-floating">
+                                        <input name="Password" type="password" class="form-control" id="fldPwdEmail" placeholder=" " required autocomplete="current-password">
+                                        <label for="fldPwdEmail">Contraseña</label>
+                                        <div class="invalid-feedback">Requerida para confirmar el cambio.</div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn animated">
+                                        <i class="bi bi-save2 me-1"></i> Actualizar email
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="card border-0 shadow-sm card-slim">
+                        <div class="card-header fw-bold bg-light border-0">
+                            <i class="bi bi-lock me-2"></i> Contraseña
+                        </div>
+                        <div class="card-body">
+                            <form id="passwordForm" asp-controller="Perfil" asp-action="ChangePassword" method="post" class="needs-validation" novalidate>
+                                @Html.AntiForgeryToken()
+
+                                <div class="form-floating mb-3">
+                                    <input name="CurrentPassword" type="password" class="form-control" id="fldPwdOld" placeholder=" " required autocomplete="current-password">
+                                    <label for="fldPwdOld">Actual</label>
+                                    <div class="invalid-feedback">Introduce tu contraseña actual.</div>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input name="NewPassword" type="password" class="form-control" id="fldPwdNew" placeholder=" " required autocomplete="new-password" minlength="8">
+                                    <label for="fldPwdNew">Nueva (mín. 8 caracteres)</label>
+                                    <div class="invalid-feedback">Mínimo 8 caracteres.</div>
+                                </div>
+
+                                <div class="form-floating mb-2">
+                                    <input name="ConfirmNewPassword" type="password" class="form-control" id="fldPwdNew2" placeholder=" " required autocomplete="new-password">
+                                    <label for="fldPwdNew2">Confirmar nueva</label>
+                                    <div class="invalid-feedback">Debe coincidir con la nueva.</div>
+                                </div>
+
+                                <div class="d-flex justify-content-end mt-2">
+                                    <button type="submit" class="btn btn-verde">
+                                        <i class="bi bi-shield-check me-1"></i> Cambiar contraseña
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+
+
         </div>
     </div>
 </div>
@@ -173,8 +235,7 @@
                 </ul>
 
                 <div class="tab-content mt-3">
-
-                    <!-- Por defecto (render server-side) -->
+                    <!-- Por defecto -->
                     <div class="tab-pane fade show active" id="pane-defaults">
                         <div id="defaultsGrid" class="row g-3">
                             @if (Model.DefaultAvatarFileNames == null || !Model.DefaultAvatarFileNames.Any())
@@ -202,7 +263,6 @@
                                 }
                             }
                         </div>
-
                     </div>
 
                     <!-- Subir -->
@@ -254,7 +314,6 @@
           // Abre el modal al clicar la foto
           avatarImg.addEventListener("click", () => {
             selected = { type: null, value: null };
-            // marcar click visual
             defaultsGrid.querySelectorAll(".selector-item").forEach(c => c.classList.remove("border","border-2","border-success"));
             avatarModal.show();
           });
@@ -331,12 +390,11 @@
             }
           });
 
-          // Subir nueva (usa el token del form oculto o el del propio form)
+          // Subir nueva
           if (uploadForm) {
             uploadForm.addEventListener("submit", async (e) => {
               e.preventDefault();
-              const fd = new FormData(uploadForm); // ya contiene el __RequestVerificationToken del form
-              // (opcional) si quieres asegurarte:
+              const fd = new FormData(uploadForm);
               if(!fd.get("__RequestVerificationToken")) {
                 const token = getToken(); if (token) fd.append("__RequestVerificationToken", token);
               }
@@ -366,4 +424,3 @@
         })();
     </script>
 }
-

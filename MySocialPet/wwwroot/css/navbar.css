@@ -1,0 +1,140 @@
+﻿/* ------------------------------------------------------------
+   NAVBAR BASICO
+------------------------------------------------------------ */
+
+.navbar {
+    background-color: #9BB29D !important; /* Verde oliva claro */
+    height: 12vh;
+    box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.25); /* Sombra sutil */
+    padding: 1vw 5vw; /* Espacio horizontal */
+    font-family: 'Quicksand', sans-serif !important;
+}
+
+
+/* ====== NOMBRE DE LA PAGINA Y LOGO ====*/
+.navbar-brand {
+    display: flex; /* mantiene el texto y el logo juntos */
+    align-items: center; /* centra verticalmente */
+    gap: 1rem; /* espacio entre nombre y logo */
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: white !important;
+}
+
+/* Logo dentro de la marca */
+.navbar-brand img {
+    width: 35px;
+    height: 35px;
+}
+
+
+/* Contenedor UL */
+.navbar-nav {
+    display: flex;
+    align-items: center; /* Centra verticalmente */
+    gap: 0.75rem; /* Espacio entre items */
+    height: 80%; /* Asegura que ocupe toda la altura de la navbar */
+}
+
+/* Estilo común a todos los links */
+.navbar .nav-link {
+    color: white;
+    font-weight: bold;
+    font-size: 1.75rem; /* fs-3 */
+    transition: color 0.2s ease-in-out;
+}
+
+    .navbar .nav-link:hover {
+        color: #eeeeee !important;
+    }
+
+/* Nav-items con separador integrado */
+.nav-item.nav-section {
+    display: flex;
+    align-items: center;
+}
+
+.nav-item.nav-section:not(:has(.btn)) + .nav-item.nav-section:not(:has(.btn))::before {
+    content: "";
+    width: 2px;
+    height: 40px;
+    background-color: #71a17e;
+    margin-right: 0.75rem; /* al ir antes, el margen va a la derecha */
+}
+
+/* Añadir iconos a las opciones del navegador */
+.nav-icon {
+    width: 43px; /* ajusta según el tamaño que quieras */
+    height: 43px;
+}
+
+
+
+/* ------------------------------------------------------------
+   BOTONES LOGIN ANIMADO
+------------------------------------------------------------ */
+
+.btn-login {
+position: relative; /* necesario para el icon absolute */
+overflow: hidden; /* evita que el icono empuje */
+width: 10vw;
+height: 100%;
+border-radius: 5px;
+border: none;
+font-size: 1.75rem;
+font-weight: 600;
+display: flex;
+align-items: center;
+background: #54785e;
+color: white;
+padding-left: 1rem;
+text-decoration: none !important;
+transition: box-shadow 0.3s ease, color 0.3s ease;
+}
+
+.btn-login:hover {
+    box-shadow: 0 0 20px 0px #2e2e2e3a;
+    color: white;
+}
+
+.btn-login .icon {
+    position: absolute;
+    height: 40px;
+    width: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: width 0.5s ease, transform 0.3s ease;
+}
+
+.btn-login .icon img {
+    width: 40px;
+    height: 40px;
+}
+
+.btn-login .text {
+    transform: translateX(55px);
+    opacity: 1;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Estado hover */
+.btn-login:hover .icon {
+    width: 8.35vw;
+}
+
+.btn-login:hover .text {
+    transform: translateX(30px);
+    opacity: 0;
+}
+
+.btn-login:focus {
+    outline: none;
+}
+
+.btn-login:active .icon {
+    transform: scale(0.85);
+}
+
+
+
