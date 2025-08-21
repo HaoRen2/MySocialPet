@@ -6,7 +6,7 @@
         public string Username { get; set; } = string.Empty;
         public DateTime FechaEnvio { get; set; }
         public string ContenidoMensaje { get; set; } = string.Empty;
-        public byte[]? Imagen { get; set; }
+        public bool Imagen { get; set; } = false;
         public byte[]? AvatarFoto { get; set; }
     }
 }

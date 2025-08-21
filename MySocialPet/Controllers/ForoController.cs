@@ -22,6 +22,7 @@ namespace MySocialPet.Controllers
             IndexForoViewModel vm = new IndexForoViewModel();
             vm.Tendencias = await _foroDAL.GetTrendingDiscusionsAsync(null);
             vm.Foros = await _foroDAL.GetForosAsync();
+
             return View(vm);
         }
 
@@ -73,24 +74,15 @@ namespace MySocialPet.Controllers
             DiscusionMensajes? disc = await _foroDAL.GetDiscusionByIdAsync(discId);
             if (disc == null || disc.IdForo != foro.IdForo) return NotFound();
 
-            // ahora pedimos solo la página de mensajes
-            var (mensajes, total) = await _foroDAL.GetMensajesByDiscusionAsync(
-                discId, ordenarPor, page, pageSize);
+            var (mensajes, total) = await _foroDAL.GetMensajesByDiscusionAsync(discId, ordenarPor, page, pageSize);
 
-            disc.Mensajes = mensajes.Select(m => new MensajeDTO
-            {
-                IdMensaje = m.IdMensaje,
-                Username = m.Usuario.Username,
-                FechaEnvio = m.FechaEnvio,
-                ContenidoMensaje = m.ContenidoMensaje,
-                Imagen = m.Imagen,
-                AvatarFoto = m.Usuario.AvatarFoto     
-            }).ToList();
+            disc.Mensajes = mensajes;
 
             ViewBag.CurrentPage = page;
             ViewBag.PageSize = pageSize;
             ViewBag.TotalMensajes = total;
             ViewBag.TotalPages = (int)Math.Ceiling(total / (double)pageSize);
+            ViewBag.OrdenarPor = ordenarPor ?? "recientes";
 
             var vm = new DetailDiscusionViewModel
             {
@@ -219,5 +211,34 @@ namespace MySocialPet.Controllers
 
             return RedirectToAction("HiloDetails", "Foro", new { slug = mensaje.Discusion.Foro.Slug, foroId = mensaje.Discusion.IdForo, discId = mensaje.IdDiscusion });
         }
+
+        [HttpGet("Foro/Mensaje/Imagen/{id}")]
+        public async Task<IActionResult> ImagenMensaje(int id)
+        {
+            var mensaje = await _foroDAL.GetMensajeByIdAsync(id);
+            if (mensaje == null || mensaje.Imagen == null)
+                return NotFound();
+
+            // Detectar formato de la imagen según la cabecera mágica
+            string contentType = "image/jpeg";
+            var img = mensaje.Imagen;
+
+            if (img.Length > 4)
+            {
+                // JPG
+                if (img[0] == 0xFF && img[1] == 0xD8)
+                    contentType = "image/jpeg";
+                // PNG
+                else if (img[0] == 0x89 && img[1] == 0x50 && img[2] == 0x4E && img[3] == 0x47)
+                    contentType = "image/png";
+                // GIF
+                else if (img[0] == 0x47 && img[1] == 0x49 && img[2] == 0x46)
+                    contentType = "image/gif";
+            }
+
+            return File(mensaje.Imagen, contentType);
+        }
+
+
     }
 }

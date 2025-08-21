@@ -8,7 +8,7 @@ namespace MySocialPet.Models.ViewModel.Foros
         public int IdForo { get; set; }
         public int IdDiscusion { get; set; }
         public DiscusionMensajes? DiscusionMensajes { get; set; }
-        public List<Discusion>? Tendencias { get; set; }
+        public List<TrendingDTO>? Tendencias { get; set; }
 
     }
 }

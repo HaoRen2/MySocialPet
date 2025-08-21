@@ -112,13 +112,17 @@
                                             </div>
                                         </div>
                                         <hr />
-                                        @if (item.Imagen != null)
+                                        @if (item.Imagen != false)
                                         {
-                                            <img style="cursor:pointer;" class="m-4 img-thumbnail img-clickable"
+                                            <img style="cursor:pointer;"
+                                                 class="m-4 img-thumbnail img-clickable"
                                                  width="150px"
-                                                 src="data:image/jpeg;base64,@(Convert.ToBase64String(item.Imagen))"
+                                                 src="@Url.Action("ImagenMensaje", "Foro", new { id = item.IdMensaje })"
+                                                 loading="lazy"
                                                  alt="Imagen del mensaje"
-                                                 data-full="data:image/jpeg;base64,@(Convert.ToBase64String(item.Imagen))" />
+                                                 data-full="@Url.Action("ImagenMensaje", "Foro", new { id = item.IdMensaje })" />
+
+
                                         }
 
                                         <p>@item.ContenidoMensaje</p>
@@ -226,13 +230,13 @@
                             {
                                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                     <a asp-action="HiloDetails"
-                                       asp-route-slug="@discusion.Foro.Slug"
+                                       asp-route-slug="@discusion.SlugForo"
                                        asp-route-foroId="@discusion.IdForo"
                                        asp-route-discId="@discusion.IdDiscusion"
                                        class="text-decoration-none text-dark fw-bold">
                                         @discusion.Titulo
                                     </a>
-                                    <span class="badge bg-verde rounded-pill">@discusion.Mensajes.Count</span>
+                                    <span class="badge bg-verde rounded-pill">@discusion.CantidadMensajes</span>
                                 </li>
                             }
                         </ul>
@@ -247,7 +251,6 @@
     </div>
 </div>
 
-<!-- Modal para mostrar imagen -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content bg-transparent border-0">
@@ -258,7 +261,24 @@
     </div>
 </div>
 
+
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const lazyImages = document.querySelectorAll("img.lazyload");
+
+    const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.classList.remove("lazyload");
+                obs.unobserve(img);
+            }
+        });
+    });
+
+    lazyImages.forEach(img => observer.observe(img))
+
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".img-clickable").forEach(function (img) {
             img.addEventListener("click", function () {

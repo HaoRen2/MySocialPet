@@ -117,13 +117,13 @@
                             {
                                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                     <a asp-action="HiloDetails"
-                                       asp-route-slug="@discusion.Foro.Slug"
+                                       asp-route-slug="@discusion.SlugForo"
                                        asp-route-foroId="@discusion.IdForo"
                                        asp-route-discId="@discusion.IdDiscusion"
                                        class="text-decoration-none text-dark fw-bold">
                                         @discusion.Titulo
                                     </a>
-                                    <span class="badge bg-verde rounded-pill">@((discusion.Mensajes != null) ? discusion.Mensajes.Count : 0)</span>
+                                    <span class="badge bg-verde rounded-pill">@discusion.CantidadMensajes</span>
                                 </li>
                             }
                         </ul>
