@@ -72,11 +72,12 @@
                    class="btn btn-sm" title="Editar">
                     <i class="bi bi-pencil"></i>
                 </a>
-                <form asp-action="DeleteMascota" asp-controller="Mascota" method="post" 
-                      class="d-inline"
-                      onsubmit="return confirm('¿Estás seguro de eliminar esta mascota?');">
+                <form asp-action="DeleteMascota" asp-controller="Mascota" method="post" class="d-inline delete-form">
                     <input type="hidden" name="id" value="@mascota.IdMascota" />
-                    <button type="submit" title="Eliminar" class="btn btn-sm">
+                    <button type="button" 
+                            class="btn btn-sm btn-danger btn-confirm-delete" 
+                            data-modal="#confirmDeleteModal" 
+                            data-confirm="confirmDeleteBtn">
                         <i class="bi bi-trash"></i>
                     </button>
                 </form>
@@ -128,12 +129,14 @@
                             </button>
 
                             <!-- Botón Eliminar -->
-                            <form asp-action="EliminarNota" asp-route-id="@nota.IdNota" method="post" class="d-inline" 
-                                  onsubmit="return confirm('¿Eliminar esta nota?');">
-                                <button type="submit" class="btn btn-sm btn-danger">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
+                        <form asp-action="EliminarNota" asp-route-id="@nota.IdNota" method="post" class="d-inline delete-note-form">
+                        <button type="button" 
+                                class="btn btn-sm btn-danger btn-confirm-delete" 
+                                data-modal="#confirmDeleteNoteModal" 
+                                data-confirm="confirmDeleteNoteBtn">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
                         </div>
                     </div>
 
@@ -172,4 +175,68 @@
     </div>
 </div>
 </div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteLabel">Confirmar eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que deseas eliminar esta mascota?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteNoteModal" tabindex="-1" aria-labelledby="confirmDeleteNoteLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteNoteLabel">Confirmar eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que deseas eliminar esta nota?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteNoteBtn">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let formToSubmit;
+
+  document.querySelectorAll('.btn-confirm-delete').forEach(button => {
+    button.addEventListener('click', function () {
+      formToSubmit = this.closest('form');
+
+      const modalId = this.dataset.modal;      // "#confirmDeleteModal" o "#confirmDeleteNoteModal"
+      const confirmId = this.dataset.confirm;  // "confirmDeleteBtn" o "confirmDeleteNoteBtn"
+
+      const modal = new bootstrap.Modal(document.querySelector(modalId));
+      modal.show();
+
+      const confirmBtn = document.getElementById(confirmId);
+
+      // Quitamos cualquier listener previo para evitar duplicados
+      confirmBtn.replaceWith(confirmBtn.cloneNode(true));
+
+      document.getElementById(confirmId).addEventListener('click', function () {
+        if (formToSubmit) {
+          formToSubmit.submit();
+        }
+      });
+    });
+  });
+</script>
+
 
