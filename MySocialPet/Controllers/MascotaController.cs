@@ -22,28 +22,49 @@ namespace MySocialPet.Controllers
         }
 
         [HttpGet]
-        public IActionResult ListaMascota()
+        public IActionResult ListaMascota(int pagina = 1)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var mascotas = _mascotaDAL.GetListaPorUsuario(userId);
+            int tamanoPagina = 6;
 
-            var viewModel = mascotas.Select(a => new ListaMascotaViewModel
+            var todasLasMascotas = _mascotaDAL.GetListaPorUsuario(userId);
+            var totalMascotas = todasLasMascotas.Count();
+
+            var mascotasDeLaPagina = todasLasMascotas
+                .Skip((pagina - 1) * tamanoPagina) 
+                .Take(tamanoPagina)
+                .Select(a => new ListaMascotaViewModel
+                {
+                    IdMascota = a.IdMascota,
+                    Nombre = a.Nombre,
+                    Foto = a.Foto,
+                    Genero = a.Genero,
+                    Nacimiento = a.Nacimiento,
+                    PesoKg = a.PesoKg,
+                    LongitudCm = a.LongitudCm,
+                    BCS = a.BCS,
+                    Esterilizada = a.Esterilizada,
+                    NombreRaza = a.Raza.NombreRaza,
+                    Evento = a.Eventos.Where(e => e.FechaHora > DateTime.Now)
+                                      .OrderBy(e => e.FechaHora)
+                                      .FirstOrDefault()
+                })
+                .ToList(); 
+
+            var viewModelPaginado = new MascotasPaginadasViewModel
             {
-                IdMascota = a.IdMascota,
-                Nombre = a.Nombre,
-                Foto = a.Foto,
-                Genero = a.Genero,
-                Nacimiento = a.Nacimiento,
-                PesoKg = a.PesoKg,
-                LongitudCm = a.LongitudCm,
-                BCS = a.BCS,
-                Esterilizada = a.Esterilizada,
-                NombreRaza = a.Raza.NombreRaza,
-                Evento = a.Eventos.Where(e => e.FechaHora > DateTime.Now).
-                OrderBy(e => (e.FechaHora - DateTime.Now).TotalSeconds).FirstOrDefault()
-            }).ToList();
+                Mascotas = mascotasDeLaPagina, 
+                PaginaActual = pagina,
+                TotalPaginas = (int)Math.Ceiling(totalMascotas / (double)tamanoPagina)
+            };
 
-            return View(viewModel);
+            if (viewModelPaginado.TotalPaginas == 0)
+            {
+                viewModelPaginado.TotalPaginas = 1;
+            }
+
+            // 4. Envías el modelo contenedor a la vista
+            return View(viewModelPaginado);
         }
 
         [HttpGet]
@@ -297,7 +318,7 @@ namespace MySocialPet.Controllers
 
             try
             {
-                _mascotaDAL.UpdateMascota(mascota);
+                await _mascotaDAL.UpdateMascota(mascota);
                 return RedirectToAction("ListaMascota");
             }
             catch (Exception ex)

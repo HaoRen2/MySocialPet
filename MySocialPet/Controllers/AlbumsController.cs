@@ -4,6 +4,7 @@ using MySocialPet.Models.Albums;
 using MySocialPet.Models.Foros;
 using MySocialPet.Models.ViewModel.Albums;
 using MySocialPet.Models.ViewModel.Mascotas;
+using MySocialPet.Tools;
 using System.Security.Claims;
 
 namespace MySocialPet.Controllers
@@ -17,16 +18,41 @@ namespace MySocialPet.Controllers
             _albumDAL = albumDAL;
         }
 
+
         [HttpGet]
-        public IActionResult ListAlbum()
+        public IActionResult ListAlbum(int pagina = 1)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var vm = new ListaAlbumViewModel
+            if (string.IsNullOrEmpty(userId))
             {
-                ListAlbums = _albumDAL.GetAlbumesPorUsuario(userId)
+                return Challenge();
+            }
+
+            int tamanoPagina = 5;
+
+            var todosLosAlbumes = _albumDAL.GetAlbumesPorUsuario(userId);
+
+            var totalAlbumes = todosLosAlbumes.Count();
+
+            var albumesDeLaPagina = todosLosAlbumes
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .ToList(); 
+
+            var viewModel = new ListaAlbumViewModel
+            {
+                ListAlbums = albumesDeLaPagina,
+
+                PaginaActual = pagina,
+                TotalPaginas = (int)Math.Ceiling(totalAlbumes / (double)tamanoPagina)
             };
 
-            return View(vm);
+            if (viewModel.TotalPaginas == 0)
+            {
+                viewModel.TotalPaginas = 1;
+            }
+
+            return View(viewModel);
         }
 
         [HttpGet]
@@ -43,8 +69,6 @@ namespace MySocialPet.Controllers
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 model.IdUsuario = int.Parse(userId);
-                // Guardar el álbum
-                await _albumDAL.InsertAlbum(model);
                 
                 // Guardar el álbum y obtener su Id
                 var nuevoAlbumId = await _albumDAL.InsertAlbum(model);
@@ -75,11 +99,13 @@ namespace MySocialPet.Controllers
 
         [HttpGet]
         public IActionResult EditarFoto(int idFoto)
-         {
+        {
             var foto = _albumDAL.GetFotoPorId(idFoto);
-
             if (foto == null)
                 return NotFound();
+
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var mascotasUsuario = _albumDAL.GetListaNombreMascotasPorUsuario(userId);
 
             var model = new EditarFotoViewModel
             {
@@ -88,21 +114,20 @@ namespace MySocialPet.Controllers
                 Titulo = foto.Titulo,
                 Descripcion = foto.Descripcion,
                 Fecha = foto.Fecha,
-                NuevaFoto = foto.Foto
+                NuevaFoto = foto.Foto,
+                MascotasEtiquetadasIds = foto.MascotasEtiquetadas?.Select(m => m.IdMascota).ToList(),
+                MascotasDisponibles = mascotasUsuario // esto devuelve List<SelectListItem> con Value=Id y Text=Nombre
             };
 
-            //ViewBag.ImagenActual = foto.Foto; // para mostrar en la vista
-
             return View(model);
-         }
+        }
 
-         [HttpPost]
-         [ValidateAntiForgeryToken]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarFoto(EditarFotoViewModel model, IFormFile? nuevaFoto)
-         {
+        {
             if (!ModelState.IsValid)
             {
-                // volvemos a pasar la foto actual por ViewBag para que se muestre otra vez
                 var fotoActual = _albumDAL.GetFotoPorId(model.IdFoto);
                 if (fotoActual != null)
                 {
@@ -113,25 +138,57 @@ namespace MySocialPet.Controllers
 
             try
             {
-                // 1️⃣ Recuperamos la foto original de la BD
                 var foto = _albumDAL.GetFotoPorId(model.IdFoto);
                 if (foto == null)
                     return NotFound();
 
-                // 2️⃣ Actualizamos los campos editables
                 foto.Titulo = model.Titulo;
                 foto.Descripcion = model.Descripcion;
                 foto.Fecha = model.Fecha;
 
-                // 3️⃣ Si hay nueva imagen, reemplazamos los bytes
                 if (nuevaFoto != null && nuevaFoto.Length > 0)
                 {
-                    using var ms = new MemoryStream();
-                    await nuevaFoto.CopyToAsync(ms);
-                    foto.Foto = ms.ToArray();
+                    if (nuevaFoto.ContentType == "image/gif")
+                    {
+                        var compressedGif = await GifCompressor.CompressToUnderAsync(
+                          nuevaFoto,
+                          maxBytes: 5 * 1024 * 1024,
+                          maxWidth: 640
+                        );
+                        foto.Foto = compressedGif.Data;
+                    }
+                    else if (nuevaFoto.ContentType == "image/jpeg" || nuevaFoto.ContentType == "image/png")
+                    {
+                        var compressed = await ImageCompressor.CompressToUnderAsync(
+                          nuevaFoto,
+                          maxBytes: 5 * 1024 * 1024,
+                          maxWidth: 1920,
+                          keepTransparency: nuevaFoto.ContentType == "image/png"
+                        );
+                        foto.Foto = compressed.Data;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("NuevaFoto", "Formato no soportado. Solo se permiten JPG, PNG o GIF.");
+                        ViewBag.ImagenActual = foto.Foto;
+                        return View("EditarFoto", model);
+                    }
                 }
 
-                // 4️⃣ Guardamos en BD
+                // ✅ Actualizar las etiquetas
+                foto.MascotasEtiquetadas.Clear(); // limpiamos las antiguas
+                if (model.MascotasEtiquetadasIds != null && model.MascotasEtiquetadasIds.Any())
+                {
+                    foreach (var idMascota in model.MascotasEtiquetadasIds.Where(x => x.HasValue))
+                    {
+                        foto.MascotasEtiquetadas.Add(new FotoEtiquetaMascota
+                        {
+                            IdFoto = foto.IdFoto,
+                            IdMascota = idMascota.Value
+                        });
+                    }
+                }
+
                 await _albumDAL.UpdateFoto(foto);
 
                 TempData["Success"] = "Foto actualizada correctamente.";
@@ -140,17 +197,15 @@ namespace MySocialPet.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, "Error al actualizar la foto: " + ex.Message);
-
-                // si falla, mostramos otra vez la foto actual
                 var fotoActual = _albumDAL.GetFotoPorId(model.IdFoto);
                 if (fotoActual != null)
                 {
                     ViewBag.ImagenActual = fotoActual.Foto;
                 }
-
                 return View("EditarFoto", model);
             }
         }
+
         [HttpGet]
         public IActionResult EditarAlbum(int idAlbum)
              {
@@ -195,9 +250,41 @@ namespace MySocialPet.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> InsertarFoto(int IdAlbum, string Titulo, IFormFile Foto, string Descripcion, DateTime Fecha, List<int> MascotasEtiquetadasIds)
         {
+            byte[] fotoData = null;
+
             if (Foto != null && Foto.Length > 0)
             {
-                await _albumDAL.InsertFoto(IdAlbum, Titulo, Foto, Descripcion, Fecha, MascotasEtiquetadasIds);
+                if (Foto.ContentType == "image/gif")
+                {
+                    var compressedGif = await GifCompressor.CompressToUnderAsync(
+                        Foto,
+                        maxBytes: 5 * 1024 * 1024, // 5MB para GIFs
+                        maxWidth: 640
+                    );
+                    fotoData = compressedGif.Data;
+                }
+                else if (Foto.ContentType == "image/jpeg" || Foto.ContentType == "image/png")
+                {
+                    var compressed = await ImageCompressor.CompressToUnderAsync(
+                        Foto,
+                        maxBytes: 5 * 1024 * 1024, // 5MB para imágenes
+                        maxWidth: 1920,
+                        keepTransparency: Foto.ContentType == "image/png"
+                    );
+                    fotoData = compressed.Data;
+                }
+                else
+                {
+                    TempData["Error"] = "Formato de imagen no soportado. Solo se permiten JPG, PNG o GIF.";
+                    return RedirectToAction("DetailsAlbum", new { idAlbum = IdAlbum });
+                }
+
+                // Llamada al método del DAL con los bytes de la foto
+                await _albumDAL.InsertFoto(IdAlbum, Titulo, fotoData, Descripcion, Fecha, MascotasEtiquetadasIds);
+            }
+            else
+            {
+                TempData["Error"] = "No se ha seleccionado ninguna foto.";
             }
 
             return RedirectToAction("DetailsAlbum", new { idAlbum = IdAlbum });
@@ -241,8 +328,5 @@ namespace MySocialPet.Controllers
 
             return RedirectToAction("ListAlbum");
     }
-    
-
-
 }
 }

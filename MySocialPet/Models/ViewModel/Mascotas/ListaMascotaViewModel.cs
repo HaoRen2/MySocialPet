@@ -37,5 +37,11 @@ namespace MySocialPet.Models.ViewModel.Mascotas
         public string NombreRaza { get; set; }
 
         public Evento? Evento { get; set; }
+
+        public int? PaginaActual { get; set; }
+        public int? TotalPaginas { get; set; }
+
+        public bool? TienePaginaAnterior => PaginaActual > 1;
+        public bool? TienePaginaSiguiente => PaginaActual < TotalPaginas;
     }
 }

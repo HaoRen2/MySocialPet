@@ -10,12 +10,13 @@ namespace MySocialPet.DAL
 
         public ForoDAL(AppDbContexto context)
         {
+            if (context == null) throw new ArgumentNullException(nameof(context));
             _context = context;
         }
 
-        public List<Foro> GetForos()
+        public async Task<List<Foro>> GetForosAsync()
         {
-            return _context.Foros.ToList();
+            return await _context.Foros.ToListAsync();
         }
 
         public async Task InsertForo(Foro foro)
@@ -23,64 +24,89 @@ namespace MySocialPet.DAL
             _context.Foros.Add(foro);
             await _context.SaveChangesAsync();
         }
-        public Foro? GetForoById(int id)
+
+        public async Task<Foro?> GetForoByIdAsync(int id)
         {
-            return _context.Foros
-                .FirstOrDefault(f => f.IdForo == id);
+            return await _context.Foros
+                .FirstOrDefaultAsync(f => f.IdForo == id);
         }
-        public List<Foro> GetForosPorEspecie(int idEspecie)
+
+        public async Task<List<Foro>> GetForosPorEspecieAsync(int idEspecie)
         {
-            return _context.Foros
+            return await _context.Foros
                 .Where(f => f.IdEspecie == idEspecie)
                 .Include(f => f.Especie)
-                .ToList();
+                .ToListAsync();
         }
 
-        public List<Discusion> GetDiscusionesPorForo(int idForo)
+        public async Task<List<DicusionForos>> GetDiscusionesPorForoAsync(int idForo)
         {
-            return _context.Discusiones
-            .Include(d => d.Mensajes)
-                .ThenInclude(m => m.Usuario)
-            .Include(d => d.UsuarioCreador)
-            .Where(d => d.IdForo == idForo)
-            .Include(d => d.UsuarioCreador)
-            .ToList();
+            return await _context.Discusiones
+                .Where(d => d.IdForo == idForo)
+                .Select(d => new DicusionForos
+                {
+                    Discusion = d,
+                    CantidadMensajes = d.Mensajes.Count(),
+                    FechaUltimoMensaje = d.Mensajes.Any()
+                        ? d.Mensajes.Max(m => m.FechaEnvio)
+                        : d.FechaCreacion
+                }).ToListAsync();
+
+
         }
 
-        public Discusion? GetDiscusionById(int id)
+        public async Task<DiscusionMensajes?> GetDiscusionByIdAsync(int id)
         {
-            return _context.Discusiones
-                .Include(d => d.Mensajes)
-                    .ThenInclude(u => u.Usuario)
-                .Include(d => d.UsuarioCreador)
-                .FirstOrDefault(x => x.IdDiscusion == id);
+            return await _context.Discusiones
+                .Where(x => x.IdDiscusion == id)
+                .Select(d => new DiscusionMensajes
+                {
+                    IdForo = d.Foro.IdForo,
+                    Titulo = d.Titulo,
+                    Descripcion = d.Descripcion,
+                    FechaCreacion = d.FechaCreacion,
+                    Mensajes = d.Mensajes
+                        .Select(m => new MensajeDTO
+                        {
+                            IdMensaje = m.IdMensaje,
+                            Username = m.Usuario.Username,
+                            FechaEnvio = m.FechaEnvio,
+                            ContenidoMensaje = m.ContenidoMensaje,
+                            Imagen = m.Imagen,
+                            AvatarFoto = m.Usuario.AvatarFoto
+                        })
+                        .ToList()
+                })
+                .FirstOrDefaultAsync();
         }
 
-        public List<SelectListItem> GetForosPorEspecieSelectList(int idEspecie)
+
+
+        public async Task<List<SelectListItem>> GetForosPorEspecieSelectListAsync(int idEspecie)
         {
-            return _context.Foros
+            return await _context.Foros
                 .Where(f => f.IdEspecie == idEspecie)
                 .Select(f => new SelectListItem
                 {
                     Value = f.IdForo.ToString(),
                     Text = f.Nombre
                 })
-                .ToList();
+                .ToListAsync();
         }
 
-        public Foro? GetForoBySlug(string slug)
+
+        public async Task<Foro?> GetForoBySlugAsync(string slug)
         {
-            return _context.Foros
-                .Include(f => f.Discusiones)
-                    .ThenInclude(d => d.Mensajes)
-                .FirstOrDefault(f => f.Slug.ToLower() == slug.ToLower());
+            return await _context.Foros
+                .FirstOrDefaultAsync(f => f.Slug.ToLower() == slug.ToLower());
         }
 
-        public void CrearHilo(Discusion discusion)
+        public async Task CrearHiloAsync(Discusion discusion)
         {
             _context.Discusiones.Add(discusion);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
+
         public async Task CrearMensaje(Mensaje mensaje)
         {
             _context.Mensajes.Add(mensaje);
@@ -89,9 +115,8 @@ namespace MySocialPet.DAL
 
         public async Task<List<Discusion>> GetTrendingDiscusionsAsync(int? foroId)
         {
-            // Obtener la fecha de hace 7 días
             var sevenDaysAgo = DateTime.UtcNow.AddDays(-7);
-            if(foroId == null)
+            if (foroId == null)
             {
                 return await _context.Discusiones
                 .Include(d => d.Mensajes)

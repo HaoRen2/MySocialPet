@@ -187,8 +187,6 @@ namespace MySocialPet.Controllers
             return View(viewModel);
         }
 
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegistrarVacuna(int IdMascota, int IdTipoVacuna, DateTime Fecha)
