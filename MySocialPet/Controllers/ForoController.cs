@@ -61,39 +61,36 @@ namespace MySocialPet.Controllers
 
             return View(vm);
         }
-
         [HttpGet("Foro/Hilos/{slug}/{foroId}/{discId}")]
-        public async Task<IActionResult> HiloDetails(string slug, int foroId, int discId, string? ordenarPor, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> HiloDetails(
+            string slug, int foroId, int discId,
+            string? ordenarPor, int page = 1, int pageSize = 10)
         {
             Foro? foro = await _foroDAL.GetForoBySlugAsync(slug);
             if (foro == null) return NotFound();
 
+            // primero traemos la discusión sin mensajes
             DiscusionMensajes? disc = await _foroDAL.GetDiscusionByIdAsync(discId);
             if (disc == null || disc.IdForo != foro.IdForo) return NotFound();
 
-            List<Discusion> tendencias = await _foroDAL.GetTrendingDiscusionsAsync(null);
+            // ahora pedimos solo la página de mensajes
+            var (mensajes, total) = await _foroDAL.GetMensajesByDiscusionAsync(
+                discId, ordenarPor, page, pageSize);
 
-            if (disc.Mensajes != null)
+            disc.Mensajes = mensajes.Select(m => new MensajeDTO
             {
-                // ordenar
-                disc.Mensajes = ordenarPor == "antiguos"
-                    ? disc.Mensajes.OrderBy(m => m.FechaEnvio).ToList()
-                    : disc.Mensajes.OrderByDescending(m => m.FechaEnvio).ToList();
+                IdMensaje = m.IdMensaje,
+                Username = m.Usuario.Username,
+                FechaEnvio = m.FechaEnvio,
+                ContenidoMensaje = m.ContenidoMensaje,
+                Imagen = m.Imagen,
+                AvatarFoto = m.Usuario.AvatarFoto     
+            }).ToList();
 
-                // total de mensajes
-                int totalMensajes = disc.Mensajes.Count;
-
-                // aplicar paginación
-                disc.Mensajes = disc.Mensajes
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToList();
-
-                ViewBag.CurrentPage = page;
-                ViewBag.PageSize = pageSize;
-                ViewBag.TotalMensajes = totalMensajes;
-                ViewBag.TotalPages = (int)Math.Ceiling(totalMensajes / (double)pageSize);
-            }
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalMensajes = total;
+            ViewBag.TotalPages = (int)Math.Ceiling(total / (double)pageSize);
 
             var vm = new DetailDiscusionViewModel
             {
@@ -101,7 +98,7 @@ namespace MySocialPet.Controllers
                 IdDiscusion = discId,
                 Slug = slug,
                 DiscusionMensajes = disc,
-                Tendencias = tendencias
+                Tendencias = await _foroDAL.GetTrendingDiscusionsAsync(null)
             };
 
             return View(vm);
