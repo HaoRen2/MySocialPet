@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MySocialPet.DAL;
 using MySocialPet.Models.Albums;
 using MySocialPet.Models.Foros;
@@ -12,10 +13,13 @@ namespace MySocialPet.Controllers
     public class AlbumsController : Controller
     {
         private readonly AlbumDAL _albumDAL;
+        private readonly AppDbContexto _context;
 
-        public AlbumsController(AlbumDAL albumDAL)
+
+        public AlbumsController(AlbumDAL albumDAL, AppDbContexto context)
         {
             _albumDAL = albumDAL;
+            _context = context;
         }
 
 
@@ -80,19 +84,41 @@ namespace MySocialPet.Controllers
         }
 
         [HttpGet]
-        public IActionResult DetailsAlbum(int idAlbum)
+        public IActionResult DetailsAlbum(int idAlbum, int pagina = 1)
         {
             var album = _albumDAL.GetAlbumPorId(idAlbum);
             if (album == null)
+            {
                 return NotFound();
+            }
+
+            int tamanoPagina = 12;
+
+            var todasLasFotos = album.Fotos;
+            var totalFotos = todasLasFotos.Count();
+
+            var fotosDeLaPagina = todasLasFotos
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .ToList();
 
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             ViewBag.MascotasUsuario = _albumDAL.GetListaNombreMascotasPorUsuario(userId);
 
             var viewModel = new DetailAlbumViewModel
             {
-                DetailAlbum = album
+                IdAlbum = album.IdAlbum,
+                NombreAlbum = album.NombreAlbum,
+                TotalFotos = totalFotos,
+                FotosDeLaPagina = fotosDeLaPagina,
+                PaginaActual = pagina,
+                TotalPaginas = (int)Math.Ceiling(totalFotos / (double)tamanoPagina)
             };
+
+            if (viewModel.TotalPaginas == 0)
+            {
+                viewModel.TotalPaginas = 1;
+            }
 
             return View(viewModel);
         }
@@ -314,19 +340,38 @@ namespace MySocialPet.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteFoto(int idAlbum)
+        public async Task<IActionResult> DeleteFoto(int idFoto)
         {
             try
             {
-                await _albumDAL.DeleteAlbum(idAlbum);
-                TempData["Success"] = "Álbum eliminado correctamente.";
+                // Primero, eliminamos las etiquetas de mascota asociadas a la foto.
+                var etiquetas = await _context.FotoEtiquetaMascotas
+                    .Where(e => e.IdFoto == idFoto)
+                    .ToListAsync();
+
+                if (etiquetas.Any())
+                {
+                    _context.FotoEtiquetaMascotas.RemoveRange(etiquetas);
+                }
+
+                var foto = await _context.FotoAlbumes.FindAsync(idFoto);
+
+                if (foto == null)
+                {
+                    return NotFound(new { message = "La foto que intentas eliminar no existe." });
+                }
+
+                _context.FotoAlbumes.Remove(foto);
+                await _context.SaveChangesAsync(); 
+
+                return Ok(new { message = "Foto eliminada correctamente." });
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "Error al eliminar el álbum: " + ex.Message;
+                return StatusCode(500, new { message = "Ocurrió un error en el servidor al eliminar la foto." });
             }
+        }
 
-            return RedirectToAction("ListAlbum");
+
     }
-}
 }

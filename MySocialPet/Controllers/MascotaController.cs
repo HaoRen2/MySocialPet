@@ -7,6 +7,7 @@ using MySocialPet.Models.Mascotas;
 using MySocialPet.Models.Salud;
 using MySocialPet.Models.ViewModel;
 using MySocialPet.Models.ViewModel.Mascotas;
+using MySocialPet.Tools;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -31,7 +32,7 @@ namespace MySocialPet.Controllers
             var totalMascotas = todasLasMascotas.Count();
 
             var mascotasDeLaPagina = todasLasMascotas
-                .Skip((pagina - 1) * tamanoPagina) 
+                .Skip((pagina - 1) * tamanoPagina)
                 .Take(tamanoPagina)
                 .Select(a => new ListaMascotaViewModel
                 {
@@ -49,11 +50,11 @@ namespace MySocialPet.Controllers
                                       .OrderBy(e => e.FechaHora)
                                       .FirstOrDefault()
                 })
-                .ToList(); 
+                .ToList();
 
             var viewModelPaginado = new MascotasPaginadasViewModel
             {
-                Mascotas = mascotasDeLaPagina, 
+                Mascotas = mascotasDeLaPagina,
                 PaginaActual = pagina,
                 TotalPaginas = (int)Math.Ceiling(totalMascotas / (double)tamanoPagina)
             };
@@ -131,8 +132,6 @@ namespace MySocialPet.Controllers
             await _mascotaDAL.UpdateNota(nota);
             return RedirectToAction("Details", new { id = nota.IdMascota });
         }
-
-
 
         [HttpGet]
         public IActionResult CreateMascota()
@@ -236,13 +235,47 @@ namespace MySocialPet.Controllers
             }
 
             byte[] fotoData = null;
+
             if (model.Foto != null && model.Foto.Length > 0)
             {
-                using (var memoryStream = new MemoryStream())
+                try
                 {
-                    await model.Foto.CopyToAsync(memoryStream);
-                    fotoData = memoryStream.ToArray();
+                    if (model.Foto.ContentType == "image/gif")
+                    {
+                        var compressedGif = await GifCompressor.CompressToUnderAsync(
+                            model.Foto,
+                            maxBytes: 2 * 1024 * 1024,
+                            maxWidth: 640
+                        );
+                        fotoData = compressedGif?.Data;
+                    }
+                    else if (model.Foto.ContentType == "image/jpeg" || model.Foto.ContentType == "image/png")
+                    {
+                        var compressed = await ImageCompressor.CompressToUnderAsync(
+                            model.Foto,
+                            maxBytes: 2 * 1024 * 1024,
+                            maxWidth: 1920,
+                            keepTransparency: model.Foto.ContentType == "image/png"
+                        );
+                        fotoData = compressed?.Data;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("Foto", "Formato no soportado. Solo JPG, PNG o GIF.");
+                    }
                 }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("Foto", "Error al procesar la imagen: " + ex.Message);
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var viewModel = _mascotaDAL.GetEspecie();
+                model.Especies = viewModel.Especies;
+                model.Razas = viewModel.Razas;
+                return View(model);
             }
 
             var mascota = new Mascota
@@ -272,7 +305,7 @@ namespace MySocialPet.Controllers
                 {
                     errorMessage += " | Inner Exception: " + ex.InnerException.Message;
                 }
-                ModelState.AddModelError(string.Empty, "Error al guardar la mascota: " + ex.Message);
+                ModelState.AddModelError(string.Empty, "Error al guardar la mascota: " + errorMessage);
 
                 var viewModel = _mascotaDAL.GetEspecie();
                 model.Especies = viewModel.Especies;
@@ -295,11 +328,11 @@ namespace MySocialPet.Controllers
             }
 
             int id = (int)model.Id;
-
             var mascota = _mascotaDAL.GetMascotaById(id);
             if (mascota == null)
                 return NotFound();
 
+            // Actualizar datos básicos
             mascota.Nombre = model.Nombre;
             mascota.Nacimiento = model.Nacimiento;
             mascota.PesoKg = model.PesoKg;
@@ -311,9 +344,49 @@ namespace MySocialPet.Controllers
 
             if (model.Foto != null && model.Foto.Length > 0)
             {
-                using var memoryStream = new MemoryStream();
-                await model.Foto.CopyToAsync(memoryStream);
-                mascota.Foto = memoryStream.ToArray();
+                try
+                {
+                    byte[] fotoData = null;
+
+                    if (model.Foto.ContentType == "image/gif")
+                    {
+                        var compressedGif = await GifCompressor.CompressToUnderAsync(
+                            model.Foto,
+                            maxBytes: 2 * 1024 * 1024,
+                            maxWidth: 640
+                        );
+                        fotoData = compressedGif?.Data;
+                    }
+                    else if (model.Foto.ContentType == "image/jpeg" || model.Foto.ContentType == "image/png")
+                    {
+                        var compressed = await ImageCompressor.CompressToUnderAsync(
+                            model.Foto,
+                            maxBytes: 2 * 1024 * 1024,
+                            maxWidth: 1920,
+                            keepTransparency: model.Foto.ContentType == "image/png"
+                        );
+                        fotoData = compressed?.Data;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("Foto", "Formato no soportado. Solo JPG, PNG o GIF.");
+                    }
+
+                    if (fotoData != null)
+                        mascota.Foto = fotoData;
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("Foto", "Error al procesar la imagen: " + ex.Message);
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var especieData = _mascotaDAL.GetEspecie();
+                model.Especies = especieData.Especies;
+                model.Razas = _mascotaDAL.GetRazaPorEspecie(model.IdRaza);
+                return View("EditMascota", model);
             }
 
             try

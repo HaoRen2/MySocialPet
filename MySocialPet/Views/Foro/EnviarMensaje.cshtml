@@ -5,7 +5,7 @@
         <div style="height: 15vh;"></div>
         <div class="row">
             <h2 class="fs-2 fw-bold text-uppercase m-0">@(Model.IdMensajePadre.HasValue ? "Responder a mensaje" : "Nuevo mensaje")</h2>
-            <form asp-action="EnviarMensaje" method="post" enctype="multipart/form-data">
+            <form asp-action="EnviarMensaje" method="post" enctype="multipart/form-data" id="mensajeForm">
                 <input type="hidden" asp-for="IdDiscusion" />
                 <input type="hidden" asp-for="IdMensajePadre" />
 
@@ -21,24 +21,28 @@
                     <input asp-for="Imagen" name="Imagen" type="file" class="form-control" />
                 </div>
 
-                <button type="submit" class="btn btn-primary" onclick="desactivar()">
+                <button type="submit" class="btn btn-verde">
                     @(Model.IdMensajePadre.HasValue ? "Responder" : "Enviar")
                 </button>
             </form>
         </div>
     </div>
 </div>
+
 <script>
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("mensajeForm");
+        const submitButton = form.querySelector('button[type="submit"]');
+        let isSubmitting = false;
 
-    async function desactivar() {
-      const submitButton = document.querySelector('button[type="submit"]');
-      submitButton.disabled = true;
-      submitButton.innerText = 'Enviando...';
-
-      await sleep(3000); 
-
-      submitButton.disabled = false;
-      submitButton.innerText = 'Enviar';
-    }
+        form.addEventListener("submit", (e) => {
+            if (isSubmitting) {
+                e.preventDefault(); // cancelar doble envío
+                return;
+            }
+            isSubmitting = true;
+            submitButton.disabled = true;
+            submitButton.innerText = "Enviando...";
+        });
+    });
 </script>

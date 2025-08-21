@@ -107,23 +107,22 @@
 
     @if (Model.TotalPaginas > 1)
     {
-        <nav aria-label="Navegación de álbumes" class="mt-5 d-flex justify-content-center">
-            <ul class="pagination">
-                <li class="page-item @(Model.TienePaginaAnterior ? "" : "disabled")">
-                    <a class="page-link" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a>
-                </li>
-
-                @for (int i = 1; i <= Model.TotalPaginas; i++)
-                {
-                    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
-                        <a class="page-link" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@i">@i</a>
+        <nav aria-label="Navegación de álbumes" class="mt-5 d-flex justify-content-center">      
+                <ul class="pagination">
+                    <li class="page-item @(Model.TienePaginaAnterior ? "" : "disabled")">
+                        <a class="page-link text-black bg-lightgreen" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a>
                     </li>
-                }
 
-                <li class="page-item @(Model.TienePaginaSiguiente ? "" : "disabled")">
-                    <a class="page-link" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a>
-                </li>
-            </ul>
+                    @for (int i = 1; i <= Model.TotalPaginas; i++)
+                    {
+                        <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                        <a class="page-link text-black bg-lightgreen @(i == Model.PaginaActual ? "bg-success text-black" : "bg-light")" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@i">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.TienePaginaSiguiente ? "" : "disabled")">
+                        <a class="page-link text-black bg-lightgreen" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a>
+                    </li>
+                </ul>
         </nav>
     }
 </div>

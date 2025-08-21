@@ -65,17 +65,6 @@ namespace MySocialPet.DAL
                     Titulo = d.Titulo,
                     Descripcion = d.Descripcion,
                     FechaCreacion = d.FechaCreacion,
-                    Mensajes = d.Mensajes
-                        .Select(m => new MensajeDTO
-                        {
-                            IdMensaje = m.IdMensaje,
-                            Username = m.Usuario.Username,
-                            FechaEnvio = m.FechaEnvio,
-                            ContenidoMensaje = m.ContenidoMensaje,
-                            Imagen = m.Imagen,
-                            AvatarFoto = m.Usuario.AvatarFoto
-                        })
-                        .ToList()
                 })
                 .FirstOrDefaultAsync();
         }
@@ -153,5 +142,30 @@ namespace MySocialPet.DAL
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<(List<Mensaje> Mensajes, int Total)> GetMensajesByDiscusionAsync(int discId, string? ordenarPor, int page, int pageSize)
+        {
+            var query = _context.Mensajes
+                .Where(m => m.IdDiscusion == discId)
+                .Include(m => m.Usuario)
+                .AsQueryable();
+
+            // ordenar
+            query = ordenarPor == "antiguos"
+                ? query.OrderBy(m => m.FechaEnvio)
+                : query.OrderByDescending(m => m.FechaEnvio);
+
+            // total antes de aplicar paginación
+            int total = await query.CountAsync();
+
+            // aplicar paginación en SQL (Skip/Take)
+            var mensajes = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (mensajes, total);
+        }
+
     }
 }
