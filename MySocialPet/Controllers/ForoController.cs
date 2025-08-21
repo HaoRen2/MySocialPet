@@ -2,7 +2,7 @@
 using MySocialPet.DAL;
 using MySocialPet.Models.Foros;
 using MySocialPet.Models.ViewModel.Foros;
-using Newtonsoft.Json;
+using MySocialPet.Tools;
 using System.Security.Claims;
 
 namespace MySocialPet.Controllers
@@ -10,51 +10,44 @@ namespace MySocialPet.Controllers
     public class ForoController : Controller
     {
         private readonly ForoDAL _foroDAL;
+
         public ForoController(ForoDAL foroDAL)
         {
             _foroDAL = foroDAL;
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             IndexForoViewModel vm = new IndexForoViewModel();
-
-            List<Discusion> tendencias = _foroDAL.GetTrendingDiscusionsAsync(null).Result;
-
-            vm.Tendencias = tendencias;
-            vm.Foros = _foroDAL.GetForos();
-
+            vm.Tendencias = await _foroDAL.GetTrendingDiscusionsAsync(null);
+            vm.Foros = await _foroDAL.GetForosAsync();
             return View(vm);
         }
 
         [HttpGet("Foro/Hilos/{slug}")]
-        public IActionResult Hilos(string slug)
+        public async Task<IActionResult> Hilos(string slug)
         {
             ListaDiscusionesViewModel vm = new ListaDiscusionesViewModel();
 
-
-            Foro? foro = _foroDAL.GetForoBySlug(slug);
+            Foro? foro = await _foroDAL.GetForoBySlugAsync(slug);
             if (foro == null)
             {
                 ViewBag.Error = "Foro no encontrado.";
                 return RedirectToAction("Index");
             }
 
-            List<Discusion> discusiones = _foroDAL.GetDiscusionesPorForo(foro.IdForo);
-            List<Discusion> tendencias = _foroDAL.GetTrendingDiscusionsAsync(null).Result;
+            vm.Discusions = await _foroDAL.GetDiscusionesPorForoAsync(foro.IdForo);
+            vm.Tendencias = await _foroDAL.GetTrendingDiscusionsAsync(null);
 
             vm.Foro = foro;
-            vm.Discusions = discusiones;
-            vm.Tendencias = tendencias;
-
             return View(vm);
         }
 
         [HttpGet]
-        public IActionResult NuevoHilo(int foroId)
+        public async Task<IActionResult> NuevoHilo(int foroId)
         {
-            var foro = _foroDAL.GetForoById(foroId);
+            var foro = await _foroDAL.GetForoByIdAsync(foroId);
             if (foro == null)
             {
                 TempData["Error"] = "Foro no encontrado.";
@@ -70,31 +63,36 @@ namespace MySocialPet.Controllers
         }
 
         [HttpGet("Foro/Hilos/{slug}/{foroId}/{discId}")]
-        public IActionResult HiloDetails(string slug, int foroId, int discId, string? ordenarPor)
+        public async Task<IActionResult> HiloDetails(string slug, int foroId, int discId, string? ordenarPor, int page = 1, int pageSize = 10)
         {
-            // buscar foro por slug
-            Foro? foro = _foroDAL.GetForoBySlug(slug);
+            Foro? foro = await _foroDAL.GetForoBySlugAsync(slug);
             if (foro == null) return NotFound();
 
-            // buscar discusión por id y comprobar que pertenece al foro
-            Discusion? disc = _foroDAL.GetDiscusionById(discId);
+            DiscusionMensajes? disc = await _foroDAL.GetDiscusionByIdAsync(discId);
             if (disc == null || disc.IdForo != foro.IdForo) return NotFound();
 
-            List<Discusion> tendencias = _foroDAL.GetTrendingDiscusionsAsync(null).Result;
+            List<Discusion> tendencias = await _foroDAL.GetTrendingDiscusionsAsync(null);
 
-            // Lógica para ordenar los mensajes
             if (disc.Mensajes != null)
             {
-                switch (ordenarPor)
-                {
-                    case "antiguos":
-                        disc.Mensajes = disc.Mensajes.OrderBy(m => m.FechaEnvio).ToList();
-                        break;
-                    case "recientes":
-                    default: // Por defecto, ordena por más recientes
-                        disc.Mensajes = disc.Mensajes.OrderByDescending(m => m.FechaEnvio).ToList();
-                        break;
-                }
+                // ordenar
+                disc.Mensajes = ordenarPor == "antiguos"
+                    ? disc.Mensajes.OrderBy(m => m.FechaEnvio).ToList()
+                    : disc.Mensajes.OrderByDescending(m => m.FechaEnvio).ToList();
+
+                // total de mensajes
+                int totalMensajes = disc.Mensajes.Count;
+
+                // aplicar paginación
+                disc.Mensajes = disc.Mensajes
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                ViewBag.CurrentPage = page;
+                ViewBag.PageSize = pageSize;
+                ViewBag.TotalMensajes = totalMensajes;
+                ViewBag.TotalPages = (int)Math.Ceiling(totalMensajes / (double)pageSize);
             }
 
             var vm = new DetailDiscusionViewModel
@@ -102,7 +100,7 @@ namespace MySocialPet.Controllers
                 IdForo = foro.IdForo,
                 IdDiscusion = discId,
                 Slug = slug,
-                Discusion = disc,
+                DiscusionMensajes = disc,
                 Tendencias = tendencias
             };
 
@@ -111,7 +109,7 @@ namespace MySocialPet.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult NuevoHilo(NuevoHiloViewModel vm)
+        public async Task<IActionResult> NuevoHilo(NuevoHiloViewModel vm)
         {
             if (!ModelState.IsValid)
             {
@@ -128,17 +126,17 @@ namespace MySocialPet.Controllers
                 IdUsuarioCreador = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value)
             };
 
-            _foroDAL.CrearHilo(discusion);
+            await _foroDAL.CrearHiloAsync(discusion);
 
             TempData["Success"] = "Hilo creado correctamente.";
             return RedirectToAction("Hilos", new { id = vm.IdForo });
         }
 
         [HttpGet("Foro/Hilos/{slug}/{foroId}/{discId}/Mensaje")]
-        public IActionResult EnviarMensaje(string slug, int foroId, int discId, int? mensajePadreId)
+        public async Task<IActionResult> EnviarMensaje(string slug, int foroId, int discId, int? mensajePadreId)
         {
-            var foro = _foroDAL.GetForoById(foroId);
-            var disc = _foroDAL.GetDiscusionById(discId);
+            var foro = await _foroDAL.GetForoByIdAsync(foroId);
+            var disc = await _foroDAL.GetDiscusionByIdAsync(discId);
 
             if (foro == null || disc == null || disc.IdForo != foro.IdForo)
                 return NotFound();
@@ -163,10 +161,29 @@ namespace MySocialPet.Controllers
             byte[] fotoData = null;
             if (vm.Imagen != null && vm.Imagen.Length > 0)
             {
-                using (var memoryStream = new MemoryStream())
+                if (vm.Imagen.ContentType == "image/gif")
                 {
-                    await vm.Imagen.CopyToAsync(memoryStream);
-                    fotoData = memoryStream.ToArray();
+                    var compressedGif = await GifCompressor.CompressToUnderAsync(
+                        vm.Imagen,
+                        maxBytes: 2 * 1024 * 1024, // límite 2 MB
+                        maxWidth: 640             // opcional: escalar para gifs
+                    );
+                    fotoData = compressedGif.Data;
+                }
+                else if (vm.Imagen.ContentType == "image/jpeg" || vm.Imagen.ContentType == "image/png")
+                {
+                    var result = await ImageCompressor.CompressToUnderAsync(
+                        vm.Imagen,
+                        maxBytes: 2 * 1024 * 1024,
+                        maxWidth: 1920,
+                        keepTransparency: vm.Imagen.ContentType == "image/png"
+                    );
+                    fotoData = result.Data;
+                }
+                else
+                {
+                    ModelState.AddModelError("Imagen", "Formato no soportado. Solo se permiten JPG, PNG o GIF.");
+                    return View(vm);
                 }
             }
 
@@ -193,20 +210,17 @@ namespace MySocialPet.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarMensaje(int id)
         {
-            // Validar que el usuario actual es el creador del mensaje
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var mensaje = await _foroDAL.GetMensajeById(id);
 
             if (mensaje == null || mensaje.IdUsuario != userId)
             {
-                return Forbid(); // O una vista de error, si lo prefieres
+                return Forbid();
             }
 
             await _foroDAL.EliminarMensaje(id);
 
-            // Puedes redireccionar al mismo hilo después de eliminar el mensaje
             return RedirectToAction("HiloDetails", "Foro", new { slug = mensaje.Discusion.Foro.Slug, foroId = mensaje.Discusion.IdForo, discId = mensaje.IdDiscusion });
         }
-
     }
 }
