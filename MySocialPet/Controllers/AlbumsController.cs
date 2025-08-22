@@ -84,7 +84,7 @@ namespace MySocialPet.Controllers
         }
 
         [HttpGet]
-        public IActionResult DetailsAlbum(int idAlbum, int pagina = 1)
+        public IActionResult DetailsAlbum(int idAlbum, int pagina = 1, string ordenarPor = "recientes")
         {
             var album = _albumDAL.GetAlbumPorId(idAlbum);
             if (album == null)
@@ -94,7 +94,11 @@ namespace MySocialPet.Controllers
 
             int tamanoPagina = 12;
 
-            var todasLasFotos = album.Fotos;
+            // Fotos ordenadas según el filtro
+            var todasLasFotos = (ordenarPor == "antiguos")
+                ? album.Fotos.OrderBy(f => f.Fecha).ToList()
+                : album.Fotos.OrderByDescending(f => f.Fecha).ToList();
+
             var totalFotos = todasLasFotos.Count();
 
             var fotosDeLaPagina = todasLasFotos
@@ -104,6 +108,9 @@ namespace MySocialPet.Controllers
 
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             ViewBag.MascotasUsuario = _albumDAL.GetListaNombreMascotasPorUsuario(userId);
+
+            // Guardamos el filtro actual para reutilizarlo en la vista (paginación / dropdown)
+            ViewBag.OrdenarPor = ordenarPor;
 
             var viewModel = new DetailAlbumViewModel
             {
