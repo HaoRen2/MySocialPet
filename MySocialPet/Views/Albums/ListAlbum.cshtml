@@ -45,14 +45,18 @@
                             <form method='post'
                                   action='@Url.Action("DeleteAlbum", "Albums")'
                                   onsubmit="return confirm('¿Seguro que deseas eliminar este álbum?');"
-                                  class="position-relative"
+                                  class="position-relative delete-form"
                                   style='display:inline;'>
                                 @Html.AntiForgeryToken()
                                 <input type='hidden' name='idAlbum' value='@album.IdAlbum' />
-                                <button type='submit' title='Eliminar álbum' class='btn btn-outline-danger btn-sm'>
+                                <button type='button' data-modal="#confirmDeleteAlbum"
+                                data-confirm="confirmDeleteBtn"
+                                title='Eliminar álbum'
+                                class='btn btn-outline-danger btn-sm btn-confirm-delete'>
                                     <i class='bi bi-trash'></i>
                                 </button>
                             </form>
+
                         </div>
                     </div>
                 </div>
@@ -137,3 +141,49 @@
         color: inherit !important;
     }
 </style>
+
+
+<div class="modal fade" id="confirmDeleteAlbum" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteLabel">Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar este álbum?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let formToSubmit;
+
+    document.querySelectorAll('.btn-confirm-delete').forEach(button => {
+      button.addEventListener('click', function () {
+        formToSubmit = this.closest('form');
+
+        const modalId = this.dataset.modal;      // "#confirmDeleteModal" o "#confirmDeleteNoteModal"
+        const confirmId = this.dataset.confirm;  // "confirmDeleteBtn" o "confirmDeleteNoteBtn"
+
+        const modal = new bootstrap.Modal(document.querySelector(modalId));
+        modal.show();
+
+        const confirmBtn = document.getElementById(confirmId);
+
+        // Quitamos cualquier listener previo para evitar duplicados
+        confirmBtn.replaceWith(confirmBtn.cloneNode(true));
+
+        document.getElementById(confirmId).addEventListener('click', function () {
+          if (formToSubmit) {
+            formToSubmit.submit();
+          }
+        });
+      });
+    });
+</script>
