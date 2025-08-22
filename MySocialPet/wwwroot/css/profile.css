@@ -1,38 +1,140 @@
-﻿/* Encabezado de sección más sólido */
-.section-title {
-    font-size: 1.05rem;
-    letter-spacing: .2px;
+﻿/* ===== Toast stack (posición fija) ===== */
+.toast-stack {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    z-index: 2000; /* > modal Bootstrap */
+    pointer-events: none; /* permite click-through salvo en el toast */
 }
 
-/* Cards del interior (email/password) con menos padding externo */
-.card-slim .card-body {
-    padding: 1rem 1rem 1.25rem;
+/* ===== Toast card base ===== */
+.toast-card {
+    --accent: #269b24; /* success por defecto */
+    --accent-weak: #04e40048;
+    --wave-fill: #04e4003a;
+    --text-strong: var(--accent);
+    --text: #555;
+    width: min(90vw, 360px);
+    min-height: 80px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    padding: 10px 15px;
+    background-color: #ffffff;
+    box-shadow: rgba(149, 157, 165, 0.2) 0 8px 24px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 15px;
+    pointer-events: auto; /* clickable */
+    animation: slideInRight 200ms ease-out;
 }
 
-.card-slim .card-header {
-    padding: .75rem 1rem;
-    border-radius: .75rem;
+    /* Variantes */
+    .toast-card.is-success {
+        --accent: #269b24;
+        --accent-weak: #04e40048;
+        --wave-fill: #04e4003a;
+    }
+
+    .toast-card.is-error {
+        --accent: #b3261e;
+        --accent-weak: #ff4d4040;
+        --wave-fill: #ff4d4030;
+    }
+
+/* Wave decorativa */
+.toast-wave {
+    position: absolute;
+    transform: rotate(90deg);
+    left: -31px;
+    top: 32px;
+    width: 80px;
+    fill: var(--wave-fill);
 }
 
-/* form-floating + input-group: corrige radios y bordes */
-.input-group > .form-floating > .form-control,
-.input-group > .form-floating > .form-select {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+/* Icono circular */
+.toast-icon-container {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--accent-weak);
+    border-radius: 50%;
+    margin-left: 8px;
 }
 
-.input-group-text {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+.toast-icon {
+    width: 17px;
+    height: 17px;
+    color: var(--accent);
 }
 
-/* Micro‑hover en botones */
-.btn-verde:hover {
-    filter: saturate(1.03) brightness(0.98);
+/* Texto */
+.toast-texts {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    flex-grow: 1;
 }
 
-/* Mejora foco accesible */
-.form-control:focus {
-    box-shadow: 0 0 0 .2rem rgba(84,120,94,.25);
-    border-color: #9BB29D;
+.toast-title,
+.toast-subtitle {
+    margin: 0;
+    cursor: default;
+}
+
+.toast-title {
+    color: var(--text-strong);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.toast-subtitle {
+    font-size: 14px;
+    color: var(--text);
+}
+
+/* Botón cerrar */
+.toast-close {
+    width: 18px;
+    height: 18px;
+    color: #777;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Animaciones */
+@keyframes slideInRight {
+    from {
+        transform: translateX(16px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateX(8px);
+    }
+}
+
+
+/* Sobrescribe el estilo activo del list-group */
+.list-group-item.active,
+.list-group-item-action.active {
+    background-color: #9BB29D !important; /* Verde bootstrap */
+    border-color: #9BB29D !important;
+    color: #fff !important;
 }

@@ -3,215 +3,253 @@
 @{
     ViewData["Title"] = "Mi perfil";
 }
+@section Styles {
+    <style>
+        /* Oculta el overlay global SOLO en esta vista */
+        #globalLoader {
+            display: none !important;
+        }
+    </style>
+}
 
-<div class="welcome-section quitar-amarillo">
-    <div class="row g-4 quitar-violeta m-5 w-75">
-        <!-- Izquierda: avatar + resumen -->
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
+<div class="welcome-section">
+    <div class="row  m-5 w-75 bg-light pb-3">
+
+        <!-- Banner -->
+        <div class="position-relative bg-green w-100 mb-5 rounded-3" style="height:27vh;">
+            <div class="container-fluid h-100 d-flex align-items-center justify-content-between px-5 quitar-amarillos">
+
+                <!-- Izquierda: Avatar + texto -->
+                <div class="d-flex flex-column align-items-center text-white">
                     <img id="avatarClickable"
                          src="@(Model.AvatarFoto != null
-                                                     ? $"data:image/png;base64,{Convert.ToBase64String(Model.AvatarFoto)}"
-                                                     : Url.Content("~/src/DefaultAvatar/AvatarPerro.png"))"
-                         alt="Avatar"
-                         class="rounded-circle mb-3"
-                         style="width:140px;height:140px;object-fit:cover;border:4px solid var(--ultralight-green);cursor:pointer;"
-                         title="Cambiar avatar (clic)">
-
-                    <h3 class="mb-1 text-primary">@Model.Username</h3>
-                    <div class="small mt-2">Usuario desde @Model.FechaRegistro.ToString("dd/MM/yyyy")</div>
+                                                                                                                       ? $"data:image/png;base64,{Convert.ToBase64String(Model.AvatarFoto)}"
+                                                                                                                       : Url.Content("~/src/DefaultAvatar/AvatarPerro.png"))"
+                         alt="Avatar de @Model.Username"
+                         class="rounded-circle border border-4 border-light shadow"
+                         style="width:140px;height:140px;object-fit:cover;cursor:pointer;"
+                         loading="lazy">
+                    <h3 class="mt-2 mb-0">@Model.Username</h3>
+                    <small class="opacity-75">Usuario desde @Model.FechaRegistro.ToString("dd/MM/yyyy")</small>
                 </div>
-            </div>
 
-            <div class="card shadow-sm mt-3">
-                <div class="card-header bg-ultralightgreen fw-bold">Resumen</div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between py-1">
-                        <span>Mascotas</span><strong>@Model.MascotasCount</strong>
-                    </div>
-                    <div class="d-flex justify-content-between py-1">
-                        <span>Álbumes</span><strong>@Model.AlbumesCount</strong>
-                    </div>
-                    <div class="d-flex justify-content-between py-1">
-                        <span>Discusiones</span><strong>@Model.DiscusionesCount</strong>
-                    </div>
-                    <div class="d-flex justify-content-between py-1">
-                        <span>Mensajes</span><strong>@Model.MensajesCount</strong>
+                <!-- Derecha: Resumen -->
+                <div class="card shadow-sm" style="min-width:260px;">
+                    <div class="card-header fw-bold">Resumen</div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between py-1">
+                            <span>Mascotas</span><strong>@Model.MascotasCount</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span>Álbumes</span><strong>@Model.AlbumesCount</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span>Discusiones</span><strong>@Model.DiscusionesCount</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span>Mensajes</span><strong>@Model.MensajesCount</strong>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
-        <!-- Derecha: SIN tabs, en una sola columna -->
-        <div class="col-lg-8">
 
-            <!-- Cuenta -->
-            <div class="card shadow-sm mb-4 border-0">
-                <div class="card-header bg-ultralightgreen fw-bold border-0 section-title">
-                    <i class="bi bi-person-gear me-2"></i> Cuenta
+        <div class="row ">
+            <!-- Sidebar: tabs verticales -->
+            <aside class="col-lg-3  ">
+                <div class="list-group sticky-top" role="tablist" style="top:80px;">
+                    <button class="list-group-item list-group-item-action active quitar-amarillo"
+                            id="tab-perfil"
+                            data-bs-toggle="list"
+                            data-bs-target="#pane-perfil"
+                            type="button"
+                            role="tab"
+                            aria-controls="pane-perfil"
+                            aria-selected="true">
+                        Perfil
+                    </button>
+
+                    <button class="list-group-item list-group-item-action"
+                            id="tab-email"
+                            data-bs-toggle="list"
+                            data-bs-target="#pane-email"
+                            type="button"
+                            role="tab"
+                            aria-controls="pane-email"
+                            aria-selected="false">
+                        Email
+                    </button>
+
+                    <button class="list-group-item list-group-item-action"
+                            id="tab-password"
+                            data-bs-toggle="list"
+                            data-bs-target="#pane-password"
+                            type="button"
+                            role="tab"
+                            aria-controls="pane-password"
+                            aria-selected="false">
+                        Contraseña
+                    </button>
                 </div>
-                <div class="card-body">
-                    <form id="cuentaForm" asp-controller="Perfil" asp-action="SaveCuenta" method="post" class="needs-validation" novalidate>
-                        @Html.AntiForgeryToken()
+            </aside>
 
-                        <h6 class="fw-bold text-muted mb-2">Identidad</h6>
+            <!-- Panel principal con contenido de tabs -->
+            <main class="col-lg-9 ">
+                <div class="tab-content ">
 
-                        <div class="form-floating mb-3">
-                            <input name="Username" value="@Model.Username" class="form-control" id="fldUsername" placeholder=" " required autocomplete="username">
-                            <label for="fldUsername">Nombre de usuario</label>
-                            <div class="invalid-feedback">El nombre de usuario es obligatorio.</div>
-                        </div>
+                    <!-- Pestaña: Perfil -->
+                    <div class="tab-pane fade show active " id="pane-perfil" role="tabpanel" aria-labelledby="tab-perfil">
+                        <section class="card border-0 shadow-sm mb-4">
+                            <div class="card-body">
+                                <h2 class="h3 mb-1">Información personal</h2>
+                                <p class="text-muted mb-4">Estos datos se mostrarán públicamente en tu perfil.</p>
 
-                        <div class="form-floating mb-3">
-                            <input name="Nombre" value="@Model.Nombre" class="form-control" id="fldNombre" placeholder=" " autocomplete="given-name">
-                            <label for="fldNombre">Nombre</label>
-                        </div>
+                                <form id="cuentaForm" asp-controller="Perfil" asp-action="SaveCuenta" method="post" class="needs-validation" novalidate>
+                                    @Html.AntiForgeryToken()
 
-                        <div class="form-floating mb-3">
-                            <input name="Apellido" value="@Model.Apellido" class="form-control" id="fldApellido" placeholder=" " autocomplete="family-name">
-                            <label for="fldApellido">Apellido</label>
-                        </div>
+                                    <div class="row g-3">
+                                        <!-- Fila 1 -->
+                                        <div class="col-md-6">
+                                            <label for="fldNombre" class="form-label">Nombre</label>
+                                            <input id="fldNombre" name="Nombre" value="@Model.Nombre" class="form-control" autocomplete="given-name">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="fldUbicacion" class="form-label">Ubicación</label>
+                                            <input id="fldUbicacion" class="form-control" placeholder="Ciudad, País"
+                                                   value="@(string.IsNullOrWhiteSpace(Model.Ciudad) && string.IsNullOrWhiteSpace(Model.Provincia) ? "" : $"{Model.Ciudad}, {Model.Provincia}")">
+                                        </div>
 
-                        <hr class="my-4">
+                                        <!-- Fila 2 -->
+                                        <div class="col-md-6">
+                                            <label for="fldApellido" class="form-label">Apellidos</label>
+                                            <input id="fldApellido" name="Apellido" value="@Model.Apellido" class="form-control" autocomplete="family-name">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="fldUsername" class="form-label">Usuario</label>
+                                            <input id="fldUsername" name="Username" value="@Model.Username" class="form-control" required autocomplete="username">
+                                            <div class="invalid-feedback">El nombre de usuario es obligatorio.</div>
+                                        </div>
 
-                        <h6 class="fw-bold text-muted mb-2">Contacto</h6>
+                                        <!-- Fila 3 -->
+                                        <div class="col-md-6">
+                                            <label for="fldTelefono" class="form-label">Teléfono</label>
+                                            <input id="fldTelefono" name="Telefono" value="@Model.Telefono" class="form-control" inputmode="tel" autocomplete="tel">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="fldCP" class="form-label">Código postal</label>
+                                            <input id="fldCP" name="CodigoPostal" value="@Model.CodigoPostal" class="form-control" inputmode="numeric" autocomplete="postal-code" maxlength="10">
+                                        </div>
 
-                        <div class="input-group mb-3">
-                            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                            <div class="form-floating">
-                                <input name="Telefono" value="@Model.Telefono" class="form-control" id="fldTelefono" placeholder=" " inputmode="tel" autocomplete="tel">
-                                <label for="fldTelefono">Teléfono</label>
-                            </div>
-                        </div>
+                                        <!-- Fila 4 -->
+                                        <div class="col-12">
+                                            <label for="fldDireccion" class="form-label">Dirección</label>
+                                            <input id="fldDireccion" name="Direccion" value="@Model.Direccion" class="form-control" autocomplete="street-address">
+                                        </div>
 
-                        <div class="form-floating mb-3">
-                            <input name="Direccion" value="@Model.Direccion" class="form-control" id="fldDireccion" placeholder=" " autocomplete="street-address">
-                            <label for="fldDireccion">Dirección</label>
-                        </div>
-
-                        <div class="form-floating mb-3">
-                            <input name="Ciudad" value="@Model.Ciudad" class="form-control" id="fldCiudad" placeholder=" " autocomplete="address-level2">
-                            <label for="fldCiudad">Ciudad</label>
-                        </div>
-
-                        <div class="form-floating mb-3">
-                            <input name="Provincia" value="@Model.Provincia" class="form-control" id="fldProvincia" placeholder=" " autocomplete="address-level1">
-                            <label for="fldProvincia">Provincia</label>
-                        </div>
-
-                        <div class="input-group mb-2">
-                            <span class="input-group-text"><i class="bi bi-mailbox"></i></span>
-                            <div class="form-floating">
-                                <input name="CodigoPostal" value="@Model.CodigoPostal" class="form-control" id="fldCP" placeholder=" " inputmode="numeric" autocomplete="postal-code" maxlength="10">
-                                <label for="fldCP">Código postal</label>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-end gap-2 mt-3">
-                            <button type="reset" class="btn btn-outline-secondary">Restablecer</button>
-                            <button type="submit" class="btn btn-verde">
-                                <i class="bi bi-check2-circle me-1"></i> Guardar cambios
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Seguridad -->
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-ultralightgreen fw-bold border-0 section-title">
-                    <i class="bi bi-shield-lock me-2"></i> Seguridad
-                </div>
-                <div class="card-body">
-
-                    <!-- Email -->
-                    <div class="card mb-3 border-0 shadow-sm card-slim">
-                        <div class="card-header fw-bold bg-light border-0">
-                            <i class="bi bi-envelope-at me-2"></i> Correo electrónico
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-2 text-muted">Email actual: <strong>@Model.Email</strong></div>
-                            <form id="emailForm" asp-controller="Perfil" asp-action="ChangeEmail" method="post" class="needs-validation" novalidate>
-                                @Html.AntiForgeryToken()
-
-                                <div class="form-floating mb-3">
-                                    <input name="NewEmail" type="email" class="form-control" id="fldNewEmail" placeholder=" " required autocomplete="email">
-                                    <label for="fldNewEmail">Nuevo email</label>
-                                    <div class="invalid-feedback">Introduce un correo válido.</div>
-                                </div>
-
-                                <div class="form-floating mb-3">
-                                    <input name="ConfirmNewEmail" type="email" class="form-control" id="fldConfirmEmail" placeholder=" " required autocomplete="email">
-                                    <label for="fldConfirmEmail">Confirmar email</label>
-                                    <div class="invalid-feedback">Debe coincidir con el nuevo email.</div>
-                                </div>
-
-                                <div class="input-group mb-2">
-                                    <span class="input-group-text"><i class="bi bi-key"></i></span>
-                                    <div class="form-floating">
-                                        <input name="Password" type="password" class="form-control" id="fldPwdEmail" placeholder=" " required autocomplete="current-password">
-                                        <label for="fldPwdEmail">Contraseña</label>
-                                        <div class="invalid-feedback">Requerida para confirmar el cambio.</div>
+                                        <!-- Fila 5 -->
+                                        <div class="col-md-6">
+                                            <label for="fldCiudad" class="form-label">Ciudad</label>
+                                            <input id="fldCiudad" name="Ciudad" value="@Model.Ciudad" class="form-control" autocomplete="address-level2">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="fldProvincia" class="form-label">Provincia</label>
+                                            <input id="fldProvincia" name="Provincia" value="@Model.Provincia" class="form-control" autocomplete="address-level1">
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="d-flex justify-content-end">
-                                    <button type="submit" class="btn animated">
-                                        <i class="bi bi-save2 me-1"></i> Actualizar email
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                                    <div class="d-flex justify-content-end gap-2 mt-4">
+                                        <a asp-controller="Home" asp-action="Index" class="btn secondary">Cancelar</a>
+                                        <button id="btnGuardarCuenta" type="submit" class="btn primary d-none">Guardar cambios</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </section>
                     </div>
 
-                    <!-- Password -->
-                    <div class="card border-0 shadow-sm card-slim">
-                        <div class="card-header fw-bold bg-light border-0">
-                            <i class="bi bi-lock me-2"></i> Contraseña
-                        </div>
-                        <div class="card-body">
-                            <form id="passwordForm" asp-controller="Perfil" asp-action="ChangePassword" method="post" class="needs-validation" novalidate>
-                                @Html.AntiForgeryToken()
+                    <!-- Pestaña: Email -->
+                    <div class="tab-pane fade" id="pane-email" role="tabpanel" aria-labelledby="tab-email">
+                        <section class="card border-0 shadow-sm mb-4">
+                            <div class="card-body">
+                                <h3 class="h5 mb-3">Correo electrónico</h3>
+                                <div class="mb-2 text-muted">Email actual: <strong>@Model.Email</strong></div>
 
-                                <div class="form-floating mb-3">
-                                    <input name="CurrentPassword" type="password" class="form-control" id="fldPwdOld" placeholder=" " required autocomplete="current-password">
-                                    <label for="fldPwdOld">Actual</label>
-                                    <div class="invalid-feedback">Introduce tu contraseña actual.</div>
-                                </div>
+                                <form id="emailForm" asp-controller="Perfil" asp-action="ChangeEmail" method="post" class="needs-validation" novalidate>
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" id="__CurrentEmail" value="@Model.Email" />
 
-                                <div class="form-floating mb-3">
-                                    <input name="NewPassword" type="password" class="form-control" id="fldPwdNew" placeholder=" " required autocomplete="new-password" minlength="8">
-                                    <label for="fldPwdNew">Nueva (mín. 8 caracteres)</label>
-                                    <div class="invalid-feedback">Mínimo 8 caracteres.</div>
-                                </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="fldNewEmail" class="form-label">Nuevo email</label>
+                                            <input id="fldNewEmail" name="NewEmail" type="email" class="form-control" required autocomplete="email" />
+                                            <div class="invalid-feedback" id="errNewEmail">Introduce un correo válido.</div>
+                                        </div>
 
-                                <div class="form-floating mb-2">
-                                    <input name="ConfirmNewPassword" type="password" class="form-control" id="fldPwdNew2" placeholder=" " required autocomplete="new-password">
-                                    <label for="fldPwdNew2">Confirmar nueva</label>
-                                    <div class="invalid-feedback">Debe coincidir con la nueva.</div>
-                                </div>
+                                        <div class="col-md-6">
+                                            <label for="fldConfirmEmail" class="form-label">Confirmar email</label>
+                                            <input id="fldConfirmEmail" name="ConfirmNewEmail" type="email" class="form-control" required autocomplete="email" />
+                                            <div class="invalid-feedback">Debe coincidir con el nuevo email.</div>
+                                        </div>
 
-                                <div class="d-flex justify-content-end mt-2">
-                                    <button type="submit" class="btn btn-verde">
-                                        <i class="bi bi-shield-check me-1"></i> Cambiar contraseña
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                                        <div class="col-md-6">
+                                            <label for="fldPwdEmail" class="form-label">Contraseña</label>
+                                            <input id="fldPwdEmail" name="Password" type="password" class="form-control" required autocomplete="current-password" />
+                                            <div class="invalid-feedback">Requerida para confirmar el cambio.</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end mt-4">
+                                        <button id="btnSubmitEmail" type="submit" class="btn primary">Actualizar email</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </section>
                     </div>
 
-                </div>
-            </div>
 
-        </div>
+                    <!-- Pestaña: Contraseña -->
+                    <div class="tab-pane fade" id="pane-password" role="tabpanel" aria-labelledby="tab-password">
+                        <section class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h3 class="h5 mb-3">Contraseña</h3>
 
+                                <form id="passwordForm" asp-controller="Perfil" asp-action="ChangePassword" method="post" class="needs-validation" novalidate>
+                                    @Html.AntiForgeryToken()
 
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label for="fldPwdOld" class="form-label">Actual</label>
+                                            <input id="fldPwdOld" name="CurrentPassword" type="password" class="form-control" required autocomplete="current-password">
+                                            <div class="invalid-feedback">Introduce tu contraseña actual.</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="fldPwdNew" class="form-label">Nueva</label>
+                                            <input id="fldPwdNew" name="NewPassword" type="password" class="form-control" required autocomplete="new-password">
+                                            <div class="invalid-feedback">Este campo es obligatorio.</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="fldPwdNew2" class="form-label">Confirmar</label>
+                                            <input id="fldPwdNew2" name="ConfirmNewPassword" type="password" class="form-control" required autocomplete="new-password">
+                                            <div class="invalid-feedback">Debe coincidir con la nueva.</div>
+                                        </div>
+                                    </div>
 
-        </div>
-    </div>
-</div>
+                                    <div class="d-flex justify-content-end mt-4">
+                                        <button type="submit" class="btn primary">Cambiar contraseña</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </section>
+                    </div>
 
+                </div> <!-- /tab-content -->
+            </main>
+        </div> <!-- /row (aside + main) -->
+
+    </div> <!-- /row principal -->
+
+</div> <!-- /welcome-section -->
 <!-- Modal seleccionar avatar -->
 <div class="modal fade" id="avatarModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -222,25 +260,34 @@
             </div>
 
             <div class="modal-body">
+                <!-- Tabs navegación -->
                 <ul class="nav nav-tabs" role="tablist">
                     <li class="nav-item">
-                        <button class="nav-link disabled" type="button" title="Próximamente">Mis mascotas</button>
+                        <button class="nav-link disabled" type="button" title="Próximamente">
+                            Mis mascotas
+                        </button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pane-defaults" type="button">Por defecto</button>
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pane-defaults" type="button">
+                            Por defecto
+                        </button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pane-upload" type="button">Subir nueva</button>
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pane-upload" type="button">
+                            Subir nueva
+                        </button>
                     </li>
                 </ul>
 
-                <div class="tab-content mt-3">
+                <div class="tab-content mt-4">
                     <!-- Por defecto -->
                     <div class="tab-pane fade show active" id="pane-defaults">
-                        <div id="defaultsGrid" class="row g-3">
+                        <div id="defaultsGrid" class="row g-3 mb-3">
                             @if (Model.DefaultAvatarFileNames == null || !Model.DefaultAvatarFileNames.Any())
                             {
-                                <div class="col-12 text-muted">No hay avatares en la carpeta.</div>
+                                <div class="col-12 text-center text-muted py-3">
+                                    No hay avatares en la carpeta.
+                                </div>
                             }
                             else
                             {
@@ -249,12 +296,17 @@
                                     var url = Url.Content($"~/src/DefaultAvatar/{file}");
                                     var nombre = System.IO.Path.GetFileNameWithoutExtension(file);
                                     <div class="col-6 col-md-4 col-lg-3">
-                                        <div class="card h-100 selector-item" data-type="default" data-filename="@file">
-                                            <img src="@url" class="card-img-top" style="height:120px;object-fit:cover;">
+                                        <div class="card h-100 selector-item shadow-sm"
+                                             data-type="default" data-filename="@file" style="cursor:pointer;">
+                                            <img src="@url"
+                                                 class="card-img-top rounded-top bg-light"
+                                                 style="height:140px;object-fit:contain;">
+
                                             <div class="card-body p-2 text-center">
-                                                <div class="small fw-bold">@nombre</div>
-                                                <div class="form-check mt-1">
-                                                    <input class="form-check-input sel-radio" type="radio" name="selDefault" value="@file">
+                                                <div class="small fw-bold text-truncate">@nombre</div>
+                                                <div class="form-check mt-2 d-flex justify-content-center">
+                                                    <input class="form-check-input sel-radio me-1"
+                                                           type="radio" name="selDefault" value="@file">
                                                     <label class="form-check-label small">Usar</label>
                                                 </div>
                                             </div>
@@ -263,28 +315,49 @@
                                 }
                             }
                         </div>
+
+                        <!-- Botones específicos de esta pestaña -->
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn primary" id="btnQuitarAvatar">
+                                Quitar avatar
+                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn primary" data-bs-dismiss="modal">
+                                    Cancelar
+                                </button>
+                                <button type="button" class="btn primary" id="btnGuardarAvatar">
+                                    Guardar avatar
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Subir -->
                     <div class="tab-pane fade" id="pane-upload">
-                        <form id="avatarUploadForm" asp-controller="Perfil" asp-action="SaveAvatar" method="post" enctype="multipart/form-data">
+                        <form id="avatarUploadForm" asp-controller="Perfil" asp-action="SaveAvatar"
+                              method="post" enctype="multipart/form-data" class="p-3 border rounded-3 shadow-sm bg-light text-center">
                             @Html.AntiForgeryToken()
-                            <div class="mb-3">
-                                <input type="file" name="avatar" accept="image/*" class="form-control" required />
+
+                            <div class="upload-zone mb-3 p-4 border border-2 border-dashed rounded-3 bg-white position-relative">
+                                <i class="bi bi-cloud-arrow-up fs-1 text-secondary"></i>
+                                <p class="mt-2 mb-1 fw-bold">Arrastra tu imagen aquí</p>
+                                <p class="text-muted small mb-3">Formatos aceptados: JPG, PNG, GIF</p>
+
+                                <!-- Input escondido + label estilizada -->
+                                <input id="fldAvatarUpload" type="file" name="avatar" accept="image/*"
+                                       class="form-control d-none" required />
+                                <label for="fldAvatarUpload" class="btn secondary">Elegir archivo</label>
                             </div>
-                            <button type="submit" class="btn animated">Subir y usar</button>
+
+                            <button type="submit" class="btn primary w-100 mt-3">
+                                <i class="bi bi-check-circle me-1"></i> Subir y usar
+                            </button>
                         </form>
                     </div>
+
                 </div>
             </div>
 
-            <div class="modal-footer d-flex justify-content-between">
-                <button type="button" class="btn btn-outline-secondary" id="btnQuitarAvatar">Quitar avatar</button>
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-verde" id="btnGuardarAvatar">Guardar avatar</button>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -294,16 +367,221 @@
     @Html.AntiForgeryToken()
 </form>
 
+
 @section Scripts {
     <script>
-        (function () {
-          const avatarImg   = document.getElementById("avatarClickable");
-          const modalEl     = document.getElementById("avatarModal");
-          const avatarModal = new bootstrap.Modal(modalEl);
-          const defaultsGrid= document.getElementById("defaultsGrid");
-          const btnGuardar  = document.getElementById("btnGuardarAvatar");
-          const btnQuitar   = document.getElementById("btnQuitarAvatar");
-          const uploadForm  = document.getElementById("avatarUploadForm");
+        (() => {
+          // ==============================
+          // 0) HELPERS DE TOAST (Bootstrap)
+          // ==============================
+          function ensureToastContainer() {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+              const wrapper = document.createElement('div');
+              wrapper.className = 'position-fixed top-0 end-0 p-3';
+              wrapper.style.zIndex = '2000';
+              wrapper.setAttribute('aria-live', 'polite');
+              wrapper.setAttribute('aria-atomic', 'true');
+
+              container = document.createElement('div');
+              container.id = 'toast-container';
+              container.className = 'toast-container top-0 end-0';
+              wrapper.appendChild(container);
+              document.body.appendChild(wrapper);
+            }
+            return container;
+          }
+
+          const __toastContainer = ensureToastContainer();
+
+          function __escapeHtml(str){
+            return (str ?? '').replace(/[&<>"']/g, m => ({
+              '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+            }[m]));
+          }
+
+          function __iconSvg(variant){
+            const isDanger = (variant === 'danger' || variant === 'error');
+            return isDanger
+              ? `<svg class="toast-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" style="width:1rem;height:1rem;margin-right:.5rem;">
+                   <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0ZM7.002 4.5a1 1 0 1 1 2 0l-.35 5a.65.65 0 0 1-1.3 0l-.35-5Zm1 8a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z"/>
+                 </svg>`
+              : `<svg class="toast-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" style="width:1rem;height:1rem;margin-right:.5rem;">
+                   <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0ZM6.97 10.97l5-5a.75.75 0 0 0-1.06-1.06L6.5 8.81 5.09 7.4a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0Z"/>
+                 </svg>`;
+          }
+
+          function showToast({ type = 'success', title = 'Hecho', message = '', delay = 4000 } = {}) {
+            // Normalizamos 'error' -> 'danger'
+            const variant = (type === 'error') ? 'danger' : type;
+
+            // Mapa de estilos Bootstrap 5
+            const variants = {
+              success: { cls: 'text-bg-success', dark: true,  role: 'status'  },
+              danger:  { cls: 'text-bg-danger',  dark: true,  role: 'alert'   },
+              info:    { cls: 'text-bg-info',    dark: false, role: 'status'  },
+              warning: { cls: 'text-bg-warning', dark: false, role: 'alert'   }
+            };
+            const v = variants[variant] || variants.info;
+
+            const el = document.createElement('div');
+            el.className = `toast border-0 shadow ${v.cls}`;
+            el.setAttribute('role', v.role);
+            el.setAttribute('aria-live', v.role === 'alert' ? 'assertive' : 'polite');
+            el.setAttribute('aria-atomic', 'true');
+
+            el.innerHTML = `
+              <div class="d-flex align-items-center">
+                <div class="toast-body d-flex align-items-center">
+                  ${__iconSvg(variant)}
+                  <strong class="me-2">${__escapeHtml(title)}</strong>
+                  <span>${__escapeHtml(message)}</span>
+                </div>
+                <button type="button" class="btn-close ${v.dark ? 'btn-close-white' : ''} me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+              </div>
+            `;
+
+            __toastContainer.appendChild(el);
+            const t = new bootstrap.Toast(el, { autohide: true, delay });
+            el.addEventListener('hidden.bs.toast', () => el.remove(), { once: true });
+            t.show();
+          }
+
+          // Exponemos helpers globales
+          window.toastSuccess = (title, msg = '', delay = 4000) => showToast({ type: 'success', title, message: msg, delay });
+          window.toastError   = (title, msg = '', delay = 6000) => showToast({ type: 'danger',  title, message: msg, delay });
+          window.toastInfo    = (title, msg = '', delay = 4000) => showToast({ type: 'info',    title, message: msg, delay });
+          window.toastWarn    = (title, msg = '', delay = 5000) => showToast({ type: 'warning', title, message: msg, delay });
+
+          // ==============================
+          // 1) Validación Bootstrap (una sola vez)
+          // ==============================
+          document.querySelectorAll('.needs-validation').forEach(f => {
+            f.addEventListener('submit', e => {
+              if (!f.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
+              f.classList.add('was-validated');
+            }, false);
+          });
+
+          // === 1.1) Validación específica: Confirmación de email ===
+          (function () {
+            const emailForm   = document.getElementById('emailForm');
+            const fldNew      = document.getElementById('fldNewEmail');
+            const fldConfirm  = document.getElementById('fldConfirmEmail');
+
+            if (!emailForm || !fldNew || !fldConfirm) return;
+
+            function validateEmails() {
+              if (fldNew.value && fldConfirm.value && fldNew.value !== fldConfirm.value) {
+                fldConfirm.setCustomValidity('El email no coincide');
+              } else {
+                fldConfirm.setCustomValidity('');
+              }
+            }
+
+            ['input','change','blur'].forEach(ev => {
+              fldNew.addEventListener(ev, validateEmails);
+              fldConfirm.addEventListener(ev, validateEmails);
+            });
+
+            // Ejecuta al cargar (autocompletado)
+            validateEmails();
+
+            emailForm.addEventListener('submit', () => validateEmails());
+          })();
+
+          // ==============================
+          // 2) Abrir tab desde hash (solo si lo usas en URL). No produce scroll.
+          // ==============================
+          function showTabFromHash() {
+            const hash = location.hash;
+            if (!hash) return;
+            const trigger = document.querySelector(`[data-bs-toggle="list"][data-bs-target="${hash}"]`);
+            if (trigger) new bootstrap.Tab(trigger).show();
+          }
+          showTabFromHash();
+          window.addEventListener('hashchange', showTabFromHash);
+
+          // ==============================
+          // 3) Estabilizar altura del contenedor de tabs (medición real de panes ocultos)
+          // ==============================
+          const tabContent = document.querySelector('.tab-content');
+          if (tabContent) {
+            const panes = Array.from(tabContent.querySelectorAll('.tab-pane'));
+
+            const getNaturalHeight = (el) => {
+              const prev = {
+                position: el.style.position,
+                visibility: el.style.visibility,
+                display: el.style.display,
+                width: el.style.width
+              };
+              el.style.position = 'absolute';
+              el.style.visibility = 'hidden';
+              el.style.display = 'block';
+              el.style.width = tabContent.clientWidth + 'px';
+              const h = el.scrollHeight;
+              el.style.position = prev.position;
+              el.style.visibility = prev.visibility;
+              el.style.display = prev.display;
+              el.style.width = prev.width;
+              return h;
+            };
+
+            const setMinHeight = () => {
+              const maxH = Math.max(...panes.map(getNaturalHeight));
+              tabContent.style.minHeight = maxH + 'px';
+            };
+
+            setMinHeight();
+            document.querySelectorAll('[data-bs-toggle="list"]').forEach(el => {
+              el.addEventListener('shown.bs.tab', () => setTimeout(setMinHeight, 40));
+            });
+            window.addEventListener('resize', () => setTimeout(setMinHeight, 40));
+
+            const ro = new ResizeObserver(() => setMinHeight());
+            panes.forEach(p => ro.observe(p));
+          }
+
+          // ==============================
+          // 4) Botón "Guardar cambios" solo cuando hay cambios en el formulario de cuenta
+          // ==============================
+          const cuentaForm = document.getElementById('cuentaForm');
+          const btnGuardar = document.getElementById('btnGuardarCuenta');
+
+          if (cuentaForm && btnGuardar) {
+            const fields = Array.from(cuentaForm.querySelectorAll('input, textarea, select'));
+            fields.forEach(el => {
+              if (el.name === '__RequestVerificationToken') return;
+              const v = (el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? '1' : '0') : (el.value ?? '');
+              el.dataset.initial = (v || '').trim();
+            });
+
+            const checkDirty = () => {
+              const dirty = fields.some(el => {
+                if (el.name === '__RequestVerificationToken') return false;
+                if (el.type === 'hidden') return false;
+                const now = (el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? '1' : '0') : (el.value ?? '');
+                return (now.trim() !== (el.dataset.initial ?? ''));
+              });
+              btnGuardar.classList.toggle('d-none', !dirty);
+            };
+
+            cuentaForm.addEventListener('input', checkDirty);
+            cuentaForm.addEventListener('change', checkDirty);
+            checkDirty();
+          }
+
+          // ==============================
+          // 5) Lógica del modal de avatar (con toasts)
+          // ==============================
+          const avatarImg    = document.getElementById("avatarClickable");
+          const modalEl      = document.getElementById("avatarModal");
+          const avatarModal  = modalEl ? new bootstrap.Modal(modalEl) : null;
+          const defaultsGrid = document.getElementById("defaultsGrid");
+          const btnGuardarAv = document.getElementById("btnGuardarAvatar");
+          const btnQuitarAv  = document.getElementById("btnQuitarAvatar");
+          const uploadForm   = document.getElementById("avatarUploadForm");
 
           let selected = { type: null, value: null };
 
@@ -311,84 +589,96 @@
             return document.querySelector('#__AjaxAntiForgeryForm input[name="__RequestVerificationToken"]')?.value;
           }
 
-          // Abre el modal al clicar la foto
-          avatarImg.addEventListener("click", () => {
-            selected = { type: null, value: null };
-            defaultsGrid.querySelectorAll(".selector-item").forEach(c => c.classList.remove("border","border-2","border-success"));
-            avatarModal.show();
-          });
-
-          // Selección visual de default
-          defaultsGrid.querySelectorAll(".selector-item").forEach(card => {
-            card.addEventListener("click", () => {
-              defaultsGrid.querySelectorAll(".selector-item").forEach(c => c.classList.remove("border","border-2","border-success"));
-              card.classList.add("border","border-2","border-success");
-              const radio = card.querySelector(".sel-radio");
-              if (radio) radio.checked = true;
-              selected = { type: "default", value: card.dataset.filename };
+          // Abrir modal al clicar la foto
+          if (avatarImg && avatarModal) {
+            avatarImg.addEventListener("click", () => {
+              selected = { type: null, value: null };
+              if (defaultsGrid) {
+                defaultsGrid.querySelectorAll(".selector-item")
+                  .forEach(c => c.classList.remove("border","border-2","border-success"));
+              }
+              avatarModal.show();
             });
-          });
+          }
+
+          // Selección visual de avatar por defecto
+          if (defaultsGrid) {
+            defaultsGrid.querySelectorAll(".selector-item").forEach(card => {
+              card.addEventListener("click", () => {
+                defaultsGrid.querySelectorAll(".selector-item")
+                  .forEach(c => c.classList.remove("border","border-2","border-success"));
+                card.classList.add("border","border-2","border-success");
+                const radio = card.querySelector(".sel-radio");
+                if (radio) radio.checked = true;
+                selected = { type: "default", value: card.dataset.filename };
+              });
+            });
+          }
 
           // Guardar selección (default)
-          btnGuardar.addEventListener("click", async () => {
-            if (!(selected.type === "default" && selected.value)) {
-              alert("Selecciona un avatar por defecto o usa 'Subir nueva'.");
-              return;
-            }
-            const fd = new FormData();
-            fd.append("fileName", selected.value);
-            const token = getToken(); if (token) fd.append("__RequestVerificationToken", token);
-
-            try {
-              const res = await fetch('@Url.Action("SetAvatarDefault", "Perfil")', {
-                method: "POST",
-                headers: { "X-Requested-With": "XMLHttpRequest" },
-                body: fd
-              });
-              if (!res.ok) {
-                const txt = await res.text();
-                alert("Error " + res.status + ": " + txt);
+          if (btnGuardarAv) {
+            btnGuardarAv.addEventListener("click", async () => {
+              if (!(selected.type === "default" && selected.value)) {
+                toastError("Selecciona un avatar", "Elige un avatar por defecto o sube uno nuevo");
                 return;
               }
-              const j = await res.json();
-              alert(j.message || "Listo");
-              if (j.success && j.previewDataUrl) {
-                avatarImg.src = j.previewDataUrl;
-                avatarModal.hide();
+              const fd = new FormData();
+              fd.append("fileName", selected.value);
+              const token = getToken(); if (token) fd.append("__RequestVerificationToken", token);
+
+              try {
+                const res = await fetch('@Url.Action("SetAvatarDefault", "Perfil")', {
+                  method: "POST",
+                  headers: { "X-Requested-With": "XMLHttpRequest" },
+                  body: fd
+                });
+                if (!res.ok) {
+                  const txt = await res.text();
+                  toastError("Error " + res.status, txt || "No se pudo guardar el avatar");
+                  return;
+                }
+                const j = await res.json();
+                toastSuccess(j.message || "Avatar actualizado", "Se aplicó el avatar por defecto");
+                if (j.success && j.previewDataUrl) {
+                  if (avatarImg) avatarImg.src = j.previewDataUrl;
+                  if (avatarModal) avatarModal.hide();
+                }
+              } catch (e) {
+                toastError("Error de red", "Revisa tu conexión e inténtalo de nuevo");
               }
-            } catch (e) {
-              alert("Error de red.");
-            }
-          });
+            });
+          }
 
           // Quitar avatar
-          btnQuitar.addEventListener("click", async () => {
-            if (!confirm("¿Quitar tu avatar y usar el predeterminado?")) return;
-            const fd = new FormData();
-            fd.append("removeAvatar","true");
-            const token = getToken(); if (token) fd.append("__RequestVerificationToken", token);
+          if (btnQuitarAv) {
+            btnQuitarAv.addEventListener("click", async () => {
+              if (!confirm("¿Quitar tu avatar y usar el predeterminado?")) return;
+              const fd = new FormData();
+              fd.append("removeAvatar","true");
+              const token = getToken(); if (token) fd.append("__RequestVerificationToken", token);
 
-            try {
-              const res = await fetch('@Url.Action("SaveAvatar", "Perfil")', {
-                method: "POST",
-                headers: { "X-Requested-With": "XMLHttpRequest" },
-                body: fd
-              });
-              if (!res.ok) {
-                const txt = await res.text();
-                alert("Error " + res.status + ": " + txt);
-                return;
+              try {
+                const res = await fetch('@Url.Action("SaveAvatar", "Perfil")', {
+                  method: "POST",
+                  headers: { "X-Requested-With": "XMLHttpRequest" },
+                  body: fd
+                });
+                if (!res.ok) {
+                  const txt = await res.text();
+                  toastError("Error " + res.status, txt || "No se pudo quitar el avatar");
+                  return;
+                }
+                const j = await res.json();
+                toastSuccess(j.message || "Avatar eliminado", "Volviste al avatar predeterminado");
+                if (j.success && j.previewDataUrl) {
+                  if (avatarImg) avatarImg.src = j.previewDataUrl;
+                  if (avatarModal) avatarModal.hide();
+                }
+              } catch (e) {
+                toastError("Error de red", "Revisa tu conexión e inténtalo de nuevo");
               }
-              const j = await res.json();
-              alert(j.message || "Hecho");
-              if (j.success && j.previewDataUrl) {
-                avatarImg.src = j.previewDataUrl;
-                avatarModal.hide();
-              }
-            } catch (e) {
-              alert("Error de red.");
-            }
-          });
+            });
+          }
 
           // Subir nueva
           if (uploadForm) {
@@ -407,17 +697,17 @@
                 });
                 if (!res.ok) {
                   const txt = await res.text();
-                  alert("Error " + res.status + ": " + txt);
+                  toastError("Error " + res.status, txt || "No se pudo subir la imagen");
                   return;
                 }
                 const j = await res.json();
-                alert(j.message || "Hecho");
+                toastSuccess(j.message || "Avatar subido", "Tu nueva imagen ya está activa");
                 if (j.success && j.previewDataUrl) {
-                  avatarImg.src = j.previewDataUrl;
-                  avatarModal.hide();
+                  if (avatarImg) avatarImg.src = j.previewDataUrl;
+                  if (avatarModal) avatarModal.hide();
                 }
               } catch (e) {
-                alert("Error de red.");
+                toastError("Error de red", "Revisa tu conexión e inténtalo de nuevo");
               }
             });
           }

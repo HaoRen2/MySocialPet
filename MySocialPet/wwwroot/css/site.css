@@ -64,6 +64,9 @@
 ------------------------------------------------------------ */
 
 /* Verde oliva claro personalizado */
+.bg-green {
+    background-color: #6C936C!important;
+}
 .bg-lightgreen {
     background-color: #9BB29D;
 }
@@ -83,17 +86,6 @@
     color: #4a5c4f !important;
 }
 
-.btn {
-    position: relative;
-    color: white;
-    font-weight: bold;
-    align-content: center;
-    font-size: 1.75rem;
-    border: none;
-    border-radius: 5px;
-    overflow: hidden;
-    transition: all 0.3s ease-in-out;
-}
 
 
 
@@ -227,3 +219,57 @@ a.dropdown-item:hover{
     /* right: 0; left: auto;   <-- alternativa si prefieres alinear al extremo derecho */
 }
 
+/* === Clase base para TODOS los botones === */
+.btn {
+    display: inline-flex; /* siempre flex para centrar */
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem; /* separación entre icono y texto si lo hay */
+
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-decoration: none; /* quitar subrayados en <a> */
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+    /* === Variantes (contextuales) === */
+
+    /* Botón de acción principal (guardar, confirmar) */
+    .btn.primary {
+        background-color: #9BB29D !important;
+        border: 1px solid #9BB29D !important;
+        color: #fff;
+    }
+
+        .btn.primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+    /* Botón secundario (cancelar, volver) */
+    .btn.secondary {
+        background-color: transparent;
+        border: 1px solid #6c757d;
+        color: #9BB29D ;
+    }
+
+        .btn.secondary:hover {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
+    /* Variante “peligro” (eliminar) */
+    .btn.danger {
+        background-color: #dc3545;
+        border: 1px solid #dc3545;
+        color: #fff;
+    }
+
+        .btn.danger:hover {
+            background-color: #b52a37;
+            border-color: #b52a37;
+        }
