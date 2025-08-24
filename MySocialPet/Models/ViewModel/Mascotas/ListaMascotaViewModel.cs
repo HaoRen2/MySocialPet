@@ -38,6 +38,9 @@ namespace MySocialPet.Models.ViewModel.Mascotas
 
         public Evento? Evento { get; set; }
 
+        public string? RazaFoto { get; set; }
+
+
         public int? PaginaActual { get; set; }
         public int? TotalPaginas { get; set; }
 

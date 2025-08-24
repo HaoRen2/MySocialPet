@@ -45,10 +45,12 @@ namespace MySocialPet.Controllers
                     LongitudCm = a.LongitudCm,
                     BCS = a.BCS,
                     Esterilizada = a.Esterilizada,
+                    RazaFoto = a.Raza.Foto,
                     NombreRaza = a.Raza.NombreRaza,
                     Evento = a.Eventos.Where(e => e.FechaHora > DateTime.Now)
                                       .OrderBy(e => e.FechaHora)
                                       .FirstOrDefault()
+
                 })
                 .ToList();
 

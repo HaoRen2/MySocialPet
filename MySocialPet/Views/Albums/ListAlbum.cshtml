@@ -4,145 +4,316 @@
     ViewData["Title"] = "Mis Álbumes";
 }
 
-<div class="container pt-nav mb-5">
-    <h2 class="mb-4">Mis Álbumes</h2>
-
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-
-        @* 2. El bucle ahora itera sobre la propiedad 'ListAlbums' de tu modelo *@
-        @foreach (var album in Model.ListAlbums)
-        {
-            <div class="col">
-                <div class="card h-100 shadow-lg border-0 overflow-hidden position-relative" style="transition: transform 0.3s;">
-                    <!-- Link invisible que hace que la card sea clickeable -->
-                    <a href="@Url.Action("DetailsAlbum", "Albums", new { idAlbum = album.IdAlbum })"
-                       class="stretched-link"
-                       style="z-index: 0;">
-                        @if (album.FotoReciente != null && album.FotoReciente.Length > 0)
-                        {
-                            var base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(album.FotoReciente);
-                            <img src="@base64Image" class="card-img-top" alt="Foto de @album.NombreAlbum" style="height: 200px; object-fit: cover;" />
-                        }
-                        else
-                        {
-                            <img src="https://st2.depositphotos.com/2586633/46477/v/450/depositphotos_464771766-stock-illustration-no-photo-or-blank-image.jpg"
-                                 class="card-img-top" alt="Sin foto" style="height: 200px; object-fit: cover;" />
-                        }
-                    </a>
-                    <div class="card-body d-flex justify-content-between align-items-center position-relative">
-                        <h5 class="card-title mb-0">@album.NombreAlbum</h5>
-
-                        <div class="d-flex align-items-center">
-                            <!-- Botón Editar -->
-                            <button class='btn btn-verde btn-sm me-2 position-relative'
-                                    title='Editar álbum'
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalEditarAlbum_@album.IdAlbum">
-                                <i class='bi bi-pencil-square'></i>
-                            </button>
-
-                            <!-- Botón Eliminar -->
-                            <form method='post'
-                                  action='@Url.Action("DeleteAlbum", "Albums")'
-                                  onsubmit="return confirm('¿Seguro que deseas eliminar este álbum?');"
-                                  class="position-relative delete-form"
-                                  style='display:inline;'>
-                                @Html.AntiForgeryToken()
-                                <input type='hidden' name='idAlbum' value='@album.IdAlbum' />
-                                <button type='button' data-modal="#confirmDeleteAlbum"
-                                data-confirm="confirmDeleteBtn"
-                                title='Eliminar álbum'
-                                class='btn btn-outline-danger btn-sm btn-confirm-delete'>
-                                    <i class='bi bi-trash'></i>
-                                </button>
-                            </form>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Modal para editar (se genera uno por cada álbum) -->
-            <div class="modal fade" id="modalEditarAlbum_@album.IdAlbum" tabindex="-1" aria-labelledby="modalEditarAlbumLabel_@album.IdAlbum" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <form asp-action="EditarAlbum" asp-controller="Albums" method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="IdAlbum" value="@album.IdAlbum" />
-
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="modalEditarAlbumLabel_@album.IdAlbum">Editar Álbum: @album.NombreAlbum</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                    <label for="nombreAlbum_@album.IdAlbum" class="form-label">Nuevo Nombre del Álbum</label>
-                                    <input type="text"
-                                           name="NombreAlbum"
-                                           value="@album.NombreAlbum"
-                                           class="form-control"
-                                           id="nombreAlbum_@album.IdAlbum"
-                                           required />
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+@section Styles {
+    <style>
+        /* ====== Layout general ====== */
+        .page-wrap {
+            margin: 0 auto;
         }
 
-        <!-- Tarjeta para crear nuevo álbum (siempre visible) -->
-        <div class="col">
-            <div class="card h-100 shadow-lg border-0 text-center align-items-center justify-content-center" style="background-color: #f8f9fa; transition: transform 0.3s; ">
-                <a href="@Url.Action("CrearAlbum", "Albums")" class="stretched-link text-decoration-none text-dark">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <div class="d-flex justify-content-center align-items-center mb-3 bg-verde text-white rounded-circle" style="width: 80px; height: 80px;">
-                            <span style="font-size: 3rem; font-weight: bold;">+</span>
+        /* Rejilla fluida y auto-ajustable */
+        .albums-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+
+        /* ====== Cards ====== */
+        .album-card, .new-card {
+            border-radius: 1rem;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 6px 18px rgba(0,0,0,.06);
+            transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative; /* necesario para stretched-link */
+            height: 100%;
+        }
+
+            .album-card:hover, .new-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 28px rgba(0,0,0,.12);
+            }
+
+        .album-media {
+            aspect-ratio: 4/3;
+            min-height: 180px;
+            background: #f4f6f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+            .album-media img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center;
+                display: block;
+                transition: transform .25s ease;
+            }
+
+        .album-card:hover .album-media img {
+            transform: scale(1.03);
+        }
+
+        .album-body {
+            padding: .85rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .5rem;
+        }
+
+        .album-title {
+            margin: 0;
+            font-weight: 700;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .album-actions {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        /* ====== Card crear nuevo ====== */
+        .new-card {
+            border: 2px dashed rgba(0,0,0,.12);
+            background: #fafcfd;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .new-icon {
+            width: 84px;
+            height: 84px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #e8f5ed;
+            color: #198754; /* icono de la card crear */
+            margin: 0 auto 1rem;
+        }
+
+        /* Paginación */
+        .pagination .page-link {
+            border: 0;
+            border-radius: .6rem;
+            margin: 0 .25rem;
+            padding: .5rem .85rem;
+            background: #f1f5f9;
+            color: #111827;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: #198754; /* puedes cambiarlo a tu primario si quieres */
+            color: #fff;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            opacity: .6;
+        }
+
+        .album-card a, .new-card a {
+            text-decoration: none !important;
+            color: inherit !important;
+        }
+
+        /* ====== Modal crear álbum ====== */
+        .modal-create .modal-header {
+            background: #198754; /* si prefieres, cámbialo a tu primario */
+            color: #fff;
+        }
+
+        .modal-create .form-text {
+            color: #6c757d;
+        }
+
+        .modal-create .input-group-text {
+            background: #f8fafc;
+        }
+    </style>
+}
+
+<div class="welcome-section">
+    <div class="page-wrap container py-5">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+            <h2 class="fw-bold m-0">@ViewData["Title"]</h2>
+            <!-- Botón abre modal en lugar de ir a otra página -->
+            <button class="btn primary" data-bs-toggle="modal" data-bs-target="#modalCrearAlbum">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo álbum
+            </button>
+        </div>
+
+        <div class="albums-grid">
+            @foreach (var album in Model.ListAlbums)
+            {
+                <div>
+                    <div class="album-card">
+                        <!-- Card clickeable completa -->
+                        <a href="@Url.Action("DetailsAlbum", "Albums", new { idAlbum = album.IdAlbum })"
+                           class="stretched-link"
+                           aria-label="Abrir álbum @album.NombreAlbum"></a>
+
+                        <div class="album-media">
+                            @if (album.FotoReciente != null && album.FotoReciente.Length > 0)
+                            {
+                                var base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(album.FotoReciente);
+                                <img src="@base64Image" alt="Portada de @album.NombreAlbum" loading="lazy" decoding="async" />
+                            }
+                            else
+                            {
+                                <img src="https://st2.depositphotos.com/2586633/46477/v/450/depositphotos_464771766-stock-illustration-no-photo-or-blank-image.jpg"
+                                     alt="Sin portada" loading="lazy" decoding="async" />
+                            }
                         </div>
-                        <p class="card-text fw-bold mt-3">Crear nuevo álbum</p>
+
+                        <div class="album-body">
+                            <h5 class="album-title flex-grow-1" title="@album.NombreAlbum">@album.NombreAlbum</h5>
+
+                            <!-- Botones por encima del stretched-link -->
+                            <div class="album-actions">
+                                <button class="btn secondary btn-sm"
+                                        type="button"
+                                        title="Editar álbum"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalEditarAlbum_@album.IdAlbum">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+
+                                <form method="post"
+                                      action='@Url.Action("DeleteAlbum", "Albums")'
+                                      class="delete-form m-0">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="idAlbum" value="@album.IdAlbum" />
+                                    <button type="button"
+                                            class="btn danger btn-sm btn-confirm-delete"
+                                            title="Eliminar álbum"
+                                            data-modal="#confirmDeleteAlbum"
+                                            data-confirm="confirmDeleteBtn">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                </a>
+                </div>
+
+                <!-- Modal editar -->
+                <div class="modal fade" id="modalEditarAlbum_@album.IdAlbum" tabindex="-1" aria-labelledby="modalEditarAlbumLabel_@album.IdAlbum" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form asp-action="EditarAlbum" asp-controller="Albums" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="IdAlbum" value="@album.IdAlbum" />
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalEditarAlbumLabel_@album.IdAlbum">Editar Álbum</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="nombreAlbum_@album.IdAlbum" class="form-label">Nombre del álbum</label>
+                                        <input type="text"
+                                               name="NombreAlbum"
+                                               value="@album.NombreAlbum"
+                                               class="form-control"
+                                               id="nombreAlbum_@album.IdAlbum"
+                                               required />
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn primary">Guardar cambios</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Card “Crear nuevo”: ahora abre modal -->
+            <div style="height:303px">
+                <div class="new-card text-center">
+                    <button type="button" class="stretched-link btn p-0 border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#modalCrearAlbum" aria-label="Crear nuevo álbum"></button>
+                    <div class="p-3">
+                        <div class="new-icon mx-auto mb-3">
+                            <i class="bi bi-plus-lg" style="font-size:2rem;"></i>
+                        </div>
+                        <p class="fw-semibold mb-0">Crear nuevo álbum</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    @if (Model.TotalPaginas > 1)
-    {
-        <nav aria-label="Navegación de álbumes" class="mt-5 d-flex justify-content-center">      
+        @if (Model.TotalPaginas > 1)
+        {
+            <nav aria-label="Navegación de álbumes" class="mt-5 d-flex justify-content-center">
                 <ul class="pagination">
                     <li class="page-item @(Model.TienePaginaAnterior ? "" : "disabled")">
-                        <a class="page-link text-black bg-lightgreen" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a>
+                        <a class="page-link" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a>
                     </li>
-
                     @for (int i = 1; i <= Model.TotalPaginas; i++)
                     {
                         <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
-                        <a class="page-link text-black bg-lightgreen @(i == Model.PaginaActual ? "bg-success text-black" : "bg-light")" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@i">@i</a>
+                            <a class="page-link" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@i">@i</a>
                         </li>
                     }
                     <li class="page-item @(Model.TienePaginaSiguiente ? "" : "disabled")">
-                        <a class="page-link text-black bg-lightgreen" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a>
+                        <a class="page-link" asp-controller="Albums" asp-action="ListAlbum" asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a>
                     </li>
                 </ul>
-        </nav>
-    }
+            </nav>
+        }
+    </div>
 </div>
 
-<style>
-    .card:hover {
-        transform: translateY(-5px);
-    }
+<!-- Modal crear álbum (ligero sobre la pantalla) -->
+<div class="modal fade modal-create" id="modalCrearAlbum" tabindex="-1" aria-labelledby="modalCrearAlbumLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="formCrearAlbum" asp-action="CrearAlbum" asp-controller="Albums" method="post" novalidate>
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCrearAlbumLabel">Nuevo álbum</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold" for="nombreAlbum">Nombre del álbum</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-journal"></i>
+                            </span>
+                            <input type="text" class="form-control form-control-lg" id="nombreAlbum" name="nombreAlbum" maxlength="80" required placeholder="Ej: Vacaciones con mi perro">
+                            <div class="invalid-feedback">Escribe un nombre (máx. 80).</div>
+                        </div>
+                        <div class="form-text">Podrás añadir fotos después.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button id="btnCrear" type="submit" class="btn primary">
+                        <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
+                        Crear álbum
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-    .card a {
-        text-decoration: none !important;
-        color: inherit !important;
-    }
-</style>
-
-
+<!-- Modal confirmación global (eliminar álbum) -->
 <div class="modal fade" id="confirmDeleteAlbum" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -154,8 +325,8 @@
                 ¿Estás seguro de que deseas eliminar este álbum?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+                <button type="button" class="btn secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn danger" id="confirmDeleteBtn">Eliminar</button>
             </div>
         </div>
     </div>
@@ -164,26 +335,56 @@
 <script>
     let formToSubmit;
 
+    // Confirmación de borrado (reutiliza un único modal)
     document.querySelectorAll('.btn-confirm-delete').forEach(button => {
-      button.addEventListener('click', function () {
-        formToSubmit = this.closest('form');
+        button.addEventListener('click', function () {
+            formToSubmit = this.closest('form');
+            const modalId = this.dataset.modal;      // "#confirmDeleteAlbum"
+            const confirmId = this.dataset.confirm;  // "confirmDeleteBtn"
 
-        const modalId = this.dataset.modal;      // "#confirmDeleteModal" o "#confirmDeleteNoteModal"
-        const confirmId = this.dataset.confirm;  // "confirmDeleteBtn" o "confirmDeleteNoteBtn"
+            const modal = new bootstrap.Modal(document.querySelector(modalId));
+            modal.show();
 
-        const modal = new bootstrap.Modal(document.querySelector(modalId));
-        modal.show();
-
-        const confirmBtn = document.getElementById(confirmId);
-
-        // Quitamos cualquier listener previo para evitar duplicados
-        confirmBtn.replaceWith(confirmBtn.cloneNode(true));
-
-        document.getElementById(confirmId).addEventListener('click', function () {
-          if (formToSubmit) {
-            formToSubmit.submit();
-          }
+            const confirmBtn = document.getElementById(confirmId);
+            // Evitar listeners duplicados
+            confirmBtn.replaceWith(confirmBtn.cloneNode(true));
+            document.getElementById(confirmId).addEventListener('click', function () {
+                if (formToSubmit) formToSubmit.submit();
+            });
         });
-      });
     });
+
+    // UX del modal "Crear álbum"
+    (function () {
+        const modalEl = document.getElementById('modalCrearAlbum');
+        if (!modalEl) return;
+
+        modalEl.addEventListener('shown.bs.modal', () => {
+            document.getElementById('nombreAlbum')?.focus();
+        });
+
+        const form = document.getElementById('formCrearAlbum');
+        const btnCrear = document.getElementById('btnCrear');
+        const spinner = btnCrear.querySelector('.spinner-border');
+
+        form.addEventListener('submit', (e) => {
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+                form.classList.add('was-validated');
+                return;
+            }
+            // spinner visual al enviar (el servidor redirigirá)
+            btnCrear.disabled = true;
+            spinner.classList.remove('d-none');
+        });
+
+        // Al cerrar, limpia estado visual del form
+        modalEl.addEventListener('hidden.bs.modal', () => {
+            form.reset();
+            form.classList.remove('was-validated');
+            btnCrear.disabled = false;
+            spinner.classList.add('d-none');
+        });
+    })();
 </script>

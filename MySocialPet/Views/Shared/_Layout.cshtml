@@ -73,26 +73,27 @@
                     </ul>
                 </div>
 
-                <!-- Enlaces -->
+                <!-- Enlaces (van a secciones del Home) -->
                 <div class="col-md-2 col-lg-2 col-xl-2 mb-4">
                     <h6>Enlaces</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#sobre">Sobre</a></li>
-                        <li><a href="#caracteristicas">Características</a></li>
-                        <li><a href="#comunidad">Comunidad</a></li>
-                        <li><a href="#contacto">Contacto</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" asp-fragment="sobre">Sobre</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" asp-fragment="caracteristicas">Características</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" asp-fragment="comunidad">Comunidad</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" asp-fragment="contacto">Contacto</a></li>
                     </ul>
                 </div>
 
-                <!-- Legal -->
+                <!-- Legal (van a secciones dentro de la vista Legal) -->
                 <div class="col-md-3 col-lg-3 col-xl-2 mb-4">
                     <h6>Legal</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#">Política de privacidad</a></li>
-                        <li><a href="#">Términos y condiciones</a></li>
-                        <li><a href="#">Cookies</a></li>
+                        <li><a asp-controller="Home" asp-action="Privacy" asp-fragment="privacidad">Política de privacidad</a></li>
+                        <li><a asp-controller="Home" asp-action="Privacy" asp-fragment="terminos">Términos y condiciones</a></li>
+                        <li><a asp-controller="Home" asp-action="Privacy" asp-fragment="cookies">Cookies</a></li>
                     </ul>
                 </div>
+
             </div>
 
             <hr class="mb-3">

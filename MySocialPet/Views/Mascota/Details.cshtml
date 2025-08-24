@@ -3,240 +3,409 @@
     ViewData["Title"] = "Detalle de Mascota";
     var mascota = Model.DetailMascota;
     var Evento = Model.Evento;
+
+    // ---- valores de UI (solo frontend) ----
+    int bcsVal = mascota.BCS ?? 0;
+    int bcsPercent = (int)Math.Round((double)bcsVal / 9 * 100);
+    if (bcsPercent < 0) bcsPercent = 0;
+    if (bcsPercent > 100) bcsPercent = 100;
+
+    string generoChip = mascota.Genero ?? "—";
+    string razaNombre = mascota.Raza?.NombreRaza ?? "Sin especificar";
+    string infoRaza = string.IsNullOrWhiteSpace(mascota.Raza?.Informacion) ? "Sin información disponible." : mascota.Raza.Informacion;
+
+    string imgSrc;
+    if (mascota.Foto != null)
+    {
+        var base64 = Convert.ToBase64String(mascota.Foto);
+        imgSrc = $"data:image/jpeg;base64,{base64}";
+    }
+    else
+    {
+        imgSrc = Url.Content("~/src/defecto.png");
+    }
 }
 
-<div class="container pt-nav test mb-2">
-    <div class="card shadow rounded pb-1">
-        <div class="row g-0">
+<style>
+    /* ===== CARD MASCOTA (solo estilos de frontend) ===== */
+    .pet-card {
+        border: 0;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 18px 48px rgba(0,0,0,.12);
+        transition: none !important; /* sin hover */
+    }
 
-            <!-- Imagen -->
-            <div class="col-md-4 text-center p-3">
-                @if (mascota.Foto != null)
-                {
-                    var base64 = Convert.ToBase64String(mascota.Foto);
-                    var imgSrc = String.Format("data:image/jpeg;base64,{0}", base64);
-                    <img src="@imgSrc" class="img-fluid rounded" alt="Foto de @mascota.Nombre" />
-                }
-                else
-                {
-                    <img src="~/src/defecto.png" class="img-fluid rounded" alt="Sin foto" />
-                }
-                @if (Evento != null)
-                {
-                 <div class="mt-3 p-3 bg-light rounded shadow-sm border">
-                    <h5 class="text-primary mb-2">
-                        <i class="bi bi-calendar-event-fill me-2"></i>Próximo Evento
-                    </h5>
-                <ul class="list-unstyled mb-0">
-                    <li><strong>Título:</strong> @Evento.Titulo</li>
-                    <li><strong>Fecha:</strong> @Evento.FechaHora.ToString("dd/MM/yyyy HH:mm")</li>
-                    <li><strong>Notas:</strong> @Evento.Notas</li>
-                </ul>
+        .pet-card:hover {
+            transform: none !important;
+        }
+
+        .pet-card .card-header {
+            background: radial-gradient(120% 140% at -10% -10%, #9BB29D 0%, #dce5dc 60%, #ffffff 100%);
+            border-bottom: 0;
+        }
+
+    .pet-media .ratio {
+        border-radius: .75rem;
+        overflow: hidden;
+        box-shadow: 0 10px 28px rgba(0,0,0,.10);
+    }
+
+    .pet-media img {
+        object-fit: cover;
+    }
+
+    .stat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        background: rgba(0,0,0,.06);
+        color: #2e3b33;
+        border-radius: 999px;
+        padding: .35rem .6rem;
+        font-size: .875rem;
+        font-weight: 600;
+    }
+
+    .bcs-wrap {
+        background: #f1f4f2;
+        border-radius: .5rem;
+        overflow: hidden;
+    }
+
+    .bcs-bar {
+        height: .6rem;
+        background: linear-gradient(90deg, #6ca47b, #9ad3a5);
+    }
+
+    .event-card {
+        border-radius: .75rem;
+        border: 1px solid rgba(0,0,0,.08);
+        background: #fff;
+        box-shadow: 0 8px 20px rgba(0,0,0,.08);
+    }
+
+        .event-card .event-head {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 800;
+            color: #2a6a46;
+        }
+
+    .pet-actions .btn {
+        border-radius: .65rem;
+    }
+
+        .pet-actions .btn i {
+            font-size: 1rem;
+        }
+
+    /* Notas */
+    .notes-card .card-header {
+        border: 0;
+    }
+
+    .notes-card .list-group-item {
+        border: 1px solid rgba(0,0,0,.06);
+        border-radius: .5rem;
+        margin-bottom: .5rem;
+    }
+</style>
+
+<div class="welcome-section">
+    <div class="container pt-5 mb-2">
+        <!-- ===== Card moderna de mascota ===== -->
+        <div class="card pet-card mb-4">
+            <!-- Encabezado -->
+            <div class="card-header py-3">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <h3 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                        <i class="bi bi-paw"></i> @Model.DetailMascota.Nombre
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="stat-chip" title="Género"><i class="bi bi-gender-ambiguous"></i>@generoChip</span>
+                        <span class="stat-chip" title="Esterilizado/a">
+                            <i class="bi bi-scissors"></i>@(mascota.Esterilizada ? "Esterilizado/a" : "Sin esterilizar")
+                        </span>
+                        <span class="stat-chip" title="Raza"><i class="bi bi-badge-ar"></i>@razaNombre</span>
+                    </div>
                 </div>
-                }
-                else
-                {
-                    <p class="text-muted">No hay eventos próximos.</p>
-                }
-
             </div>
 
-            <div class="col-md-8">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card-body">
-                            <h3 class="card-title">@Model.DetailMascota.Nombre</h3>
-                            <p class="card-text"><strong>Fecha de Nacimiento:</strong> @mascota.Nacimiento?.ToString("dd/MM/yyyy")</p>
-                            <p class="card-text"><strong>Peso:</strong> @mascota.PesoKg kg</p>
-                            <p class="card-text"><strong>Longitud:</strong> @mascota.LongitudCm cm</p>
-                            <p class="card-text"><strong>Género:</strong> @mascota.Genero</p>
-                            <p class="card-text"><strong>Indice Corporal:</strong> @mascota.BCS / 9</p>
-                            <p class="card-text"><strong>Esterilizado/a:</strong> @(mascota.Esterilizada ? "Sí" : "No")</p>
-                            <p class="card-text"><strong>Raza:</strong> @mascota.Raza?.NombreRaza</p>
-
+            <div class="row g-0">
+                <!-- Izquierda: imagen + evento -->
+                <div class="col-md-5 p-3 p-md-4">
+                    <div class="pet-media">
+                        <div class="ratio ratio-1x1 mb-3">
+                            <img src="@imgSrc" alt="Foto de @mascota.Nombre" loading="lazy" decoding="async" />
                         </div>
-                    </div>
 
-                    <div class="col-md-6 mt-5">
-                        <div class="card-body">
-                            <h3 class="card-title">Información Raza</h3>
-                            <p class="card-text">
-                                <strong>Información:</strong> @mascota.Raza?.Informacion
-                            </p>
+                        @if (Evento != null)
+                        {
+                            <div class="event-card p-3">
+                                <div class="event-head mb-1">
+                                    <i class="bi bi-calendar-event-fill"></i>
+                                    <span>Próximo evento</span>
+                                </div>
+                                <ul class="list-unstyled mb-0">
+                                    <li><strong>Título:</strong> @Evento.Titulo</li>
+                                    <li><strong>Fecha:</strong> @Evento.FechaHora.ToString("dd/MM/yyyy HH:mm")</li>
+                                    @if (!string.IsNullOrWhiteSpace(Evento.Notas))
+                                    {
+                                        <li><strong>Notas:</strong> @Evento.Notas</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-muted text-center">
+                                <small><i class="bi bi-calendar-x"></i> No hay eventos próximos.</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Derecha: datos + acciones -->
+                <div class="col-md-7">
+                    <div class="p-3 p-md-4">
+                        <!-- Datos principales -->
+                        <div class="row row-cols-2 row-cols-lg-3 g-3 mb-3">
+                            <div class="col">
+                                <div class="small text-muted">Nacimiento</div>
+                                <div class="fw-semibold">@((mascota.Nacimiento?.ToString("dd/MM/yyyy")) ?? "—")</div>
+                            </div>
+                            <div class="col">
+                                <div class="small text-muted">Peso</div>
+                                <div class="fw-semibold">@((mascota.PesoKg.ToString("0.##")) ?? "—") kg</div>
+                            </div>
+                            <div class="col">
+                                <div class="small text-muted">Longitud</div>
+                                <div class="fw-semibold">@((mascota.LongitudCm.ToString("0")) ?? "—") cm</div>
+                            </div>
+                            <div class="col">
+                                <div class="small text-muted">Índice corporal (BCS)</div>
+                                <div class="fw-semibold">@bcsVal / 9</div>
+                            </div>
+                            <div class="col">
+                                <div class="small text-muted">Género</div>
+                                <div class="fw-semibold">@generoChip</div>
+                            </div>
+                            <div class="col">
+                                <div class="small text-muted">Raza</div>
+                                <div class="fw-semibold">@razaNombre</div>
+                            </div>
+                        </div>
+
+                        <!-- Barra BCS -->
+                        <div class="mb-4">
+                            <div class="bcs-wrap">
+                                <div class="bcs-bar" style="width:@bcsPercent%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between small mt-1 text-muted">
+                                <span>Delgado</span><span>Ideal</span><span>Sobrepeso</span>
+                            </div>
+                        </div>
+
+                        <!-- Información de raza -->
+                        <div class="mb-3">
+                            <h5 class="fw-bold mb-2"><i class="bi bi-journal-text me-1"></i> Información de la raza</h5>
+                            <p class="mb-0">@infoRaza</p>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="pet-actions d-flex flex-wrap gap-2 mt-3">
+                            <a href="@Url.Action("EditMascota", "Mascota", new { id = mascota.IdMascota })"
+                               class="btn btn-outline-secondary" title="Editar" data-bs-toggle="tooltip">
+                                <i class="bi bi-pencil"></i> <span class="d-none d-sm-inline">Editar</span>
+                            </a>
+
+                            <a href="@Url.Action("SaludRegistro", "Salud", new { id = mascota.IdMascota })"
+                               class="btn btn-outline-primary" title="Salud" data-bs-toggle="tooltip">
+                                <i class="bi bi-heart-pulse"></i> <span class="d-none d-sm-inline">Salud</span>
+                            </a>
+
+                            <a href="@Url.Action("CalendarioEventos", "Salud", new { id = mascota.IdMascota })"
+                               class="btn btn-outline-success" title="Eventos" data-bs-toggle="tooltip">
+                                <i class="bi bi-calendar2-event"></i> <span class="d-none d-sm-inline">Eventos</span>
+                            </a>
+
+                            <form asp-action="DeleteMascota" asp-controller="Mascota" method="post" class="d-inline delete-form">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@mascota.IdMascota" />
+                                <button type="button"
+                                        class="btn btn-danger btn-confirm-delete"
+                                        data-modal="#confirmDeleteModal"
+                                        data-confirm="confirmDeleteBtn">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card-footer text-center">
-                <a href="@Url.Action("EditMascota", "Mascota", new { id = mascota.IdMascota })" 
-                   class="btn btn-sm" title="Editar">
-                    <i class="bi bi-pencil"></i>
-                </a>
-                <form asp-action="DeleteMascota" asp-controller="Mascota" method="post" class="d-inline delete-form">
+        </div>
+        <!-- ===== /Card moderna ===== -->
+        <!-- ===== Notas ===== -->
+        <div class="card shadow-sm mt-4 notes-card">
+            <div class="card-header bg-lightgreen text-white">
+                <h5 class="mb-0">Notas sobre @mascota.Nombre</h5>
+            </div>
+            <div class="card-body">
+                <!-- Formulario para agregar nota -->
+                <form asp-action="AgregarNota" asp-controller="Mascota" method="post" class="mb-3">
+                    @Html.AntiForgeryToken()
                     <input type="hidden" name="id" value="@mascota.IdMascota" />
-                    <button type="button" 
-                            class="btn btn-sm btn-danger btn-confirm-delete" 
-                            data-modal="#confirmDeleteModal" 
-                            data-confirm="confirmDeleteBtn">
-                        <i class="bi bi-trash"></i>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea id="descripcion" name="descripcion" class="form-control" placeholder="Escribe una nota..." rows="3" maxlength="150"></textarea>
+                        <div class="form-text text-muted">Máximo 150 caracteres.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Guardar nota
                     </button>
                 </form>
-                <a href="@Url.Action("SaludRegistro", "Salud", new { id = mascota.IdMascota })" 
-                   class="btn btn-sm" title="Salud">
-                    <i class="bi bi-heart-pulse"></i>
-                </a>
-                <a href="@Url.Action("CalendarioEventos", "Salud", new { id = mascota.IdMascota })" 
-                   class="btn btn-sm" title="Eventos">
-                    <i class="bi bi-calendar2-event"></i>
-                </a>
+
+                <hr />
+
+                <!-- Listado de notas -->
+                @if (Model.Notas != null && Model.Notas.Any())
+                {
+                    <div class="list-group">
+                        @foreach (var nota in Model.Notas)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <p class="mb-1">@nota.Descripcion</p>
+                                </div>
+                                <div class="ms-2">
+                                    <!-- Botón Editar -->
+                                    <button type="button" class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#editarNotaModal_@nota.IdNota" aria-label="Editar nota">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+
+                                    <!-- Botón Eliminar -->
+                                    <form asp-action="EliminarNota" asp-route-id="@nota.IdNota" method="post" class="d-inline delete-note-form">
+                                        @Html.AntiForgeryToken()
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger btn-confirm-delete"
+                                                data-modal="#confirmDeleteNoteModal"
+                                                data-confirm="confirmDeleteNoteBtn"
+                                                aria-label="Eliminar nota">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Modal Editar Nota -->
+                            <div class="modal fade" id="editarNotaModal_@nota.IdNota" tabindex="-1" aria-labelledby="editarNotaModalLabel_@nota.IdNota" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form asp-action="EditNota" asp-controller="Mascota" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editarNotaModalLabel_@nota.IdNota">Editar Nota</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <input type="hidden" name="IdNota" value="@nota.IdNota" />
+                                                <input type="hidden" name="IdMascota" value="@nota.IdMascota" />
+                                                <div class="mb-3">
+                                                    <label for="descripcion_@nota.IdNota" class="form-label">Descripción</label>
+                                                    <textarea class="form-control" id="descripcion_@nota.IdNota" name="Descripcion" rows="3" maxlength="150">@nota.Descripcion</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-primary">Guardar</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No hay notas aún.</p>
+                }
+            </div>
+        </div>
+        <!-- ===== /Notas ===== -->
+    </div>
+</div>
+
+<!-- Modales de confirmación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteLabel">Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar esta mascota?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
             </div>
         </div>
     </div>
-
-   <div class="card shadow-sm mt-4">
-    <div class="card-header bg-lightgreen text-white">
-        <h5 class="mb-0">Notas sobre @mascota.Nombre</h5>
-    </div>
-    <div class="card-body">
-        <!-- Formulario para agregar nota -->
-        <form asp-action="AgregarNota" asp-controller="Mascota" method="post" class="mb-3">
-            <input type="hidden" name="id" value="@mascota.IdMascota" />
-            <div class="mb-3">
-                <textarea name="descripcion" class="form-control" placeholder="Escribe una nota..." rows="3" maxlength="150"></textarea>
-                <div class="form-text text-muted">Máximo 150 caracteres.</div>
-            </div>
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-1"></i> Guardar nota
-            </button>
-        </form>
-
-        <hr />
-
-        <!-- Listado de notas -->
-        @if (Model.Notas != null && Model.Notas.Any())
-        {
-            <div class="list-group">
-                @foreach (var nota in Model.Notas)
-                {
-                    <div class="list-group-item d-flex justify-content-between align-items-start">
-                        <div class="flex-grow-1">
-                            <p class="mb-1">@nota.Descripcion</p>
-                        </div>
-                        <div class="ms-2">
-                            <!-- Botón Editar -->
-                            <button type="button" class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#editarNotaModal_@nota.IdNota">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-
-                            <!-- Botón Eliminar -->
-                        <form asp-action="EliminarNota" asp-route-id="@nota.IdNota" method="post" class="d-inline delete-note-form">
-                        <button type="button" 
-                                class="btn btn-sm btn-danger btn-confirm-delete" 
-                                data-modal="#confirmDeleteNoteModal" 
-                                data-confirm="confirmDeleteNoteBtn">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
-                        </div>
-                    </div>
-
-                    <!-- Modal Editar Nota -->
-                    <div class="modal fade" id="editarNotaModal_@nota.IdNota" tabindex="-1" aria-labelledby="editarNotaModalLabel_@nota.IdNota" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form asp-action="EditNota" asp-controller="Mascota" method="post">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editarNotaModalLabel_@nota.IdNota">Editar Nota</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <input type="hidden" name="IdNota" value="@nota.IdNota" />
-                                        <input type="hidden" name="IdMascota" value="@nota.IdMascota" />
-                                        <div class="mb-3">
-                                            <label for="descripcion_@nota.IdNota" class="form-label">Descripción</label>
-                                            <textarea class="form-control" id="descripcion_@nota.IdNota" name="Descripcion" rows="3" maxlength="150">@nota.Descripcion</textarea>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-primary">Guardar</button>
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <p class="text-muted">No hay notas aún.</p>
-        }
-    </div>
-</div>
-</div>
-
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="confirmDeleteLabel">Confirmar eliminación</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        ¿Estás seguro de que deseas eliminar esta mascota?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <div class="modal fade" id="confirmDeleteNoteModal" tabindex="-1" aria-labelledby="confirmDeleteNoteLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="confirmDeleteNoteLabel">Confirmar eliminación</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        ¿Estás seguro de que deseas eliminar esta nota?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteNoteBtn">Eliminar</button>
-      </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteNoteLabel">Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar esta nota?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteNoteBtn">Eliminar</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
-  let formToSubmit;
+    // Delegación para confirmaciones de borrado (mascota y nota)
+    document.addEventListener('click', function (e) {
+      const trigger = e.target.closest('.btn-confirm-delete');
+      if (!trigger) return;
 
-  document.querySelectorAll('.btn-confirm-delete').forEach(button => {
-    button.addEventListener('click', function () {
-      formToSubmit = this.closest('form');
+      const form = trigger.closest('form');
+      const modalSelector = trigger.dataset.modal;   // "#confirmDeleteModal" o "#confirmDeleteNoteModal"
+      const confirmId     = trigger.dataset.confirm; // "confirmDeleteBtn" o "confirmDeleteNoteBtn"
 
-      const modalId = this.dataset.modal;      // "#confirmDeleteModal" o "#confirmDeleteNoteModal"
-      const confirmId = this.dataset.confirm;  // "confirmDeleteBtn" o "confirmDeleteNoteBtn"
+      const modalEl = document.querySelector(modalSelector);
+      if (!modalEl || !form) return;
 
-      const modal = new bootstrap.Modal(document.querySelector(modalId));
+      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
       modal.show();
 
-      const confirmBtn = document.getElementById(confirmId);
+      // Botón de confirmación dentro del modal correspondiente
+      const confirmBtn = modalEl.querySelector('#' + confirmId);
+      if (!confirmBtn) return;
 
-      // Quitamos cualquier listener previo para evitar duplicados
-      confirmBtn.replaceWith(confirmBtn.cloneNode(true));
-
-      document.getElementById(confirmId).addEventListener('click', function () {
-        if (formToSubmit) {
-          formToSubmit.submit();
-        }
-      });
+      // Limpiar y asignar único handler
+      confirmBtn.onclick = null;
+      confirmBtn.onclick = function () {
+        if (form.requestSubmit) form.requestSubmit();
+        else form.submit();
+      };
     });
-  });
+
+    // Tooltips Bootstrap (solo UI)
+    (function () {
+      const t = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      t.forEach(el => new bootstrap.Tooltip(el));
+    })();
 </script>
-
-

@@ -5,8 +5,8 @@
     @Html.AntiForgeryToken()
     ViewData["Title"] = "Calendario de " + Model.NombreMascota;
 }
-<div class="welcome-section container test">
-    <div class="container my-5 text-lg-start text-center test">
+<div class="welcome-section container ">
+    <div class="container my-5 text-lg-start text-center ">
             <h2 class="fw-bold display-6">@ViewData["Title"]</h2>
             @await Component.InvokeAsync("MascotaSelector", new { mascotaIdActual = Model.IdMascota,
             controlador = "Salud", 

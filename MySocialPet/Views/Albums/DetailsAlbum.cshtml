@@ -4,267 +4,612 @@
     ViewData["Title"] = "Detalles Álbum";
 }
 
-<div class="container pt-nav mb-5">
-    <div class="card shadow-lg border-0 mb-4">
-        
-            <div class="card-header bg-lightgreen text-white d-flex justify-content-between align-items-center">
-    <a href="@Url.Action("ListAlbum", "Albums")" class="btn btn-light btn-sm text-white me-3" title="Volver a mis álbumes">
-        <i class="bi bi-arrow-left text-white"></i> Volver
-    </a>
+<div class="container pt-nav welcome-section quitar-amarillo py-5">
 
-    <h4 class="mb-0 flex-grow-1 text-center">@Model.NombreAlbum</h4>
-    <span class="badge bg-light text-dark ms-3">@Model.TotalFotos fotos</span>
+    <!-- Header / Toolbar -->
+    <div class="card shadow-lg border-0 mb-4 w-100">
+        <div class="card-header bg-light d-flex flex-wrap align-items-center justify-content-between gap-3">
 
-    <!-- Dropdown filtro -->
-    <div class="dropdown ms-3">
-        <span type="button" id="dropdownFilter" data-bs-toggle="dropdown" aria-expanded="false">
-            <img class="btn btn-light p-1" width="35px" src="@Url.Content("~/src/foro/icons/Filtro.svg")" />
-        </span>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownFilter">
-            <li>
-                <a class="dropdown-item"
-                   asp-action="DetailsAlbum"
-                   asp-route-idAlbum="@Model.IdAlbum"
-                   asp-route-ordenarPor="recientes"
-                   asp-route-pagina="@Model.PaginaActual">
-                   Más recientes
+            <!-- Izquierda: back + título + count -->
+            <div class="d-flex align-items-center gap-3">
+                <a href="@Url.Action("ListAlbum", "Albums")"
+                   class="btn secondary btn-sm" title="Volver a mis álbumes">
+                    <i class="bi bi-arrow-left"></i>
+                    <span class="d-none d-sm-inline">Volver</span>
                 </a>
-            </li>
-            <li>
-                <a class="dropdown-item"
-                   asp-action="DetailsAlbum"
-                   asp-route-idAlbum="@Model.IdAlbum"
-                   asp-route-ordenarPor="antiguos"
-                   asp-route-pagina="@Model.PaginaActual">
-                   Más antiguos
-                </a>
-            </li>
-        </ul>
-    </div>
-</div>
+
+                <div class="ms-1">
+                    <div class="small text-muted">Álbum</div>
+                    <h4 class="mb-0">@Model.NombreAlbum</h4>
+                </div>
+
+                <span class="badge rounded-pill bg-success-subtle text-success-emphasis">
+                    @Model.TotalFotos foto@(Model.TotalFotos == 1 ? "" : "s")
+                </span>
+            </div>
+
+            <!-- Derecha: Ordenar + Añadir foto -->
+            <div class="d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn secondary btn-sm dropdown-toggle" id="dropdownFilter"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-funnel"></i> Ordenar
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownFilter">
+                        <li>
+                            <a class="dropdown-item"
+                               asp-action="DetailsAlbum"
+                               asp-route-idAlbum="@Model.IdAlbum"
+                               asp-route-ordenarPor="recientes"
+                               asp-route-pagina="@Model.PaginaActual">
+                                Más recientes
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               asp-action="DetailsAlbum"
+                               asp-route-idAlbum="@Model.IdAlbum"
+                               asp-route-ordenarPor="antiguos"
+                               asp-route-pagina="@Model.PaginaActual">
+                                Más antiguos
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <button class="btn primary btn-sm"
+                        data-bs-toggle="modal" data-bs-target="#modalInsertarFoto">
+                    <i class="bi bi-plus-lg"></i>
+                    <span class="d-none d-sm-inline">Añadir foto</span>
+                </button>
+            </div>
         </div>
 
         <div class="card-body">
-            <div class="row g-4">
+
+            <!-- Galería -->
+            <div id="galleryGrid" class="gallery-grid">
                 @if (Model.FotosDeLaPagina != null && Model.FotosDeLaPagina.Any())
                 {
                     foreach (var foto in Model.FotosDeLaPagina)
                     {
                         var base64Image = Convert.ToBase64String(foto.Foto);
                         var imgSrc = $"data:image/png;base64,{base64Image}";
-                        var taggedPets = foto.MascotasEtiquetadas != null && foto.MascotasEtiquetadas.Any()
+                        var taggedPets = (foto.MascotasEtiquetadas != null && foto.MascotasEtiquetadas.Any())
                         ? string.Join(", ", foto.MascotasEtiquetadas.Where(m => m.Mascota != null).Select(m => m.Mascota.Nombre))
                         : "Ninguna";
 
-                        <div class="col-md-3">
-                            <div class="card shadow-sm border-0 overflow-hidden" style="transition: transform 0.3s;">
-                             <div data-fancybox="gallery"
-                                     data-src="@imgSrc"
-                                data-caption=" 
-                   <h5>@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(foto.Titulo ?? ""))</h5>
-                   <p>@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(foto.Descripcion ?? ""))</p>
-                   <p><strong>Fecha:</strong> @foto.Fecha.ToString("dd/MM/yyyy")</p>
-                   <p><strong>Mascotas:</strong> @Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(taggedPets))</p>
-                   <div class='d-flex justify-content-center mt-2'>
-                       <a href='@Url.Action("EditarFoto", "Albums", new { idFoto = foto.IdFoto })'
-                          class='btn btn-outline-light me-2' title='Editar foto'>
-                           <i class='bi bi-pencil-square'></i>
-                       </a>
-                       <form method='post'
-                             class='delete-photo-form'
-                             style='display: inline;'
-                             data-idfoto='@foto.IdFoto'
-                             data-delete-url='@Url.Action("DeleteFoto", "Albums")'>
-                           <button type='submit' title='Eliminar foto' class='btn btn-outline-danger'>
-                               <i class='bi bi-trash'></i>
-                           </button>
-                       </form>
-                   </div>
-               </div>">
-                                              
-                                    <img src="@imgSrc"
-                                         class="card-img-top"
-                                         alt="@foto.Titulo"
-                                         style="height: 200px; object-fit: cover; cursor: pointer; transition: opacity 0.3s;">
-                                </div>
+                        <figure class="gallery-card">
+                            <!-- Fancybox (solo metadatos; sin botones) -->
+                            <a class="gallery-link" data-fancybox="gallery"
+                               data-src="@imgSrc"
+                               aria-label="Ver @foto.Titulo"
+                               data-caption="
+                                                   <h5>@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(foto.Titulo ?? ""))</h5>
+                                                   <p>@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(foto.Descripcion ?? ""))</p>
+                                                   <p><strong>Fecha:</strong> @foto.Fecha.ToString("dd/MM/yyyy")</p>
+                                                   <p><strong>Mascotas:</strong> @Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(taggedPets))</p>
+                                               ">
+                                                <img src="@imgSrc"
+                                                     alt="@(string.IsNullOrWhiteSpace(foto.Titulo) ? "Foto de álbum" : foto.Titulo)"
+                                                     class="gallery-img"
+                                                     loading="lazy" decoding="async">
+                                            </a>
 
-                                <div class="card-body text-center p-2">
-                                    <h6 class="card-title mb-0">@foto.Titulo</h6>
+                            <!-- Overlay de acciones (hover) -->
+                            <figcaption class="gallery-caption">
+                                <div class="text-truncate" title="@foto.Titulo">@foto.Titulo</div>
+                                <div class="caption-actions">
+                                    <a href="@Url.Action("EditarFoto", "Albums", new { idFoto = foto.IdFoto })"
+                                       class="btn secondary btn-sm" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form method="post" class="delete-photo-form d-inline"
+                                          data-idfoto="@foto.IdFoto"
+                                          data-delete-url='@Url.Action("DeleteFoto", "Albums")'>
+                                        <button type="submit" class="btn danger btn-sm" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
-                            </div>
-                        </div>
-
+                            </figcaption>
+                        </figure>
                     }
                     @Html.AntiForgeryToken()
                 }
                 else
                 {
-                    <div class="col-12 text-center">
-                        <p class="text-muted">No hay fotos en este álbum aún. ¡Agrega algunas!</p>
+                    <!-- Empty state centrado en X/Y y escalado -->
+                    <div class="empty-wrap h-100">
+                        <div class="empty-state text-center">
+                            <div class="empty-icon mb-3">
+                                <i class="bi bi-images"></i>
+                            </div>
+                            <h3 class="fw-semibold mb-2">Aún no hay fotos</h3>
+                            <p class="text-muted mb-4 fs-6">Sube tus mejores recuerdos para empezar el álbum.</p>
+                            <button class="btn primary"
+                                    data-bs-toggle="modal" data-bs-target="#modalInsertarFoto">
+                                <i class="bi bi-plus-lg"></i> Subir primera foto
+                            </button>
+                        </div>
                     </div>
                 }
             </div>
 
+            <!-- Paginación -->
             @if (Model.TotalPaginas > 1)
             {
-                <nav aria-label="Navegación de fotos" class="mt-5 d-flex justify-content-center">
-    <ul class="pagination">
-        <li class="page-item @(Model.TienePaginaAnterior ? "" : "disabled")">
-            <a class="page-link text-black bg-lightgreen"
-               asp-action="DetailsAlbum"
-               asp-route-idAlbum="@Model.IdAlbum"
-               asp-route-pagina="@(Model.PaginaActual - 1)"
-               asp-route-ordenarPor="@ViewBag.OrdenarPor">Anterior</a>
-        </li>
+                <nav aria-label="Navegación de fotos" class="mt-4 d-flex justify-content-center">
+                    <ul class="pagination pagination-sm flex-wrap gap-1">
+                        <li class="page-item @(Model.TienePaginaAnterior ? "" : "disabled")">
+                            <a class="page-link" asp-action="DetailsAlbum"
+                               asp-route-idAlbum="@Model.IdAlbum"
+                               asp-route-pagina="@(Model.PaginaActual - 1)"
+                               asp-route-ordenarPor="@ViewBag.OrdenarPor"
+                               aria-label="Anterior">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
 
-        @for (int i = 1; i <= Model.TotalPaginas; i++)
-        {
-            <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
-                <a class="page-link text-black bg-lightgreen @(i == Model.PaginaActual ? "bg-success text-black" : "bg-light")"
-                   asp-action="DetailsAlbum"
-                   asp-route-idAlbum="@Model.IdAlbum"
-                   asp-route-pagina="@i"
-                   asp-route-ordenarPor="@ViewBag.OrdenarPor">@i</a>
-            </li>
-        }
+                        @for (int i = 1; i <= Model.TotalPaginas; i++)
+                        {
+                            <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                                <a class="page-link"
+                                   asp-action="DetailsAlbum"
+                                   asp-route-idAlbum="@Model.IdAlbum"
+                                   asp-route-pagina="@i"
+                                   asp-route-ordenarPor="@ViewBag.OrdenarPor">@i</a>
+                            </li>
+                        }
 
-        <li class="page-item @(Model.TienePaginaSiguiente ? "" : "disabled")">
-            <a class="page-link text-black bg-lightgreen"
-               asp-action="DetailsAlbum"
-               asp-route-idAlbum="@Model.IdAlbum"
-               asp-route-pagina="@(Model.PaginaActual + 1)"
-               asp-route-ordenarPor="@ViewBag.OrdenarPor">Siguiente</a>
-        </li>
-    </ul>
-</nav>
+                        <li class="page-item @(Model.TienePaginaSiguiente ? "" : "disabled")">
+                            <a class="page-link" asp-action="DetailsAlbum"
+                               asp-route-idAlbum="@Model.IdAlbum"
+                               asp-route-pagina="@(Model.PaginaActual + 1)"
+                               asp-route-ordenarPor="@ViewBag.OrdenarPor"
+                               aria-label="Siguiente">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             }
         </div>
     </div>
 </div>
 
-
-
-<!-- Botón flotante y Modal (sin cambios) -->
-<button class="btn btn-verde rounded-circle shadow-lg"
-        style="position: fixed; bottom: 40px; right: 50px; width: 60px; height: 60px; font-size: 28px; line-height: 1; box-shadow: 0 0 20px rgba(0,0,0,0.875);"
-        data-bs-toggle="modal" data-bs-target="#modalInsertarFoto">
-    +
-</button>
-
+<!-- Modal Insertar Foto (mejorado: dropzone se rellena + botón quitar) -->
 <div class="modal fade" id="modalInsertarFoto" tabindex="-1" aria-labelledby="modalInsertarFotoLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form asp-action="InsertarFoto" asp-controller="Albums" method="post" enctype="multipart/form-data">
+            <form id="formInsertarFoto" asp-action="InsertarFoto" asp-controller="Albums" method="post" enctype="multipart/form-data" novalidate>
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="IdAlbum" value="@Model.IdAlbum" />
+
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalInsertarFotoLabel">Agregar Foto</h5>
+                    <h5 class="modal-title" id="modalInsertarFotoLabel">Agregar foto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
+
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Título</label>
-                        <input type="text" name="Titulo" class="form-control" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Foto</label>
-                        <input type="file" name="Foto" class="form-control" accept="image/*" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <textarea name="Descripcion" class="form-control" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Fecha</label>
-                        <input type="date" name="Fecha" class="form-control" required />
-                    </div>
-                    @if (mascotasUsuario != null)
-                    {
-                        <div class="mb-3">
-                            <label class="form-label">Mascotas Etiquetadas</label>
-                            <div>
-                                @foreach (var mascota in mascotasUsuario)
-                                {
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="MascotasEtiquetadasIds" value="@mascota.Value" id="mascota_@mascota.Value" />
-                                        <label class="form-check-label" for="mascota_@mascota.Value">@mascota.Text</label>
-                                    </div>
-                                }
-                            </div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Título</label>
+                            <input type="text" name="Titulo" id="Titulo" class="form-control" maxlength="80" required />
+                            <div class="invalid-feedback">Añade un título (máx. 80).</div>
                         </div>
-                    }
+
+                        <!-- Zona Drag & Drop. Cuando hay archivo, se usa como fondo -->
+                        <div class="col-12">
+                            <label class="form-label mb-2">Foto</label>
+
+                            <div id="dropzone" class="dropzone border rounded-3 p-3 text-center">
+                                <input id="FotoInput" type="file" name="Foto" class="visually-hidden" accept="image/*" required />
+                                <div class="dz-invite">
+                                    <i class="bi bi-cloud-arrow-up fs-2"></i>
+                                    <p class="mb-1">
+                                        Arrastra tu foto aquí o
+                                        <button type="button" class="btn secondary p-0" id="btnPick">haz clic para seleccionar</button>.
+                                    </p>
+                                    <small class="text-muted">Formatos: JPG, PNG, GIF, WEBP · Máx. recomendado 4 MB.</small>
+                                </div>
+                            </div>
+
+                            <div id="fileMeta" class="text-muted small mt-2 d-none"></div>
+                            <button type="button" id="btnRemove" class="btn danger btn-sm mt-2 d-none">
+                                <i class="bi bi-x-circle"></i> Quitar foto
+                            </button>
+
+                            <div id="fileError" class="text-danger small mt-2 d-none"></div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label d-flex justify-content-between">
+                                <span>Descripción</span>
+                                <span class="text-muted small"><span id="descCount">0</span>/500</span>
+                            </label>
+                            <textarea name="Descripcion" id="Descripcion" class="form-control" rows="3" maxlength="500" required></textarea>
+                            <div class="invalid-feedback">Añade una descripción (máx. 500).</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" name="Fecha" id="Fecha" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                            <div class="invalid-feedback">Selecciona una fecha.</div>
+                        </div>
+
+                        @if (mascotasUsuario != null)
+                        {
+                            <div class="col-12">
+                                <label class="form-label">Mascotas etiquetadas</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach (var mascota in mascotasUsuario)
+                                    {
+                                        <input class="btn-check" type="checkbox" name="MascotasEtiquetadasIds" value="@mascota.Value" id="mascota_@mascota.Value" autocomplete="off" />
+                                        <label class="btn secondary btn-sm tag-chip" for="mascota_@mascota.Value">
+                                            <i class="bi bi-tag"></i> @mascota.Text
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Subir Foto</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button id="btnSubmit" type="submit" class="btn primary" disabled>
+                        <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
+                        Subir foto
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<style>
-    .fancybox-caption {
-        text-align: center;
-        padding: 20px;
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-    }
+<!-- Toasts -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
+    <div id="toastInfo" class="toast align-items-center text-bg-success border-0" role="status" aria-live="polite" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">Operación realizada con éxito.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+    </div>
+    <div id="toastError" class="toast align-items-center text-bg-danger border-0 mt-2" role="status" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">Ha ocurrido un error. Inténtalo de nuevo.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+    </div>
+</div>
 
-    .custom-caption h5, .custom-caption p {
-        margin-bottom: 5px;
-    }
-</style>
+@section Styles {
+    <style>
+        /* ====== Galería ====== */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 1rem;
+        }
 
+        .gallery-card {
+            position: relative;
+            margin: 0;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #f7f9fb;
+            box-shadow: 0 6px 18px rgba(0,0,0,.06);
+            transition: transform .15s ease, box-shadow .15s ease;
+            cursor: zoom-in;
+        }
+
+            .gallery-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 26px rgba(0,0,0,.12);
+            }
+
+        .gallery-link {
+            display: block;
+            line-height: 0;
+        }
+
+        .gallery-img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            display: block;
+            transition: transform .3s ease, opacity .2s ease;
+            will-change: transform;
+        }
+
+        .gallery-card:hover .gallery-img {
+            transform: scale(1.02);
+        }
+
+        /* Overlay de acciones */
+        .gallery-caption {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .5rem;
+            padding: .5rem .6rem;
+            background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0));
+            color: #fff;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity .2s ease, transform .2s ease;
+            pointer-events: none;
+        }
+
+        .gallery-card:hover .gallery-caption {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .caption-actions .btn {
+            padding: .25rem .5rem;
+        }
+
+        /* ====== Empty state centrado y escalado ====== */
+        .gallery-grid:has(.empty-wrap) {
+            display: grid;
+        }
+
+        .empty-wrap {
+            grid-column: 1 / -1;
+            width: 100%;
+            min-height: clamp(420px, 60vh, 720px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-state {
+            max-width: 560px;
+        }
+
+        .empty-icon i {
+            font-size: 3.25rem;
+            color: #6c757d;
+        }
+
+        /* Fancybox caption centrada */
+        .fancybox__caption {
+            text-align: center;
+        }
+
+        /* Paginación redondeada */
+        .pagination .page-link {
+            border-radius: .75rem;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #9BB29D;
+            border-color: #9BB29D;
+        }
+
+        /* ====== Modal: Dropzone rellenada con la imagen ====== */
+        .dropzone {
+            min-height: 260px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bs-light, #f8f9fa);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            outline: 2px dashed rgba(0,0,0,.15);
+            outline-offset: -10px;
+            transition: outline-color .2s ease, background .2s ease, box-shadow .2s ease;
+        }
+
+            .dropzone.dz-hover {
+                outline-color: #9BB29D;
+                background-color: rgba(25,135,84,.06);
+                box-shadow: 0 0 0 3px rgba(25,135,84,.15) inset;
+            }
+
+            .dropzone.dz-hasfile {
+                padding: 0;
+                outline-style: solid;
+                outline-color: rgba(0,0,0,.08);
+            }
+
+                .dropzone.dz-hasfile .dz-invite {
+                    display: none;
+                }
+
+        #btnPick {
+            font-weight: 600;
+        }
+
+        .tag-chip {
+            border-radius: 999px;
+            padding: .25rem .6rem;
+        }
+
+        #FotoInput.visually-hidden {
+            position: absolute !important;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            border: 0;
+            padding: 0;
+            clip: rect(0 0 0 0);
+            overflow: hidden;
+        }
+    </style>
+}
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
- <script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Fancybox
+            if (window.Fancybox) {
+                Fancybox.bind("[data-fancybox='gallery']", { Thumbs: { autoStart: true } });
+            }
 
-            Fancybox.bind("[data-fancybox='gallery']", {
-            });
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            const toastInfoEl = document.getElementById('toastInfo');
+            const toastErrorEl = document.getElementById('toastError');
+            const toastInfo = toastInfoEl ? new bootstrap.Toast(toastInfoEl) : null;
+            const toastError = toastErrorEl ? new bootstrap.Toast(toastErrorEl) : null;
 
+            // Delegación para eliminar (galería)
             document.addEventListener('submit', function (event) {
-                if (event.target.matches('.delete-photo-form')) {
-                    event.preventDefault(); 
+                const form = event.target;
+                if (!form.matches('.delete-photo-form')) return;
+                event.preventDefault();
 
-                    const form = event.target; 
+                if (!confirm('¿Seguro que deseas eliminar esta foto?')) return;
 
-                    if (confirm('¿Seguro que deseas eliminar esta foto?')) {
-                        const idFoto = form.getAttribute('data-idfoto');
-                        const deleteUrl = form.getAttribute('data-delete-url');
-                        const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const idFoto = form.getAttribute('data-idfoto');
+                const deleteUrl = form.getAttribute('data-delete-url');
+                const antiForgeryToken = tokenInput ? tokenInput.value : '';
 
-                        fetch(deleteUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'RequestVerificationToken': antiForgeryToken
-                            },
-                            body: `idFoto=${idFoto}` // Enviamos como form-urlencoded
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                // Para una mejor experiencia, es bueno notificar antes de recargar
-                                alert('Foto eliminada con éxito.');
-                                window.location.reload();
-                            } else {
-                                // Si el servidor devuelve un error (p.ej. un 400 o 500)
-                                alert('Error al eliminar la foto.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error de red:', error);
-                            alert('Error de red al eliminar la foto.');
-                        });
+                fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': antiForgeryToken
+                    },
+                    body: `idFoto=${encodeURIComponent(idFoto)}`
+                })
+                .then(res => {
+                    if (res.ok) {
+                        if (toastInfo) {
+                            toastInfoEl.querySelector('.toast-body').textContent = 'Foto eliminada con éxito.';
+                            toastInfo.show();
+                        }
+                        setTimeout(() => window.location.reload(), 650);
+                    } else {
+                        if (toastError) {
+                            toastErrorEl.querySelector('.toast-body').textContent = 'Error al eliminar la foto.';
+                            toastError.show();
+                        }
                     }
-                }
+                })
+                .catch(() => {
+                    if (toastError) {
+                        toastErrorEl.querySelector('.toast-body').textContent = 'Error de red al eliminar la foto.';
+                        toastError.show();
+                    }
+                });
             });
+
+            // ===== Modal: drag & drop + preview como fondo + quitar =====
+            (function () {
+                const form = document.getElementById('formInsertarFoto');
+                if (!form) return;
+
+                const fotoInput  = document.getElementById('FotoInput');
+                const dropzone   = document.getElementById('dropzone');
+                const fileMeta   = document.getElementById('fileMeta');
+                const fileError  = document.getElementById('fileError');
+                const btnPick    = document.getElementById('btnPick');
+                const btnRemove  = document.getElementById('btnRemove');
+                const btnSubmit  = document.getElementById('btnSubmit');
+                const spinner    = btnSubmit.querySelector('.spinner-border');
+                const desc       = document.getElementById('Descripcion');
+                const descCount  = document.getElementById('descCount');
+                const fecha      = document.getElementById('Fecha');
+
+                const MB = 1024 * 1024;
+                const MAX_SIZE = 4 * MB;
+                const ALLOWED = ['image/jpeg','image/png','image/gif','image/webp'];
+
+                const humanSize = (b)=> b<1024?`${b} B`: b<1048576?`${(b/1024).toFixed(1)} KB`:`${(b/1048576).toFixed(1)} MB`;
+                const setError = (m)=>{ fileError.textContent=m||''; fileError.classList.toggle('d-none', !m); };
+
+                function clearFile(){
+                    fotoInput.value='';
+                    dropzone.style.backgroundImage='';
+                    dropzone.classList.remove('dz-hasfile');
+                    fileMeta.classList.add('d-none');
+                    btnRemove.classList.add('d-none');
+                    setError('');
+                    btnSubmit.disabled = true;
+                }
+                function showPreview(file){
+                    const url = URL.createObjectURL(file);
+                    dropzone.style.backgroundImage = `url('${url}')`;
+                    dropzone.classList.add('dz-hasfile');
+                    fileMeta.textContent = `${file.name} · ${file.type || 'imagen'} · ${humanSize(file.size)}`;
+                    fileMeta.classList.remove('d-none');
+                    btnRemove.classList.remove('d-none');
+                    btnSubmit.disabled = false;
+                }
+                function validateFile(file){
+                    if (!file) return false;
+                    if (!ALLOWED.includes(file.type)){ setError('Formato no soportado. Usa JPG, PNG, GIF o WEBP.'); return false; }
+                    if (file.size > MAX_SIZE){ setError('La imagen supera 4 MB. Comprime o elige otra.'); return false; }
+                    setError('');
+                    return true;
+                }
+
+                // Drag & drop
+                ['dragenter','dragover'].forEach(ev =>
+                    dropzone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropzone.classList.add('dz-hover'); })
+                );
+                ['dragleave','drop'].forEach(ev =>
+                    dropzone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropzone.classList.remove('dz-hover'); })
+                );
+                dropzone.addEventListener('drop', e => {
+                    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+                    if (!file) return;
+                    if (!validateFile(file)) { clearFile(); return; }
+                    const dt = new DataTransfer(); dt.items.add(file); fotoInput.files = dt.files;
+                    showPreview(file);
+                });
+
+                // Botones
+                btnPick.addEventListener('click', () => fotoInput.click());
+                btnRemove.addEventListener('click', clearFile);
+
+                // Selector de archivo
+                fotoInput.addEventListener('change', () => {
+                    const file = fotoInput.files[0];
+                    if (!file) { clearFile(); return; }
+                    if (!validateFile(file)) { clearFile(); return; }
+                    showPreview(file);
+                });
+
+                // Contador descripción
+                const updateCount = () => descCount.textContent = (desc.value || '').length;
+                desc.addEventListener('input', updateCount); updateCount();
+
+                // Fecha hoy por defecto si falta
+                if (!fecha.value) {
+                    const t = new Date(); const mm = String(t.getMonth()+1).padStart(2,'0'); const dd = String(t.getDate()).padStart(2,'0');
+                    fecha.value = `${t.getFullYear()}-${mm}-${dd}`;
+                }
+
+                // Submit con validación + spinner
+                form.addEventListener('submit', (e) => {
+                    if (!form.checkValidity() || !fotoInput.files[0] || !validateFile(fotoInput.files[0])) {
+                        e.preventDefault(); e.stopPropagation();
+                        form.classList.add('was-validated');
+                        if (!fotoInput.files[0]) setError('Selecciona una imagen.');
+                        return;
+                    }
+                    btnSubmit.disabled = true; spinner.classList.remove('d-none');
+                });
+
+                // Reset al cerrar modal
+                document.getElementById('modalInsertarFoto')?.addEventListener('hidden.bs.modal', () => {
+                    form.reset(); clearFile(); form.classList.remove('was-validated'); spinner.classList.add('d-none'); updateCount();
+                });
+            })();
         });
     </script>
-}
 }

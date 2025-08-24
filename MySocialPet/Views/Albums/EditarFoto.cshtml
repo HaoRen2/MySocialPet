@@ -10,73 +10,350 @@
     }
 }
 
-<div class="container pt-nav mb-5">
-    <h2>Editar Foto</h2>
-
-    @if (!string.IsNullOrEmpty(base64Image))
-    {
-        <img src="@base64Image" class="img-fluid mb-3" style="max-height: 400px; object-fit: contain;" />
-    }
-    else
-    {
-        <p><em>No hay imagen disponible</em></p>
-    }
-
-    <form asp-action="EditarFoto" method="post" enctype="multipart/form-data">
-        @Html.AntiForgeryToken()
-
-        <input type="hidden" asp-for="IdFoto" />
-        <input type="hidden" asp-for="IdAlbum" />
-
-        <div class="mb-3">
-            <label asp-for="Titulo" class="form-label"></label>
-            <input asp-for="Titulo" class="form-control" />
-            <span asp-validation-for="Titulo" class="text-danger"></span>
+<div class="welcome-section ">
+<div class=" py-5 w-75">
+    <div class="card shadow-lg border-0  h-100">
+        <div class="card-header bg-light d-flex align-items-center justify-content-between">
+            <h4 class="m-0">@ViewData["Title"]</h4>
+            <a href="javascript:history.back()" class="btn secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
         </div>
 
-        <div class="mb-3">
-            <label asp-for="Descripcion" class="form-label"></label>
-            <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
-            <span asp-validation-for="Descripcion" class="text-danger"></span>
-        </div>
+        <div class="card-body p-4">
+            <form asp-action="EditarFoto" method="post" enctype="multipart/form-data" id="formEditarFoto" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="IdFoto" />
+                <input type="hidden" asp-for="IdAlbum" />
 
-        <div class="mb-3">
-            <label asp-for="Fecha" class="form-label"></label>
-            <input asp-for="Fecha" type="date" class="form-control" />
-            <span asp-validation-for="Fecha" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label for="nuevaFoto" class="form-label">Cambiar foto (opcional)</label>
-            <input type="file" name="nuevaFoto" id="nuevaFoto" class="form-control" accept="image/*" />
-        </div>
-
-        @* --- Bloque de mascotas etiquetadas --- *@
-        @if (Model.MascotasDisponibles != null && Model.MascotasDisponibles.Any())
-        {
-            <div class="mb-3">
-                <label class="form-label">Mascotas Etiquetadas</label>
-                <div>
-                    @foreach (var mascota in Model.MascotasDisponibles)
-                    {
-                        var mascotaId = int.Parse(mascota.Value);
-                        var isChecked = Model.MascotasEtiquetadasIds != null &&
-                        Model.MascotasEtiquetadasIds.Contains(mascotaId);
-
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox"
-                                   name="MascotasEtiquetadasIds"
-                                   value="@mascota.Value"
-                                   id="mascota_@mascota.Value"
-                                   @(isChecked ? "checked" : "") />
-                            <label class="form-check-label" for="mascota_@mascota.Value">@mascota.Text</label>
+                <div class="row g-4">
+                    <!-- Columna 1: datos -->
+                    <div class="col-12 col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="Titulo" class="form-label fw-semibold"></label>
+                            <input asp-for="Titulo" class="form-control" maxlength="80" required />
+                            <span asp-validation-for="Titulo" class="text-danger"></span>
                         </div>
-                    }
+
+                        <div class="mb-3">
+                            <label asp-for="Descripcion" class="form-label fw-semibold d-flex justify-content-between">
+                                <span>Descripción</span>
+                                <span class="text-muted small"><span id="descCount">0</span>/500</span>
+                            </label>
+                            <textarea asp-for="Descripcion" class="form-control" rows="3" maxlength="500"></textarea>
+                            <span asp-validation-for="Descripcion" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Fecha" class="form-label fw-semibold"></label>
+                            <input asp-for="Fecha" type="date" class="form-control" required />
+                            <span asp-validation-for="Fecha" class="text-danger"></span>
+                        </div>
+
+                        @* Mascotas etiquetadas *@
+                        @if (Model.MascotasDisponibles != null && Model.MascotasDisponibles.Any())
+                        {
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Mascotas etiquetadas</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach (var mascota in Model.MascotasDisponibles)
+                                    {
+                                        var mascotaId = int.Parse(mascota.Value);
+                                        var isChecked = Model.MascotasEtiquetadasIds != null &&
+                                        Model.MascotasEtiquetadasIds.Contains(mascotaId);
+
+                                        <input class="btn-check" type="checkbox"
+                                               name="MascotasEtiquetadasIds"
+                                               value="@mascota.Value"
+                                               id="mascota_@mascota.Value"
+                                               @(isChecked ? "checked" : "") autocomplete="off" />
+                                        <label class="btn secondary btn-sm tag-chip" for="mascota_@mascota.Value">
+                                            <i class="bi bi-tag"></i> @mascota.Text
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        
+                    </div>
+
+                    <!-- Columna 2: imagen + botones -->
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label fw-bold">Imagen</label>
+
+                        <!-- Zona de vista previa (sirve también de dropzone) -->
+                        <div id="previewZone" class="preview-zone rounded-3">
+                            @if (!string.IsNullOrEmpty(base64Image))
+                            {
+                                <img id="previewImgStatic" src="@base64Image" alt="Foto actual" />
+                            }
+                            else
+                            {
+                                <div id="noImg" class="no-image">
+                                    <i class="bi bi-image"></i>
+                                    <p class="mb-0">No hay imagen disponible</p>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Input de archivo oculto -->
+                        <input type="file" name="nuevaFoto" id="nuevaFoto" class="visually-hidden" accept="image/*" />
+
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <button type="button" class="btn primary" id="btnPick">
+                                <i class="bi bi-cloud-arrow-up"></i> Cambiar imagen
+                            </button>
+                            <button type="button" class="btn danger d-none" id="btnRemove">
+                                <i class="bi bi-x-circle"></i> Quitar imagen seleccionada
+                            </button>
+                        </div>
+
+                        <div id="fileMeta" class="text-muted small mt-2 d-none"></div>
+                        <div id="fileError" class="text-danger small mt-2 d-none"></div>
+
+                        <div class="form-text mt-2">
+                            Formatos: JPG, PNG, GIF, WEBP · Máx. recomendado 4 MB. También puedes arrastrar y soltar.
+                        </div>
+                            <div class="d-flex gap-2 pt-5 mt-4 justify-content-end">
+                                <button type="submit" class="btn primary" id="btnGuardar">
+                                    <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
+                                    Guardar cambios
+                                </button>
+                                <a href="javascript:history.back()" class="btn secondary">Cancelar</a>
+                            </div>
+                    </div>
                 </div>
-            </div>
+            </form>
+        </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Zona de vista previa / dropzone */
+        .preview-zone {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #f8f9fa;
+            border: 2px dashed rgba(0,0,0,.12);
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
         }
 
-        <button type="submit" class="btn btn-verde">Guardar cambios</button>
-        <a href="javascript:history.back()" class="btn btn-secondary">Cancelar</a>
-    </form>
-</div>
+            .preview-zone.dz-hover {
+                border-color: #9BB29D;
+                box-shadow: 0 0 0 3px rgba(155,178,157,.18) inset;
+                background: rgba(155,178,157,.06);
+            }
+
+            .preview-zone img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                display: block;
+            }
+
+        .no-image {
+            text-align: center;
+            color: #6c757d;
+        }
+
+            .no-image i {
+                font-size: 2.25rem;
+                display: block;
+                margin-bottom: .35rem;
+            }
+
+        /* Chips */
+        .tag-chip {
+            border-radius: 999px;
+            padding: .25rem .6rem;
+        }
+
+        /* Input file accesible pero oculto */
+        #nuevaFoto.visually-hidden {
+            position: absolute !important;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            border: 0;
+            padding: 0;
+            clip: rect(0 0 0 0);
+            overflow: hidden;
+        }
+
+        /* Labels más modernos */
+        .form-label {
+            font-weight: 600;
+            color: #495057; /* gris oscuro, neutro */
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.95rem;
+            margin-bottom: .35rem;
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+        }
+
+            /* Línea sutil debajo */
+            .form-label::after {
+                content: "";
+                flex: 1;
+                height: 1px;
+                background: linear-gradient(90deg, #9BB29D 0%, transparent 100%);
+                opacity: 0.5;
+            }
+
+        /* Inputs más consistentes */
+        .form-control, .form-select, textarea {
+            border-radius: 0.5rem;
+            border: 1px solid #ced4da;
+            font-size: 0.95rem;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+
+            .form-control:focus, .form-select:focus, textarea:focus {
+                border-color: #9BB29D;
+                box-shadow: 0 0 0 0.15rem rgba(155,178,157,0.35);
+            }
+
+        /* Chips mascotas */
+        .tag-chip {
+            border-radius: 999px;
+            padding: .3rem .7rem;
+            font-size: .85rem;
+            transition: all 0.2s ease;
+        }
+
+            .tag-chip:hover {
+                background-color: #9BB29D;
+                color: #fff !important;
+            }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form       = document.getElementById('formEditarFoto');
+            const btnGuardar = document.getElementById('btnGuardar');
+            const spinner    = btnGuardar.querySelector('.spinner-border');
+
+            // Elementos imagen
+            const input     = document.getElementById('nuevaFoto');
+            const zone      = document.getElementById('previewZone');
+            const btnPick   = document.getElementById('btnPick');
+            const btnRemove = document.getElementById('btnRemove');
+            const fileMeta  = document.getElementById('fileMeta');
+            const fileError = document.getElementById('fileError');
+
+            // Descripción contador
+            const desc      = document.getElementById('@Html.IdFor(m => m.Descripcion)');
+            const descCount = document.getElementById('descCount');
+            const updateCount = () => descCount.textContent = (desc?.value || '').length;
+            if (desc) { desc.addEventListener('input', updateCount); updateCount(); }
+
+            const MB = 1024 * 1024;
+            const MAX_SIZE = 4 * MB;
+            const ALLOWED = ['image/jpeg','image/png','image/gif','image/webp'];
+
+            const humanSize = (b)=> b<1024?`${b} B`: b<1048576?`${(b/1024).toFixed(1)} KB`:`${(b/1048576).toFixed(1)} MB`;
+            const setError  = (m)=>{ fileError.textContent = m||''; fileError.classList.toggle('d-none', !m); };
+
+            function clearFile(){
+                input.value = '';
+                // Si había una imagen seleccionada dinámicamente, elimínala
+                const dynamicImg = zone.querySelector('img[data-dynamic="1"]');
+                if (dynamicImg) dynamicImg.remove();
+                // Vuelve a mostrar el placeholder solo si no hay imagen estática original
+                const hadStatic = !!document.getElementById('previewImgStatic');
+                if (!hadStatic && !zone.querySelector('#noImg')) {
+                    const ph = document.createElement('div');
+                    ph.id = 'noImg';
+                    ph.className = 'no-image';
+                    ph.innerHTML = '<i class="bi bi-image"></i><p class="mb-0">No hay imagen disponible</p>';
+                    zone.appendChild(ph);
+                }
+                zone.classList.remove('dz-hover');
+                fileMeta.classList.add('d-none');
+                btnRemove.classList.add('d-none');
+                setError('');
+            }
+
+            function showPreview(file){
+                const url = URL.createObjectURL(file);
+                // Si existe placeholder, quítalo
+                const ph = document.getElementById('noImg');
+                if (ph) ph.remove();
+                // Si ya hay imagen dinámica anterior, reemplázala
+                let dyn = zone.querySelector('img[data-dynamic="1"]');
+                if (!dyn) {
+                    // Ocultar imagen estática original si existe
+                    const staticImg = document.getElementById('previewImgStatic');
+                    if (staticImg) staticImg.style.display = 'none';
+                    dyn = document.createElement('img');
+                    dyn.setAttribute('data-dynamic','1');
+                    zone.appendChild(dyn);
+                }
+                dyn.src = url;
+
+                fileMeta.textContent = `${file.name} · ${file.type || 'imagen'} · ${humanSize(file.size)}`;
+                fileMeta.classList.remove('d-none');
+                btnRemove.classList.remove('d-none');
+                setError('');
+            }
+
+            function validateFile(file){
+                if (!file) return true; // opcional: el usuario puede guardar sin cambiar
+                if (!ALLOWED.includes(file.type)){ setError('Formato no soportado. Usa JPG, PNG, GIF o WEBP.'); return false; }
+                if (file.size > MAX_SIZE){ setError('La imagen supera 4 MB. Comprime o elige otra.'); return false; }
+                return true;
+            }
+
+            // Drag & drop en la zona
+            ['dragenter','dragover'].forEach(ev =>
+                zone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); zone.classList.add('dz-hover'); })
+            );
+            ['dragleave','drop'].forEach(ev =>
+                zone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); zone.classList.remove('dz-hover'); })
+            );
+            zone.addEventListener('drop', e => {
+                const file = e.dataTransfer.files && e.dataTransfer.files[0];
+                if (!file) return;
+                if (!validateFile(file)) { clearFile(); return; }
+                const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
+                showPreview(file);
+            });
+
+            // Botones
+            btnPick.addEventListener('click', () => input.click());
+            btnRemove.addEventListener('click', clearFile);
+
+            // Cambio de archivo
+            input.addEventListener('change', () => {
+                const file = input.files[0];
+                if (!file) { clearFile(); return; }
+                if (!validateFile(file)) { clearFile(); return; }
+                showPreview(file);
+            });
+
+            // Submit UX
+            form.addEventListener('submit', (e) => {
+                const file = input.files[0];
+                if (file && !validateFile(file)) {
+                    e.preventDefault(); e.stopPropagation();
+                    return;
+                }
+                btnGuardar.disabled = true;
+                spinner.classList.remove('d-none');
+            });
+        });
+    </script>
+}

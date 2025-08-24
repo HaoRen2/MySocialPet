@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MySocialPet.Models.Mascotas;
+using MySocialPet.Models.Salud;
 using MySocialPet.Models.ViewModel;
 using MySocialPet.Models.ViewModel.Mascotas;
 
@@ -57,11 +58,42 @@ namespace MySocialPet.DAL
 
         public async Task DeleteMascota(int id)
         {
-            var mascota = await _context.Mascotas.FindAsync(id);
-            if (mascota != null)
+            // Transacción por seguridad
+            await using var tx = await _context.Database.BeginTransactionAsync();
+            try
             {
-                _context.Mascotas.Remove(mascota);
+                // 1) Eliminar dependientes conocidos de Mascota
+                // Vacunas
+                var vacunas = await _context.Set<VacunaRegistro>()
+                                            .Where(v => v.IdMascota == id)
+                                            .ToListAsync();
+                _context.RemoveRange(vacunas);
+
+                // Notas
+                var notas = await _context.Set<Nota>()
+                                          .Where(n => n.IdMascota == id)
+                                          .ToListAsync();
+                _context.RemoveRange(notas);
+
+                // Eventos
+                var eventos = await _context.Set<Evento>()
+                                            .Where(e => e.IdMascota == id)
+                                            .ToListAsync();
+                _context.RemoveRange(eventos);
+
+                // 2) Eliminar la mascota
+                var mascota = await _context.Mascotas.FindAsync(id);
+                if (mascota != null)
+                    _context.Mascotas.Remove(mascota);
+
+                // 3) Guardar y confirmar
                 await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
             }
         }
 

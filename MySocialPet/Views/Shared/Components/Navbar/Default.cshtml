@@ -140,17 +140,18 @@
             else
             {
                 <!-- Navegación pública normal -->
+                <!-- Navegación pública (siempre apunta a Home/Index con anclas) -->
                 <li class="nav-item nav-section">
-                    <a class="nav-link" href="#sobre">Sobre</a>
+                    <a class="nav-link" asp-controller="Home" asp-action="Index" asp-fragment="sobre">Sobre</a>
                 </li>
                 <li class="nav-item nav-section">
-                    <a class="nav-link" href="#caracteristicas">Características</a>
+                    <a class="nav-link" asp-controller="Home" asp-action="Index" asp-fragment="caracteristicas">Características</a>
                 </li>
                 <li class="nav-item nav-section">
-                    <a class="nav-link" href="#comunidad">Comunidad</a>
+                    <a class="nav-link" asp-controller="Home" asp-action="Index" asp-fragment="comunidad">Comunidad</a>
                 </li>
                 <li class="nav-item nav-section">
-                    <a class="nav-link" href="#contacto">Contacto</a>
+                    <a class="nav-link" asp-controller="Home" asp-action="Index" asp-fragment="contacto">Contacto</a>
                 </li>
                 <li class="nav-item ps-2 align-content-center">
                     <a asp-controller="Login" asp-action="Index" class="btn-login">

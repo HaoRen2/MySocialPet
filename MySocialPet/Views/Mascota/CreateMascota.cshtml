@@ -1,232 +1,463 @@
 ﻿@model MySocialPet.Models.ViewModel.Mascotas.CrearMascotaViewModel
-
 @{
     ViewData["Title"] = "Crear nueva mascota";
 }
 
-<div class="container pt-nav">
-    <div class="text-center mb-4 mt-5">
-        <h2>Registra nueva mascota 🐾</h2>
-        <p class="lead">Completa los datos de tu nuevo amigo. Al seleccionar una raza, verás sus detalles.</p>
-    </div>
-    <div class="row g-4">
-        <div class="col-lg-7">
-            <div class="card shadow-sm h-100">
-                <div class="card-body p-4">
-                    <form asp-action="CreateMascota" asp-controller="Mascota" enctype="multipart/form-data" method="post" class="row g-3">
-                        <div class="col-md-6">
-                            <label asp-for="Nombre" class="form-label"></label>
-                            <input asp-for="Nombre" class="form-control" />
-                            <span asp-validation-for="Nombre" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="Nacimiento" class="form-label"></label>
-                            <input asp-for="Nacimiento" class="form-control" min="2000-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" type="date" />
-                            <span asp-validation-for="Nacimiento" class="text-danger"></span>
-                        </div>
+@section Styles {
+    <style>
+        /* ====== Estándar MySocialPet: tokens ====== */
+        :root {
+            --msp-green: #ffffff;
+            --msp-olive-grad: #9BB29D;
+            --msp-shadow-card: 0 18px 48px rgba(0,0,0,.12);
+            --msp-shadow-inner: 0 10px 28px rgba(0,0,0,.10);
+            --msp-radius-lg: 1rem;
+        }
 
-                        <div class="col-12">
-                            <hr />
-                        </div>
+        .bg-olive-gradient {
+            background: var(--msp-olive-grad);
+        }
 
-                        <div class="col-md-6">
-                            <label class="form-label">Especies</label>
-                            <select asp-for="IdEspecie" asp-items="Model.Especies" class="form-select" id="especieSelect">
-                                <option value="">Seleccione una especie</option>
-                            </select>
-                            <span class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="IdRaza" class="form-label"></label>
-                            <select asp-for="IdRaza" class="form-select" id="razaSelect">
-                                <option value="">Primero elija una especie</option>
-                                @if (Model.Razas != null) 
-                                {
-                                    foreach (var raza in Model.Razas)
-                                    {
-                                        <option value="@raza.Value">@raza.Text</option>
-                                    }
-                                }
-                            </select>
-                            <span asp-validation-for="IdRaza" class="text-danger"></span>
-                        </div>
 
-                        <div class="col-12">
-                            <hr />
-                        </div>
+        /* Hero con gradiente principal */
+        .msp-hero {
+            padding-block: clamp(1.25rem, 3vw, 2rem);
+            position: relative;
+            color: #9BB29D;
+        }
 
-                        <div class="col-md-6">
-                            <label asp-for="PesoKg" class="form-label">Peso (Kg)</label>
-                            <input asp-for="PesoKg" id="pesoInput" type="number" inputmode="decimal" class="form-control" step="0.01" />
-                            <span asp-validation-for="PesoKg" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="LongitudCm" class="form-label">Longitud (cm)</label>
-                            <input asp-for="LongitudCm" id="longitudInput" type="number" inputmode="decimal" class="form-control" step="0.01" />
-                            <span asp-validation-for="LongitudCm" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">
-                                Indice corporal (Calculado)
-                                <span class="text-primary"
-                                      data-bs-toggle="tooltip"
-                                      data-bs-placement="top"
-                                      title="IMPORTANTE: Este es un cálculo de orientación basado en promedios
-                                        y no reemplaza la evaluación de un veterinario. La complexión de cada mascota es única.">
-                                    <i class="bi bi-exclamation-circle-fill"></i>
-                                </span>
-                            </label>
-                            <input id="bcsTextoInput" class="form-control" readonly placeholder="Se calculará aquí" />
-                            <input asp-for="BCS" id="bcsValorInput" type="hidden" />
-                            <span asp-validation-for="BCS" class="text-danger"></span>
-                        </div>
+        /* Wrap con fondo suave y solape para eliminar el “corte” */
+        .msp-wrap {
+            position: relative;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
 
-                        <div class="col-md-6">
-                            <label asp-for="Genero" class="form-label"></label>
-                            <select asp-for="Genero" class="form-select">
-                                <option value="">Seleccione</option>
-                                <option value="Macho">Macho</option>
-                                <option value="Hembra">Hembra</option>
-                            </select>
-                            <span asp-validation-for="Genero" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="Foto" class="form-label">Foto Mascota</label>
-                            <input asp-for="Foto" type="file" class="form-control" />
-                            <span asp-validation-for="Foto" class="text-danger"></span>
-                        </div>
+        /* ====== Cards y helpers ====== */
+        .msp-card {
+            border: 0;
+            border-radius: var(--msp-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--msp-shadow-card);
+        }
 
-                        <div class="col-12 d-flex align-items-center">
-                            <div class="form-check mt-2">
-                                <input asp-for="Esterilizada" class="form-check-input" />
-                                <label asp-for="Esterilizada" class="form-check-label"></label>
+            .msp-card .card-header {
+                border: 0;
+                background: #f7faf7;
+            }
+        /* header suave para evitar salto */
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            background: rgba(0,0,0,.06);
+            color: #2e3b33;
+            border-radius: 999px;
+            padding: .35rem .6rem;
+            font-size: .875rem;
+            font-weight: 600;
+        }
+
+        .ratio {
+            border-radius: .75rem;
+            overflow: hidden;
+            box-shadow: var(--msp-shadow-inner);
+        }
+
+            .ratio img {
+                object-fit: cover;
+            }
+
+        /* ====== Drag & Drop foto ====== */
+        #dropFoto {
+            border: 2px dashed rgba(0,0,0,.2) !important;
+            background: #fff;
+            border-radius: .75rem;
+            box-shadow: var(--msp-shadow-inner);
+            min-height: 240px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+            #dropFoto.border-primary {
+                border-color: var(--msp-green) !important;
+            }
+
+        /* ====== Sección “Info raza” con tono igual al form ====== */
+        #razaInfoContainer .card {
+            border: 0;
+            border-radius: var(--msp-radius-lg);
+            box-shadow: var(--msp-shadow-card);
+        }
+
+        #razaInfoContainer .card-header {
+            background: #f7faf7;
+        }
+
+        /* ====== Inputs / focus ====== */
+        .form-control:focus, .form-select:focus {
+            border-color: var(--msp-green);
+            box-shadow: 0 0 0 .25rem rgba(91,143,107,.15);
+        }
+
+        /* ====== Acciones ====== */
+        .btn {
+            border-radius: .8rem;
+        }
+
+        /* Navbar fija + anclas (por si se usan) */
+        section[id] {
+            scroll-margin-top: 120px;
+        }
+    </style>
+}
+
+<div class="welcome-section">
+
+    <div class="msp-page pb-5  pt-2  ">
+        <!-- HERO -->
+        <section class="msp-hero  ">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 text-black">
+                    <div>
+                        <h1 class="h3 fw-bold mb-1 ">Registra nueva mascota 🐾</h1>
+                        <p class="mb-0 text-dark-50">Completa los datos de tu nuevo amigo. Al seleccionar una raza, verás sus detalles.</p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="stat-chip"><i class="bi bi-shield-check"></i> Datos seguros</span>
+                        <span class="stat-chip"><i class="bi bi-cloud-arrow-up"></i> Guardado en la nube</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTENIDO -->
+        <section class="msp-wrap">
+            <div class="container  ">
+                <div class="row g-4">
+                    <!-- Columna izquierda (formulario) -->
+                    <div class="col-lg-7">
+                        <div class="card msp-card h-100">
+                            <div class="card-body p-4">
+                                <form asp-action="CreateMascota" asp-controller="Mascota" enctype="multipart/form-data" method="post" class="row g-3">
+                                    <!-- Datos básicos -->
+                                    <div class="col-md-6">
+                                        <label asp-for="Nombre" class="form-label fw-medium">Nombre</label>
+                                        <input asp-for="Nombre" class="form-control" placeholder="Ej. Luna" />
+                                        <span asp-validation-for="Nombre" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="Nacimiento" class="form-label fw-medium">Fecha de nacimiento</label>
+                                        <input asp-for="Nacimiento" class="form-control" min="2000-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" type="date" />
+                                        <span asp-validation-for="Nacimiento" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-12"><hr class="border-0 border-top border-2 border-light-subtle my-2" /></div>
+
+                                    <!-- Especie/Raza -->
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-medium">Especie</label>
+                                        <select asp-for="IdEspecie" asp-items="Model.Especies" class="form-select" id="especieSelect" aria-label="Selector de especie">
+                                            <option value="">Seleccione una especie</option>
+                                        </select>
+                                        <span class="text-danger small"></span>
+                                        <div class="form-text">Al cambiar la especie, se actualizarán las razas disponibles.</div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="IdRaza" class="form-label fw-medium">Raza</label>
+                                        <select asp-for="IdRaza" class="form-select" id="razaSelect" aria-label="Selector de raza">
+                                            <option value="">Primero elija una especie</option>
+                                            @if (Model.Razas != null)
+                                            {
+                                                foreach (var raza in Model.Razas)
+                                                {
+                                                    <option value="@raza.Value">@raza.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                        <span asp-validation-for="IdRaza" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-12"><hr class="border-0 border-top border-2 border-light-subtle my-2" /></div>
+
+                                    <!-- Medidas -->
+                                    <div class="col-md-6">
+                                        <label asp-for="PesoKg" class="form-label fw-medium">Peso</label>
+                                        <div class="input-group">
+                                            <input asp-for="PesoKg" id="pesoInput" type="number" inputmode="decimal" class="form-control" step="0.01" placeholder="Ej. 8,25" />
+                                            <span class="input-group-text">kg</span>
+                                        </div>
+                                        <span asp-validation-for="PesoKg" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="LongitudCm" class="form-label fw-medium">Longitud</label>
+                                        <div class="input-group">
+                                            <input asp-for="LongitudCm" id="longitudInput" type="number" inputmode="decimal" class="form-control" step="0.01" placeholder="Ej. 45,5" />
+                                            <span class="input-group-text">cm</span>
+                                        </div>
+                                        <span asp-validation-for="LongitudCm" class="text-danger small"></span>
+                                    </div>
+
+                                    <!-- BCS -->
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-medium d-flex align-items-center gap-2">
+                                            Índice corporal (calculado)
+                                            <span class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                  title="IMPORTANTE: Este es un cálculo orientativo basado en promedios y no sustituye la evaluación de un veterinario.">
+                                                <i class="bi bi-exclamation-circle-fill"></i>
+                                            </span>
+                                        </label>
+                                        <input id="bcsTextoInput" class="form-control" readonly placeholder="Se calculará aquí" />
+                                        <input asp-for="BCS" id="bcsValorInput" type="hidden" />
+                                        <span asp-validation-for="BCS" class="text-danger small"></span>
+                                    </div>
+
+                                    <!-- Género + Esterilizada / Foto -->
+                                    <div class="row g-3 align-items-start">
+                                        <div class="col-md-6">
+                                            <div class=" border-0 h-100">
+                                                <div class="card-body p-0">
+                                                    <div class="mb-3">
+                                                        <label asp-for="Genero" class="form-label fw-medium">Género</label>
+                                                        <select asp-for="Genero" class="form-select">
+                                                            <option value="">Seleccione</option>
+                                                            <option value="Macho">Macho</option>
+                                                            <option value="Hembra">Hembra</option>
+                                                        </select>
+                                                        <span asp-validation-for="Genero" class="text-danger small"></span>
+                                                    </div>
+                                                    <div class="form-check form-switch mt-1">
+                                                        <input asp-for="Esterilizada" class="form-check-input" role="switch" id="switchEsterilizada" />
+                                                        <label class="form-check-label" for="switchEsterilizada">
+                                                            @Html.DisplayNameFor(m => m.Esterilizada)
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Foto -->
+                                        <div class="col-md-6">
+                                            <div class=" border-0 h-100">
+                                                <div class="card-body p-0">
+                                                    <label asp-for="Foto" class="form-label fw-medium">Foto de la mascota</label>
+
+                                                    <div id="dropFoto" class="border border-2 border-dashed rounded-3 bg-white p-4 text-center position-relative">
+                                                        <!-- Estado inicial -->
+                                                        <div id="uploadPlaceholder" class="w-100">
+                                                            <i class="bi bi-image fs-1 d-block mb-2 text-secondary"></i>
+                                                            <p class="mb-1 fw-semibold">Arrastra y suelta una imagen aquí</p>
+                                                            <p class="text-muted small mb-3">JPG, PNG o GIF • máx. 5MB</p>
+                                                            <label for="Foto" class="btn btn-outline-primary btn-sm px-3">Elegir archivo</label>
+                                                            <input asp-for="Foto" type="file" accept="image/*" class="form-control d-none" />
+                                                        </div>
+
+                                                        <!-- Vista previa -->
+                                                        <div id="previewFotoWrapper" class="d-none w-100 text-center">
+                                                            <div class="ratio ratio-1x1 mb-2">
+                                                                <img id="previewFotoImg" alt="Vista previa" />
+                                                            </div>
+                                                            <div id="previewFotoName" class="small fw-semibold text-truncate mb-1"></div>
+                                                            <div id="previewFotoMeta" class="small text-muted mb-3"></div>
+                                                            <button type="button" id="btnQuitarFoto" class="btn btn-sm btn-outline-secondary">Quitar imagen</button>
+                                                        </div>
+                                                    </div>
+                                                    <span asp-validation-for="Foto" class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Acciones -->
+                                    <div class="col-12 d-flex justify-content-center flex-wrap gap-2 py-3">
+                                        <button type="submit" class="btn primary px-4 py-2">
+                                            <i class="bi bi-check-circle me-1"></i> Guardar Mascota
+                                        </button>
+                                        <a asp-controller="Mascota" asp-action="ListaMascota" class="btn btn-outline-secondary px-4 py-2 text-decoration-none">
+                                            Cancelar
+                                        </a>
+                                    </div>
+                                </form>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="col-12 d-flex justify-content-center">
-                            <button type="submit" class="btn btn-primary p-3 m-1">Guardar Mascota</button>
-                            <a asp-controller="Mascota" asp-action="ListaMascota" class="btn btn-outline-secondary text-decoration-none p-3 m-1">Cancelar</a>
+                    <!-- Columna derecha (info raza) -->
+                    <div class="col-lg-5">
+                        <div id="razaInfoContainer">
+                            <div class="card msp-card rounded-4">
+                                <div class="card-header rounded-top-4">
+                                    <h5 class="mb-0 d-flex align-items-center gap-2">
+                                        <i class="bi bi-info-circle text-primary"></i> Información de la Raza
+                                    </h5>
+                                </div>
+                                <div id="razaInfo" class="card-body text-center bg-white">
+                                    <div class="py-3">
+                                        <i class="bi bi-search fs-2 text-secondary d-block mb-2"></i>
+                                        <p class="text-muted mb-0">Seleccione una especie y una raza para ver los detalles aquí.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-5">
-            <div id="razaInfoContainer">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">Información de la Raza</h5>
                     </div>
-                    <div id="razaInfo" class="card-body text-center">
-                        <p class="text-muted">Seleccione una especie y una raza para ver los detalles aquí.</p>
-                    </div>
-                </div>
+
+                </div><!-- /row -->
             </div>
-        </div>
+        </section>
     </div>
+
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+          // Tooltips
+          [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            .forEach(el => new bootstrap.Tooltip(el));
 
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);});
+          const especieSelect = document.getElementById("especieSelect");
+          const razaSelect = document.getElementById("razaSelect");
+          const razaInfo = document.getElementById("razaInfo");
 
-
-            const especieSelect = document.getElementById("especieSelect");
-            const razaSelect = document.getElementById("razaSelect");
-            const razaInfo = document.getElementById("razaInfo");
-
-            especieSelect.addEventListener("change", function () {
-                const especieId = this.value;
-                razaSelect.innerHTML = '<option value="">Cargando...</option>';
-                razaInfo.innerHTML = '<p class="text-muted">Seleccione una raza para ver los detalles.</p>';
-                if (!especieId) {
-                    razaSelect.innerHTML = '<option value="">Primero elija una especie</option>';
-                    return;
-                }
-                fetch(`@Url.Action("GetRazasPorEspecie", "Mascota")?id=${especieId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        razaSelect.innerHTML = '<option value="">Seleccione una raza</option>';
-                        data.forEach(raza => {
-                            razaSelect.add(new Option(raza.text, raza.value));
-                        });
-                    })
-                    .catch(() => {
-                        razaSelect.innerHTML = '<option value="">Error al cargar razas</option>';
-                    });
-            });
-
-            razaSelect.addEventListener("change", function () {
-                const razaId = this.value;
-                razaInfo.innerHTML = '<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>';
-                if (!razaId) {
-                    razaInfo.innerHTML = '<p class="text-muted">Seleccione una raza para ver los detalles.</p>';
-                    return;
-                }
-                fetch(`@Url.Action("GetInfoRaza", "Mascota")?id=${razaId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data) {
-                            razaInfo.innerHTML = '<p class="text-danger">No se encontró información para esta raza.</p>';
-                            return;
-                        }
-                        const fotoUrl = data.foto || '/images/default-raza.png';
-                        razaInfo.innerHTML = `
-                            <img src="${fotoUrl}" class="img-fluid rounded-3 mb-3" alt="Foto de ${data.nombreRaza}" style="max-height: 250px; object-fit: cover;">
-                            <h4 class="card-title">${data.nombreRaza}</h4>
-                            <p><strong>Categoría:</strong> ${data.categoria.nombre || 'N/A'}</p>
-                            <p><strong>Tamaño:</strong> ${data.tamanyo || 'N/A'}</p>
-                            <p class="card-text text-start small">${data.informacion || 'No hay descripción disponible.'}</p>
-                        `;
-                    })
-                    .catch(() => {
-                        razaInfo.innerHTML = '<p class="text-danger">Error al cargar la información.</p>';
-                    });
-            });
-
-            const pesoInput = document.getElementById("pesoInput");
-            const longitudInput = document.getElementById("longitudInput");
-            const bcsTextoInput = document.getElementById("bcsTextoInput");
-            const bcsValorInput = document.getElementById("bcsValorInput");
-
-           function calcularIndiceCorporal() {
-
-                const peso = parseFloat(pesoInput.value);
-                const longitud = parseFloat(longitudInput.value);
-                const razaId = parseInt(razaSelect.value);
-
-                if (peso > 0 && longitud > 0 && razaId > 0) {
-                    bcsTextoInput.value = "Calculando...";
-                    bcsValorInput.value = "";
-
-                    const url = `@Url.Action("EstimarIndiceCorporal", "Mascota")?pesoKg=${peso}&longitudLomoCm=${longitud}&idRaza=${razaId}`;
-                    fetch(url)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data) {
-                                bcsTextoInput.value = data.textoOrientativo || "";
-                                bcsValorInput.value = data.valorEstimado || "";
-                            }
-                        })
-                        .catch(() => {
-                            bcsTextoInput.value = "Error";
-                            bcsValorInput.value = "";
-                        });
-                } else {
-                    bcsTextoInput.value = "";
-                    bcsValorInput.value = "";
-                }
+          especieSelect.addEventListener("change", function () {
+            const especieId = this.value;
+            razaSelect.innerHTML = '<option value="">Cargando...</option>';
+            razaInfo.innerHTML = '<p class="text-muted">Seleccione una raza para ver los detalles.</p>';
+            if (!especieId) {
+              razaSelect.innerHTML = '<option value="">Primero elija una especie</option>';
+              return;
             }
+            fetch(`@Url.Action("GetRazasPorEspecie", "Mascota")?id=${especieId}`)
+              .then(r => r.json())
+              .then(data => {
+                razaSelect.innerHTML = '<option value="">Seleccione una raza</option>';
+                data.forEach(raza => razaSelect.add(new Option(raza.text, raza.value)));
+              })
+              .catch(() => razaSelect.innerHTML = '<option value="">Error al cargar razas</option>');
+          });
 
-            pesoInput.addEventListener("input", calcularIndiceCorporal);
-            longitudInput.addEventListener("input", calcularIndiceCorporal);
-            razaSelect.addEventListener("change", calcularIndiceCorporal);
+          razaSelect.addEventListener("change", function () {
+            const razaId = this.value;
+            razaInfo.innerHTML = '<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>';
+            if (!razaId) {
+              razaInfo.innerHTML = '<p class="text-muted">Seleccione una raza para ver los detalles.</p>';
+              return;
+            }
+            fetch(`@Url.Action("GetInfoRaza", "Mascota")?id=${razaId}`)
+              .then(r => r.json())
+              .then(data => {
+                if (!data) { razaInfo.innerHTML = '<p class="text-danger">No se encontró información para esta raza.</p>'; return; }
+                const fotoUrl = data.foto || '/images/default-raza.png';
+                razaInfo.innerHTML = `
+                  <div class="ratio ratio-1x1 mb-3"><img src="${fotoUrl}" alt="Foto de ${data.nombreRaza}"></div>
+                  <h4 class="card-title">${data.nombreRaza}</h4>
+                  <p><strong>Categoría:</strong> ${data.categoria?.nombre || 'N/A'}</p>
+                  <p><strong>Tamaño:</strong> ${data.tamanyo || 'N/A'}</p>
+                  <p class="card-text text-start small">${data.informacion || 'No hay descripción disponible.'}</p>
+                `;
+              })
+              .catch(() => razaInfo.innerHTML = '<p class="text-danger">Error al cargar la información.</p>');
+          });
 
+          const pesoInput = document.getElementById("pesoInput");
+          const longitudInput = document.getElementById("longitudInput");
+          const bcsTextoInput = document.getElementById("bcsTextoInput");
+          const bcsValorInput = document.getElementById("bcsValorInput");
+
+          function calcularIndiceCorporal() {
+            const peso = parseFloat(pesoInput.value);
+            const longitud = parseFloat(longitudInput.value);
+            const razaId = parseInt(razaSelect.value);
+
+            if (peso > 0 && longitud > 0 && razaId > 0) {
+              bcsTextoInput.value = "Calculando...";
+              bcsValorInput.value = "";
+              const url = `@Url.Action("EstimarIndiceCorporal", "Mascota")?pesoKg=${peso}&longitudLomoCm=${longitud}&idRaza=${razaId}`;
+              fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                  if (data) {
+                    bcsTextoInput.value = data.textoOrientativo || "";
+                    bcsValorInput.value = data.valorEstimado || "";
+                  }
+                })
+                .catch(() => { bcsTextoInput.value = "Error"; bcsValorInput.value = ""; });
+            } else {
+              bcsTextoInput.value = "";
+              bcsValorInput.value = "";
+            }
+          }
+          pesoInput.addEventListener("input", calcularIndiceCorporal);
+          longitudInput.addEventListener("input", calcularIndiceCorporal);
+          razaSelect.addEventListener("change", calcularIndiceCorporal);
         });
+
+        // Drag & drop Foto + preview
+        (function () {
+          const input = document.getElementById('Foto'); // generado por asp-for
+          const drop  = document.getElementById('dropFoto');
+          const ph    = document.getElementById('uploadPlaceholder');
+          const wrap  = document.getElementById('previewFotoWrapper');
+          const img   = document.getElementById('previewFotoImg');
+          const nameEl= document.getElementById('previewFotoName');
+          const metaEl= document.getElementById('previewFotoMeta');
+          const btnRm = document.getElementById('btnQuitarFoto');
+          if (!input || !drop || !ph || !wrap || !img) return;
+
+          const MAX_MB = 5;
+          function bytesToSize(b){ const u=['B','KB','MB','GB']; let i=0,n=b; while(n>=1024 && i<u.length-1){n/=1024;i++;} return n.toFixed(i?1:0)+' '+u[i]; }
+
+          function showPreview(file){
+            if (!file || !file.type.startsWith('image/')) return;
+            if (file.size > MAX_MB*1024*1024){
+              window.toastWarn?.('Archivo demasiado grande', `Máximo ${MAX_MB}MB`);
+              input.value = ''; return;
+            }
+            const reader = new FileReader();
+            reader.onload = e => {
+              img.src = e.target.result;
+              nameEl && (nameEl.textContent = file.name);
+              metaEl && (metaEl.textContent = `${bytesToSize(file.size)} • ${file.type}`);
+              ph.classList.add('d-none');
+              wrap.classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+          }
+
+          input.addEventListener('change', e => showPreview(e.target.files[0]));
+
+          ['dragenter','dragover'].forEach(ev=>{
+            drop.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); drop.classList.add('border-primary'); });
+          });
+          ['dragleave','drop'].forEach(ev=>{
+            drop.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); drop.classList.remove('border-primary'); });
+          });
+          drop.addEventListener('drop', e=>{
+            const file = e.dataTransfer.files?.[0];
+            if (file){
+              const dt = new DataTransfer(); dt.items.add(file);
+              input.files = dt.files; // para el model binder
+              showPreview(file);
+            }
+          });
+          drop.addEventListener('click', (e)=>{
+            if ((e.target instanceof HTMLElement) && e.target.id === 'btnQuitarFoto') return;
+            input.click();
+          });
+          btnRm?.addEventListener('click', (e)=>{
+            e.stopPropagation();
+            input.value = '';
+            img.removeAttribute('src');
+            nameEl && (nameEl.textContent = '');
+            metaEl && (metaEl.textContent = '');
+            wrap.classList.add('d-none');
+            ph.classList.remove('d-none');
+          });
+        })();
     </script>
 }

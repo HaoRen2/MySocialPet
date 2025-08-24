@@ -1,6 +1,287 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Información legal";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+@section Styles {
+    <style>
+        /* ---- Layout y estilos suaves para la página legal ---- */
+        .legal-hero.section {
+            min-height: 30svh;
+            padding-block: clamp(2rem, 4vw, 4rem);
+            display: flex;
+            align-items: center;
+        }
+
+        .bg-olive-gradient {
+            background: linear-gradient(180deg, #9BB29D 0%, #dce5dc 100%);
+        }
+
+        .legal-wrap {
+            padding-block: clamp(2rem, 4vw, 3rem);
+        }
+
+        .legal-card {
+            background: #fff;
+            border: 0;
+            border-radius: 1rem;
+            box-shadow: 0 12px 30px rgba(0,0,0,.08);
+            padding: clamp(1rem, 2vw, 1.5rem);
+        }
+
+        .legal-content h2 {
+            margin-top: .25rem;
+            margin-bottom: .75rem;
+            font-weight: 800;
+        }
+
+        .legal-content h3 {
+            margin-top: 1.5rem;
+            font-size: 1.25rem;
+        }
+
+        .legal-content p {
+            margin-bottom: .75rem;
+        }
+
+        .legal-content ul {
+            margin-bottom: 1rem;
+        }
+
+        .legal-updated {
+            font-size: .9rem;
+            color: #5f6b63;
+        }
+
+        .toc .list-group-item {
+            border: 0;
+            padding: .6rem .75rem;
+        }
+
+            .toc .list-group-item.active {
+                background: #2e3b33;
+                color: #fff;
+                border-radius: .6rem;
+            }
+
+        .table-cookies th {
+            white-space: nowrap;
+        }
+
+        .badge-soft {
+            background: rgba(0,0,0,.06);
+            color: #2e3b33;
+        }
+    </style>
+}
+
+<!-- HERO -->
+<div class="pt-nav quitar-rojo">
+    <section class="legal-hero section bg-olive-gradient ">
+        <div class="container">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-8">
+                    <span class="badge badge-soft fw-semibold">Legal</span>
+                    <h1 class="display-5 fw-bold mb-2">Información legal de MySocialPet</h1>
+                    <div class="legal-updated">Última actualización: @DateTime.UtcNow.ToString("dd/MM/yyyy")</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTENIDO -->
+    <section class="legal-wrap">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Índice lateral -->
+                <aside class="col-lg-4 quitar-violeta w-25">
+                    <nav class="toc">
+                        <div class="list-group shadow-sm rounded-3">
+                            <a class="list-group-item list-group-item-action active" href="#privacidad">Política de privacidad</a>
+                            <a class="list-group-item list-group-item-action" href="#terminos">Términos y condiciones</a>
+                            <a class="list-group-item list-group-item-action" href="#cookies">Política de cookies</a>
+                        </div>
+                    </nav>
+                </aside>
+
+                <!-- Contenido principal -->
+                <main class="col-lg-8 legal-content w-75">
+                    <div id="privacidad" class="legal-card mb-4">
+                        <h2>Política de privacidad</h2>
+                        <p>
+                            En <strong>MySocialPet</strong> nos comprometemos a proteger tu privacidad. Esta política explica qué datos
+                            recopilamos, con qué finalidad y cómo puedes ejercer tus derechos.
+                        </p>
+
+                        <h3>1. Responsable del tratamiento</h3>
+                        <p>MySocialPet (contacto: <a href="mailto:contacto@mysocialpet.com">contacto@mysocialpet.com</a>).</p>
+
+                        <h3>2. Datos que recopilamos</h3>
+                        <ul>
+                            <li><strong>Cuenta:</strong> nombre de usuario, email, contraseña (cifrada), fecha de registro.</li>
+                            <li><strong>Perfil:</strong> avatar, biografía, localidad (opcional).</li>
+                            <li><strong>Mascotas:</strong> nombre, especie, raza, fecha de nacimiento, fotos y álbumes.</li>
+                            <li><strong>Salud (opcional):</strong> vacunas, citas y notas de seguimiento que decidas guardar.</li>
+                            <li><strong>Interacciones:</strong> publicaciones en foros, me gusta, comentarios.</li>
+                            <li><strong>Técnicos:</strong> logs, IP, dispositivo y cookies necesarias para el funcionamiento.</li>
+                        </ul>
+
+                        <h3>3. Finalidades y base jurídica</h3>
+                        <ul>
+                            <li><strong>Prestación del servicio</strong> (ejecución del contrato): crear cuenta, gestionar contenido y comunidad.</li>
+                            <li><strong>Seguridad</strong> (interés legítimo): prevenir fraude, abuso y mantener la integridad de la plataforma.</li>
+                            <li><strong>Comunicaciones</strong> (consentimiento/interés legítimo): avisos de cuenta, cambios y novedades relevantes.</li>
+                            <li><strong>Analítica básica</strong> (consentimiento): entender uso para mejorar el producto.</li>
+                        </ul>
+
+                        <h3>4. Conservación</h3>
+                        <p>Mantenemos tus datos mientras tengas cuenta activa. Al eliminarla, eliminamos o anonimizamos tu información salvo obligaciones legales de conservación.</p>
+
+                        <h3>5. Destinatarios</h3>
+                        <p>No vendemos tus datos. Podemos compartir información con proveedores que nos ayudan a prestar el servicio (alojamiento, email, analítica) bajo contratos de confidencialidad.</p>
+
+                        <h3>6. Transferencias internacionales</h3>
+                        <p>Si se realizan, garantizamos salvaguardas adecuadas (cláusulas contractuales tipo u otras reconocidas por la normativa aplicable).</p>
+
+                        <h3>7. Tus derechos</h3>
+                        <p>Puedes ejercer acceso, rectificación, supresión, oposición, limitación y portabilidad enviando un correo a <a href="mailto:contacto@mysocialpet.com">contacto@mysocialpet.com</a>. También puedes retirar el consentimiento en cualquier momento.</p>
+
+                        <h3>8. Menores</h3>
+                        <p>MySocialPet está dirigida a mayores de 14 años (o la edad mínima equivalente en tu país). Si detectamos un registro no permitido, eliminaremos la cuenta.</p>
+
+                        <h3>9. Seguridad</h3>
+                        <p>Aplicamos medidas técnicas y organizativas razonables para proteger la información (cifrado de contraseñas, controles de acceso, copias de seguridad).</p>
+                    </div>
+
+                    <div id="terminos" class="legal-card mb-4">
+                        <h2>Términos y condiciones</h2>
+                        <h3>1. Objeto</h3>
+                        <p>Estos términos regulan el uso de MySocialPet. Al registrarte o usar la plataforma aceptas estas condiciones.</p>
+
+                        <h3>2. Cuenta y acceso</h3>
+                        <ul>
+                            <li>Eres responsable de mantener la confidencialidad de tus credenciales.</li>
+                            <li>No está permitido suplantar identidad ni crear cuentas con información falsa.</li>
+                        </ul>
+
+                        <h3>3. Contenido del usuario</h3>
+                        <ul>
+                            <li>Conservas tus derechos sobre el contenido que publiques.</li>
+                            <li>Nos concedes una licencia limitada para alojarlo, mostrarlo y distribuirlo dentro de MySocialPet.</li>
+                            <li>Debes poseer los derechos sobre lo que subes (fotos, textos) y no infringir derechos de terceros.</li>
+                        </ul>
+
+                        <h3>4. Normas de uso</h3>
+                        <ul>
+                            <li>Prohibido contenido ilegal, violento, de odio, pornográfico o que promueva maltrato animal.</li>
+                            <li>Respeta a la comunidad y a los moderadores. Podemos moderar, ocultar o eliminar contenido que incumpla estas normas.</li>
+                        </ul>
+
+                        <h3>5. Suspensión y terminación</h3>
+                        <p>Podemos suspender o cerrar cuentas que incumplan los términos. Puedes eliminar tu cuenta en cualquier momento desde tu perfil.</p>
+
+                        <h3>6. Propiedad intelectual</h3>
+                        <p>MySocialPet y sus logotipos son marcas o signos distintivos protegidos. No se concede licencia sobre ellos salvo autorización expresa.</p>
+
+                        <h3>7. Responsabilidad y garantías</h3>
+                        <p>Prestamos el servicio “tal cual”. No garantizamos disponibilidad ininterrumpida. En la medida permitida por la ley, no respondemos por daños indirectos derivados del uso de la plataforma.</p>
+
+                        <h3>8. Cambios en los términos</h3>
+                        <p>Podemos actualizar estos términos. Te avisaremos por medios razonables. El uso continuado tras los cambios implica su aceptación.</p>
+
+                        <h3>9. Ley aplicable y jurisdicción</h3>
+                        <p>Se aplicará la normativa de tu país de residencia cuando corresponda; en otro caso, se aplicará la ley española y los tribunales competentes.</p>
+                    </div>
+
+                    <div id="cookies" class="legal-card">
+                        <h2>Política de cookies</h2>
+                        <p>Las cookies son pequeños archivos que se guardan en tu dispositivo para hacer que el sitio funcione correctamente, recordar tus preferencias y, si lo aceptas, ayudarnos a mejorar con analítica.</p>
+
+                        <h3>1. Tipos de cookies que usamos</h3>
+                        <ul>
+                            <li><strong>Necesarias:</strong> imprescindibles para iniciar sesión, mantener la sesión y la seguridad.</li>
+                            <li><strong>Preferencias:</strong> recuerdan idioma y ajustes de visualización.</li>
+                            <li><strong>Analíticas (opcionales):</strong> nos ayudan a entender el uso del sitio para mejorarlo.</li>
+                        </ul>
+
+                        <h3>2. Detalle de cookies</h3>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle table-cookies">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Proveedor</th>
+                                        <th>Tipo</th>
+                                        <th>Duración</th>
+                                        <th>Finalidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>.AspNetCore.Cookies</td>
+                                        <td>MySocialPet</td>
+                                        <td>Necesaria</td>
+                                        <td>Sesión</td>
+                                        <td>Autenticación y mantenimiento de sesión.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>msplang</td>
+                                        <td>MySocialPet</td>
+                                        <td>Preferencias</td>
+                                        <td>6 meses</td>
+                                        <td>Recordar idioma/interface.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>_analytics_id</td>
+                                        <td>MySocialPet / Tercero</td>
+                                        <td>Analítica</td>
+                                        <td>13 meses</td>
+                                        <td>Métricas agregadas del uso de la plataforma (si consientes).</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h3>3. Gestión del consentimiento</h3>
+                        <p>
+                            Puedes aceptar o rechazar las cookies no esenciales desde el banner de consentimiento o <a href="#!" data-bs-toggle="modal" data-bs-target="#cookiesModal">revisar tu elección aquí</a>.
+                            También puedes borrar o bloquear cookies desde la configuración de tu navegador.
+                        </p>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal de cookies (opcional, placeholder) -->
+    <div class="modal fade" id="cookiesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Preferencias de cookies</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">Selecciona tus preferencias:</p>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="ckNecessary" checked disabled>
+                        <label class="form-check-label" for="ckNecessary">Necesarias (siempre activas)</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="ckPrefs">
+                        <label class="form-check-label" for="ckPrefs">Preferencias</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="ckAnalytics">
+                        <label class="form-check-label" for="ckAnalytics">Analíticas</label>
+                    </div>
+                    <small class="text-muted">Este modal es un ejemplo visual. Conéctalo a tu lógica de consentimiento si lo deseas.</small>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary" data-bs-dismiss="modal">Guardar preferencias</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -11,7 +11,7 @@
 
 /* Espacio para compensar el navbar fijo arriba (fixed-top) */
 .pt-nav {
-    margin-top: 12vh;
+    margin-top: 9vh;
 }
 
 /* ------------------------------------------------------------
@@ -25,11 +25,11 @@
     border-color: var(--primary);
 }
 /* ------------------------------------------------------------
-   CLASES DE DEPURACIÓN (Quitar estilos visuales para test)
+   CLASES DE DEPURACIÓN (Quitar estilos visuales para )
 ------------------------------------------------------------ */
-/* ------------------ HOVER EFECTO TEST ------------------ */
+/* ------------------ HOVER EFECTO  ------------------ */
 
-.test:hover {
+.:hover {
     background-color: rgba(97, 97, 97, 0.1); 
     cursor: pointer;
 }
@@ -167,50 +167,9 @@
     right: 0;
 }
 
-a.dropdown-item:hover{
-    background-color: var(--light-green);
-}
 
 
 
-.pet-card {
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    border: none;
-}
-
-    .pet-card:hover {
-        transform: translateY(-5px);
-        cursor: pointer;
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px var(--green);
-        transition: box-shadow 0.3s ease-in-out;
-        border-color: blue;
-    }
-
-.anyadir-card:hover {
-    transform: translateY(-5px);
-    cursor: pointer;
-    border: 1px solid;
-    border-color: blue;
-}
-
-.pet-card-img {
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-}
-
-/* Abre el dropdown al pasar el mouse SOLO en ≥ lg */
-@media (min-width: 992px) {
-    .navbar .dropdown:hover > .dropdown-menu {
-        display: block;
-        margin-top: 0px;
-    }
-
-    .navbar .dropdown:hover > .dropdown-toggle {
-        opacity: .95;
-    }
-}
 
 /* Posicionamiento: ahora sí cuelga del <li> (position-relative) */
 .navbar .dropdown.position-relative .dropdown-menu {

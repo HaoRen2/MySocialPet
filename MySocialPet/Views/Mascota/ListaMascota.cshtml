@@ -3,66 +3,191 @@
     ViewData["Title"] = "Mis Mascotas";
 }
 
-<div class="pt-nav d-flex align-items-center mb-2">
-    <div class="container mb-5">
-        <div class="col-lg-6 text-lg-start text-center">
-            <h2 class="fw-bold display-6 my-5">@ViewData["Title"]</h2>
+@section Styles {
+    <style>
+        /* ====== Tokens suaves ====== */
+        :root {
+            --msp-shadow-card: 0 18px 48px rgba(0,0,0,.12);
+            --msp-shadow-inner: 0 10px 28px rgba(0,0,0,.10);
+            --msp-radius-lg: 1rem;
+        }
+
+        /* ====== Card de mascota ====== */
+        .pet-card {
+            border: 0;
+            border-radius: var(--msp-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--msp-shadow-card);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+            /* sin hover transform */
+            .pet-card:hover {
+                transform: none;
+                box-shadow: var(--msp-shadow-card);
+            }
+
+        /* Media con ratio cuadrado */
+        .pet-card-media.ratio {
+            background: #f5f7f9;
+        }
+
+        .pet-card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+
+        .pet-card .card-body {
+            padding: 1rem 1rem 0.75rem;
+            flex: 1 1 auto; /* empuja el footer hacia abajo */
+        }
+
+        .pet-card .card-title {
+            font-weight: 700;
+            margin: 0 0 .5rem;
+        }
+
+        .pet-card .card-text {
+            color: #6c757d;
+            font-size: .95rem;
+            line-height: 1.4;
+        }
+
+        /* Lista de info compacta y legible */
+        .pet-info {
+            text-align: left;
+            font-size: .95rem;
+            line-height: 1.5;
+            color: #4b5563;
+        }
+
+            .pet-info strong {
+                color: #111827;
+                font-weight: 600;
+            }
+
+        /* Pie de la card */
+        .pet-footer {
+            background: #f8f9fa;
+            border-top: 1px solid rgba(0,0,0,.06);
+            padding: .75rem 1rem;
+            text-align: center;
+            margin-top: auto; /* siempre abajo */
+        }
+
+            .pet-footer .meta {
+                margin: 0;
+                font-size: .9rem;
+                color: #6b7280;
+            }
+
+                .pet-footer .meta strong {
+                    color: #111827;
+                    font-weight: 600;
+                }
+
+        /* “Añadir mascota” con look de card consistente, sin hover brusco */
+        .anyadir-card {
+            border: 2px dashed rgba(0,0,0,.15);
+            border-radius: var(--msp-radius-lg);
+            background: #fafcfd;
+            box-shadow: var(--msp-shadow-inner);
+            display: flex;
+            flex-direction: column;
+        }
+
+            .anyadir-card .card-body {
+                padding: 1.25rem;
+            }
+
+            .anyadir-card .add-circle {
+                width: 96px;
+                height: 96px;
+                border-radius: 50%;
+                background: #e8f5ed;
+                display: grid;
+                place-items: center;
+                box-shadow: var(--msp-shadow-inner);
+            }
+
+        /* Utilidades pequeñas */
+        .text-muted-soft {
+            color: #6c757d;
+        }
+    </style>
+}
+
+<div class="welcome-section">
+    <div class="py-5 w-75  ">
+        <!-- Título + botón a la derecha -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+            <h2 class="fw-bold display-5 m-0">@ViewData["Title"]</h2>
+            <a asp-controller="Mascota" asp-action="CreateMascota"
+               class="btn primary d-inline-flex align-items-center px-3 py-2">
+                <i class="bi bi-plus-lg me-2"></i>
+                Nueva mascota
+            </a>
         </div>
 
-        <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
-
+        <div class="row row-cols-1 row-cols-md-4 g-4 ">
             @foreach (var mascota in Model.Mascotas)
             {
                 <div class="col">
                     <div class="card h-100 pet-card" onclick="location.href='@Url.Action("Details", "Mascota", new { id = mascota.IdMascota })'">
-                        @if (mascota.Foto != null && mascota.Foto.Length > 0)
-                        {
-                            var base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(mascota.Foto);
-                            <img src="@base64Image" class="card-img-top pet-card-img" alt="Foto de @mascota.Nombre" />
-                        }
-                        else
-                        {
-                            <img src="~/src/defecto.png" class="card-img-top pet-card-img" alt="Sin foto" />
-                        }
-                        <div class="card-body text-center">
-                            <h5 class="card-title">@mascota.Nombre</h5>
-                            <p class="card-text">
-                                <strong>Raza:</strong> @mascota.NombreRaza<br />
-                                <strong>Género:</strong> @mascota.Genero<br />
-                                <strong>Nacimiento:</strong> @(mascota.Nacimiento?.ToString("dd/MM/yyyy") ?? "N/A")<br />
-                            </p>
+                        <!-- Media con ratio 1:1 -->
+                        <div class="pet-card-media ratio ratio-1x1">
+                            @{
+                                // Resolver imagen: foto de mascota -> foto de raza (RazaFoto) ya calculada en el ViewModel
+                                string fotoSrc;
+                                if (mascota.Foto != null && mascota.Foto.Length > 0)
+                                {
+                                    fotoSrc = "data:image/jpeg;base64," + Convert.ToBase64String(mascota.Foto);
+                                }
+                                else
+                                {
+                                    fotoSrc = mascota.RazaFoto.StartsWith("~")
+                                    ? Url.Content(mascota.RazaFoto)
+                                    : mascota.RazaFoto;
+                                }
+                            }
+                            <img src="@fotoSrc"
+                                 class="pet-card-img"
+                                 alt="Foto de @mascota.Nombre"
+                                 loading="lazy"
+                                 decoding="async" />
                         </div>
-                        <div class="card-footer">
+
+                        <div class="card-body text-center d-flex flex-column">
+                            <h5 class="card-title fw-bold mb-2">@mascota.Nombre</h5>
+                            <ul class="list-unstyled pet-info mx-auto gap-1" style="max-width: 240px;">
+                                <li><strong>Raza:</strong> <span class="text-muted-soft">@mascota.NombreRaza</span></li>
+                                <li><strong>Género:</strong> <span class="text-muted-soft">@mascota.Genero</span></li>
+                                <li><strong>Nacimiento:</strong> <span class="text-muted-soft">@(mascota.Nacimiento?.ToString("dd/MM/yyyy") ?? "N/A")</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="pet-footer">
                             @if (mascota.Evento != null)
                             {
-                                <h4>Próximo Evento: @mascota.Evento.Titulo</h4>
-                                <p class="card-text">
-                                    Fecha: @mascota.Evento.FechaHora.ToString("g")
-                                    <br />
-                                    Nota: @mascota.Evento.Notas
+                                <p class="meta mb-1"><strong>Próximo evento:</strong> @mascota.Evento.Titulo</p>
+                                <p class="meta mb-0">
+                                    <strong>Fecha:</strong> @mascota.Evento.FechaHora.ToString("g")
+                                    &nbsp;•&nbsp;
+                                    <strong>Nota:</strong> @mascota.Evento.Notas
                                 </p>
                             }
                             else
                             {
-                                <h5 class="text-muted">No hay eventos próximos</h5>
+                                <p class="meta mb-0">No hay eventos próximos</p>
                             }
                         </div>
                     </div>
                 </div>
             }
-
-            <div class="col">
-                <div class="card h-100 text-center shadow-sm anyadir-card" style="min-height: 300px;">
-                    <a href="@Url.Action("CreateMascota", "Mascota")" class="text-decoration-none text-dark h-100 w-100">
-                        <div class="card-body d-flex flex-column justify-content-center align-items-center h-100">
-                            <div class="d-flex justify-content-center align-items-center mb-3" style="width: 100px; height: 100px;">
-                                <span style="font-size: 3rem; font-weight: bold;">+</span>
-                            </div>
-                            <p class="card-text fw-semibold">Añadir nueva mascota</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
         </div>
 
         @if (Model.TotalPaginas > 1)
@@ -70,18 +195,18 @@
             <nav aria-label="Navegación de mascotas" class="mt-5 d-flex justify-content-center">
                 <ul class="pagination">
                     <li class="page-item @(Model.TienePaginaAnterior ? "" : "disabled")">
-                        <a class="page-link text-black bg-lightgreen" asp-controller="Mascota" asp-action="ListaMascota" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a>
+                        <a class="page-link" asp-controller="Mascota" asp-action="ListaMascota" asp-route-pagina="@(Model.PaginaActual - 1)">Anterior</a>
                     </li>
 
                     @for (int i = 1; i <= Model.TotalPaginas; i++)
                     {
                         <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
-                            <a class="page-link text-black bg-lightgreen @(i == Model.PaginaActual ? "bg-success text-black" : "bg-light")" asp-controller="Mascota" asp-action="ListaMascota" asp-route-pagina="@i">@i</a>
+                            <a class="page-link" asp-controller="Mascota" asp-action="ListaMascota" asp-route-pagina="@i">@i</a>
                         </li>
                     }
 
                     <li class="page-item @(Model.TienePaginaSiguiente ? "" : "disabled")">
-                        <a class="page-link text-black bg-lightgreen" asp-controller="Mascota" asp-action="ListaMascota" asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a>
+                        <a class="page-link" asp-controller="Mascota" asp-action="ListaMascota" asp-route-pagina="@(Model.PaginaActual + 1)">Siguiente</a>
                     </li>
                 </ul>
             </nav>

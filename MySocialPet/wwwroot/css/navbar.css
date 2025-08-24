@@ -137,4 +137,45 @@ transition: box-shadow 0.3s ease, color 0.3s ease;
 }
 
 
+/* Dropdowns consistentes en navbar */
+.navbar .nav-dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    border-radius: .5rem;
+    padding: .35rem .6rem;
+}
 
+    .navbar .nav-dropdown-toggle:hover,
+    .navbar .nav-dropdown-toggle:focus {
+        background: rgba(255,255,255,.08);
+    }
+
+.navbar .nav-dropdown-menu {
+    top: 100% !important; /* Debajo del botón */
+    margin-top: .4rem; /* Separación vertical */
+    border: 0; /* Look limpio */
+    min-width: 14rem; /* Ancho agradable */
+    --bs-dropdown-link-active-bg: rgba(25,135,84,.12); /* activo sutil */
+    --bs-dropdown-link-hover-bg: rgba(0,0,0,.04); /* hover sutil */
+}
+
+    .navbar .nav-dropdown-menu .dropdown-item {
+        border-radius: .375rem;
+        padding: .5rem .75rem;
+    }
+
+.navbar .nav-divider {
+    margin: .35rem .5rem;
+    opacity: .25;
+}
+
+
+
+
+/* Ajustes SOLO para móvil/tablet (≤ lg) */
+@media (max-width: 991.98px) {
+    /* caja colapsable con un poco de padding */
+    .navbar .navbar-collapse {
+        padding: .5rem 1rem 1rem;
+    }}
