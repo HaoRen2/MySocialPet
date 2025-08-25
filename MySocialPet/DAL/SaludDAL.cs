@@ -27,7 +27,7 @@ namespace MySocialPet.DAL
         }
 
 
-        public async Task InsertMascota(Evento evento)
+        public async Task InsertMascotaEvento(Evento evento)
         {
             _context.Eventos.Add(evento);
             await _context.SaveChangesAsync();

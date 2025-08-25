@@ -102,107 +102,103 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        function EstimarIndiceCorporal() {
-            const peso = parseFloat(document.getElementById("pesoInput").value);
-            const longitud = parseFloat(document.getElementById("longitudInput").value);
-            const idMascota = @Model.IdMascota;
+        document.addEventListener("DOMContentLoaded", function() {
+            const pesoInput = document.getElementById("pesoInput");
+            const longitudInput = document.getElementById("longitudInput");
+            const bcsTextoInput = document.getElementById("bcsTextoInput");
+            const bcsValorInput = document.getElementById("bcsValorInput");
 
-            if (!peso || !longitud) return;
-
-            fetch(`/Salud/EstimarIndiceCorporal?pesoKg=${peso}&longitudLomoCm=${longitud}&idRaza=${idMascota}`)
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById("bcsTextoInput").value = data.textoOrientativo;
-                    document.getElementById("bcsValorInput").value = data.valorEstimado;
-                    document.getElementById("advertencia").value = data.advertencia;
-                });
-        }
-
-        document.getElementById("pesoInput").addEventListener("input", EstimarIndiceCorporal);
-        document.getElementById("longitudInput").addEventListener("input", EstimarIndiceCorporal);
-        document.getElementById("pesoInput").dispatchEvent(new Event('input'));
-
-
+            function estimarIndiceCorporal() {
+                const peso = parseFloat(pesoInput.value);
+                const longitud = parseFloat(longitudInput.value);
                 const idMascota = @Model.IdMascota;
 
-                // === 1. Gráfico de evolución ===
-                fetch(`/Salud/ObtenerEvolucion?idMascota=${idMascota}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        const labels = data.map(r => r.fecha);
-                        const pesos = data.map(r => r.peso);
-                        const bcs = data.map(r => r.bcs);
+                if (!peso || peso <= 0 || !longitud || longitud <= 0) {
+                    bcsTextoInput.value = "";
+                    bcsValorInput.value = "";
+                    return;
+                }
 
-                        const ctx = document.getElementById('evolucionChart').getContext('2d');
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: labels,
-                                datasets: [
-                                    {
-                                        label: 'Peso (kg)',
-                                        data: pesos,
-                                        borderColor: 'blue',
-                                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                                        tension: 0.3,
-                                        yAxisID: 'y'
-                                    },
-                                    {
-                                        label: 'BCS',
-                                        data: bcs,
-                                        borderColor: 'green',
-                                        backgroundColor: 'rgba(0, 255, 0, 0.1)',
-                                        tension: 0.3,
-                                        yAxisID: 'y2'
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                interaction: {
-                                    mode: 'index',
-                                    intersect: false
-                                },
-                                stacked: false,
-                                plugins: {
-                                    title: {
-                                        display: true,
-                                        text: 'Evolución de Peso y BCS'
-                                    }
-                                },
-                                scales: {
-                                    y: {
-                                        type: 'linear',
-                                        position: 'left',
-                                        title: {
-                                            display: true,
-                                            text: 'Peso (kg)'
-                                        }
-                                    },
-                                       y2: {
-                                type: 'linear',
-                                position: 'right',
-                                title: 
-                                {
-                                display: true,
-                                text: 'Indice corporal'
-                                },
-                                min: 1,
-                                max: 9,
-                                ticks: {
-                                stepSize: 1 
-                                },
-                                grid: { drawOnChartArea: false}}
-                                }
+                bcsTextoInput.value = "Calculando...";
+                const url = `/Salud/EstimarIndiceCorporal?pesoKg=${peso}&longitudLomoCm=${longitud}&idMascota=${idMascota}`;
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Error de red o del servidor.');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.exito === false) {
+                            console.error("Error desde el servidor:", data.mensaje);
+                            bcsTextoInput.value = "No se pudo calcular";
+                            bcsValorInput.value = "";
+                        } else {
+                            bcsTextoInput.value = data.textoOrientativo;
+                            bcsValorInput.value = data.valorEstimado;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error en fetch:', error);
+                        bcsTextoInput.value = "Error de conexión";
+                        bcsValorInput.value = "";
+                    });
+            }
+
+            if (pesoInput && longitudInput) {
+                 pesoInput.addEventListener("input", estimarIndiceCorporal);
+                 longitudInput.addEventListener("input", estimarIndiceCorporal);
+            }
+                    document.getElementById("pesoInput").dispatchEvent(new Event('input'));
+
+
+            // --- GRÁFICO Y CALORÍAS (AHORA DENTRO DE DOMCONTENTLOADED) ---
+            const idMascota = @Model.IdMascota;
+
+            // Gráfico de evolución
+            fetch(`/Salud/ObtenerEvolucion?idMascota=${idMascota}`)
+                .then(res => res.json())
+                .then(data => {
+                    const labels = data.map(r => r.fecha);
+                    const pesos = data.map(r => r.peso);
+                    const bcs = data.map(r => r.bcs);
+
+                    const ctx = document.getElementById('evolucionChart').getContext('2d');
+                    // ... (resto del código del gráfico sin cambios)
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Peso (kg)',
+                                data: pesos,
+                                borderColor: 'blue',
+                                yAxisID: 'y'
+                            }, {
+                                label: 'BCS',
+                                data: bcs,
+                                borderColor: 'green',
+                                yAxisID: 'y2'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            interaction: { mode: 'index', intersect: false },
+                            scales: {
+                                y: { type: 'linear', position: 'left', title: { display: true, text: 'Peso (kg)' } },
+                                y2: { type: 'linear', position: 'right', title: { display: true, text: 'Índice corporal' }, min: 1, max: 9, ticks: { stepSize: 1 }, grid: { drawOnChartArea: false } }
                             }
-                        });
+                        }
                     });
+                });
 
-                fetch(`/Salud/CalcularCalorias?idMascota=${idMascota}`)
-                    .then(res => res.json())
-                    .then(data => {
+            // Cálculo de calorías
+            fetch(`/Salud/CalcularCalorias?idMascota=${idMascota}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.calorias) {
                         document.getElementById('caloriasValor').textContent = data.calorias;
-                    });
-
+                    }
+                });
+        });
     </script>
 }
