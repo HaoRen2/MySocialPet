@@ -44,17 +44,17 @@
 
 
 
-.quitar-violeta {
+.quitar-violetas {
     border: 1px dashed rgba(111, 0, 255, 1); /* Violeta */
     background-color: rgba(111, 0, 255, 0.1); /* Violeta transparente */
 }
 
-.quitar-amarillo {
+.quitar-amarillos {
     border: 1px dashed rgba(255, 247, 8, 1); /* Amarillo */
     background-color: rgba(255, 247, 8, 0.1); /* Amarillo transparente */
 }
 
-.quitar-rojo {
+.quitar-rojos {
     border: 1px dashed rgba(244, 67, 54, 1); /* Rojo */
     background-color: rgba(244, 67, 54, 0.1); /* Rojo transparente */
 }

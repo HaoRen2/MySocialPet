@@ -106,7 +106,7 @@ namespace MySocialPet.Controllers
                 msg = "Avatar eliminado.";
                 ok = true;
                 // usa uno por defecto visible sin recargar:
-                previewDataUrl = Url.Content("~/src/DefaultAvatar/AvatarPerro.png");
+                previewDataUrl = Url.Content("~/src/DefaultAvatar/Perro.png");
             }
             else if (avatar != null && avatar.Length > 0)
             {
