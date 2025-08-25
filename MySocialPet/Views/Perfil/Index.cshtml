@@ -41,6 +41,31 @@
                 box-shadow: 0 2px 8px rgba(0,0,0,.08);
                 background: #fff;
             }
+
+        /* === Tabs de perfil: forzar verde en el item activo === */
+        .list-group[role="tablist"] {
+            --bs-list-group-active-bg: var(--light-green);
+            --bs-list-group-active-border-color: var(--light-green);
+            --bs-list-group-active-color: #fff;
+        }
+
+            /* Opcional: hover/focus también en gama de verdes */
+            .list-group[role="tablist"] .list-group-item-action:hover,
+            .list-group[role="tablist"] .list-group-item-action:focus {
+                background-color: rgba(155,178,157,.12);
+                color: var(--primary);
+                /* anillo de enfoque en verde suave */
+                box-shadow: 0 0 0 .25rem rgba(155,178,157,.35);
+            }
+
+            /* Si alguna regla se resiste, añade este refuerzo */
+            .list-group[role="tablist"] .list-group-item.active,
+            .list-group[role="tablist"] .list-group-item-action.active {
+                background-color: var(--light-green) !important;
+                border-color: var(--light-green) !important;
+                color: #fff !important;
+            }
+
     </style>
 }
 
@@ -92,7 +117,7 @@
             <!-- Sidebar: tabs verticales -->
             <aside class="col-lg-3  ">
                 <div class="list-group sticky-top" role="tablist" style="top:80px;">
-                    <button class="list-group-item list-group-item-action active quitar-amarillo"
+                    <button class="list-group-item list-group-item-action active "
                             id="tab-perfil"
                             data-bs-toggle="list"
                             data-bs-target="#pane-perfil"
@@ -110,8 +135,9 @@
                             type="button"
                             role="tab"
                             aria-controls="pane-email"
-                            aria-selected="false">
+                            aria-selected="false" >
                         Email
+                        
                     </button>
 
                     <button class="list-group-item list-group-item-action"
