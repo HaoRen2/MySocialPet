@@ -21,6 +21,15 @@
                     <input asp-for="Imagen" name="Imagen" type="file" class="form-control" />
                 </div>
 
+               
+                <a asp-action="HiloDetails"
+                   asp-route-slug="@Model.Slug"
+                   asp-route-foroId="@Model.IdForo"
+                   asp-route-discId="@Model.IdDiscusion"
+                   class="text-decoration-none btn btn-verde border-1 border-verde">
+                    <i class="bi bi-arrow-left ">Volver</i>
+                </a>
+
                 <button type="submit" class="btn primary">
                     @(Model.IdMensajePadre.HasValue ? "Responder" : "Enviar")
                 </button>

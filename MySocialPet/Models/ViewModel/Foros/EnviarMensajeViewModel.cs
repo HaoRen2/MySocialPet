@@ -18,6 +18,8 @@ namespace MySocialPet.Models.ViewModel.Foros
 
         [AllowedExtensions(new string[] { ".png", ".jpg", ".jpeg", ".gif" }, ErrorMessage = "Solo se permiten imágenes PNG, JPG o GIF.")]
         public IFormFile? Imagen { get; set; }
+        public string Slug { get; set; } = string.Empty;
+
     }
 
     // Validación de tamaño máximo

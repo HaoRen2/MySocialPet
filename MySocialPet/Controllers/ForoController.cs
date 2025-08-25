@@ -40,13 +40,14 @@ namespace MySocialPet.Controllers
 
             vm.Discusions = await _foroDAL.GetDiscusionesPorForoAsync(foro.IdForo);
             vm.Tendencias = await _foroDAL.GetTrendingDiscusionsAsync(null);
-
+            vm.Slug = slug;
             vm.Foro = foro;
+
             return View(vm);
         }
 
         [HttpGet]
-        public async Task<IActionResult> NuevoHilo(int foroId)
+        public async Task<IActionResult> NuevoHilo(int foroId, string slug)
         {
             var foro = await _foroDAL.GetForoByIdAsync(foroId);
             if (foro == null)
@@ -57,6 +58,7 @@ namespace MySocialPet.Controllers
 
             var vm = new NuevoHiloViewModel
             {
+                Slug = slug,
                 IdForo = foroId
             };
 
@@ -132,6 +134,7 @@ namespace MySocialPet.Controllers
 
             var vm = new EnviarMensajeViewModel
             {
+                Slug = slug,
                 IdForo = foroId,
                 IdDiscusion = discId,
                 IdMensajePadre = mensajePadreId

@@ -45,10 +45,6 @@
                                        asp-route-discId="@Model.IdDiscusion"
                                        asp-route-ordenarPor="antiguos">Más antiguos</a>
                                 </li>
-                                <!-- Más tarde se implementa esto:
-                                <li><a class="dropdown-item" href="#" data-filter="mensajes">Más mensajes</a></li>
-                                <li><a class="dropdown-item" href="#" data-filter="sin-responder">Sin responder</a></li>
-                                -->
                             </ul>
                         </div>
                     </div>
@@ -111,7 +107,7 @@
 
                                                     <p class="text-muted small mb-0 me-1 d-none d-sm-block">@fechaTexto</p>
 
-                                                    <p class="text-muted small mb-0 me-1 d-none d-sm-block">Mensaje <span class="text-muted me-3"># @item.IdMensaje</span></p>
+                                                    <p class="text-muted small mb-0 me-1 d-none d-sm-block">Mensaje <span class="text-muted me-3"></span></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -132,14 +128,13 @@
                                         <p>@item.ContenidoMensaje</p>
                                         @if (User.Identity != null && User.Identity.IsAuthenticated && item.Username == User.Identity.Name)
                                         {
-                                            @using (Html.BeginForm("EliminarMensaje", "Foro", new { id = item.IdMensaje }, FormMethod.Post, true, new { style = "display:inline;" }))
-                                            {
-                                                //@Html.AntiForgeryToken()
-                                                <button type="submit" class="text-danger btn-sm p-1 ms-2 border-0 bg-transparent"
-                                                        onclick="return confirm('¿Estás seguro de que quieres eliminar este mensaje?');">
-                                                    <i. class="bi bi-trash"></i.> Eliminar
-                                                </button>
-                                            }
+                                            <button type="button" class="text-danger btn-sm p-1 ms-2 border-0 bg-transparent"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#confirmDeleteModal"
+                                                    data-message-id="@item.IdMensaje"
+                                                    data-form-action="@Url.Action("EliminarMensaje", "Foro")">
+                                                <i class="bi bi-trash"></i> Eliminar
+                                            </button>
                                         }
                                     </div>
                                 </div>
@@ -159,16 +154,18 @@
                 }
 
                 <div class="row bg-white shadow mx-0 py-3 rounded-top rounded-15 border-top-0 ">
-                    <div class="d-flex justify-content-around">
-                        <a asp-action="Hilos"
-                           asp-route-slug="@Model.Slug"
-                           class="text-decoration-none btn btn-verde border-1 border-verde">
-                            <i class="bi bi-arrow-left ">Volver</i>
-                        </a>
-                        @if (ViewBag.TotalPages > 1)
-                        {
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination justify-content-center mt-4">
+                    @if (ViewBag.TotalPages > 1)
+                    {
+                        <div class="d-flex justify-content-around align-items-center">
+                            <a asp-action="Hilos"
+                               style="height:42px"
+                               asp-route-slug="@Model.Slug"
+                               class="text-decoration-none btn btn-verde border-1 border-verde">
+                                <i class="bi bi-arrow-left ">Volver</i>
+                            </a>
+
+                            <nav aria-label="Page navigation" class="mt-4 d-flex justify-content-center">
+                                <ul class="pagination pagination-sm flex-wrap gap-1">
                                     <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
                                         <a class="page-link"
                                            asp-action="HiloDetails"
@@ -209,16 +206,35 @@
                                     </li>
                                 </ul>
                             </nav>
-                        }
-
-                        <a asp-action="EnviarMensaje"
-                           asp-route-slug="@Model.Slug"
-                           asp-route-foroId="@Model.IdForo"
-                           asp-route-discId="@Model.IdDiscusion"
-                           class="btn primary border-1 border-verde">
-                            Nuevo Mensaje
-                        </a>
-                    </div>
+                            <a asp-action="EnviarMensaje"
+                               asp-route-slug="@Model.Slug"
+                               asp-route-foroId="@Model.IdForo"
+                               asp-route-discId="@Model.IdDiscusion"
+                               style="height:42px"
+                               class="btn primary border-1 border-verde">
+                                Nuevo Mensaje
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="px-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a asp-action="Hilos"
+                                   asp-route-slug="@Model.Slug"
+                                   class="text-decoration-none btn btn-verde border-1 border-verde">
+                                    <i class="bi bi-arrow-left ">Volver</i>
+                                </a>
+                                <a asp-action="EnviarMensaje"
+                                   asp-route-slug="@Model.Slug"
+                                   asp-route-foroId="@Model.IdForo"
+                                   asp-route-discId="@Model.IdDiscusion"
+                                   class="btn primary border-1 border-verde">
+                                    Nuevo Mensaje
+                                </a>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
 
@@ -265,7 +281,47 @@
     </div>
 </div>
 
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que quieres eliminar este mensaje? Esta acción no se puede deshacer.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="post" action="">
+                    <input type="hidden" name="id" id="messageIdInput" value="" />
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
+<style>
+    /* Paginación */
+    .pagination .page-link {
+        border: 0;
+        border-radius: .6rem;
+        margin: 0 .25rem;
+        padding: .5rem .85rem;
+        background: #f1f5f9;
+        color: #111827;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #198754; /* puedes cambiarlo a tu primario si quieres */
+        color: #fff;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        opacity: .6;
+    }
+</style>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
     const lazyImages = document.querySelectorAll("img.lazyload");
@@ -293,5 +349,27 @@
                 modal.show();
             });
         });
+    });
+
+    // JavaScript para el modal de eliminación
+    var confirmDeleteModal = document.getElementById('confirmDeleteModal');
+    if (confirmDeleteModal) {
+        confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+            // Botón que activó el modal
+            var button = event.relatedTarget;
+
+            // Extraer la información de los atributos data-*
+            var messageId = button.getAttribute('data-message-id');
+            var formAction = button.getAttribute('data-form-action');
+
+            // Actualizar el formulario del modal
+            var form = confirmDeleteModal.querySelector('#deleteForm');
+            var input = confirmDeleteModal.querySelector('#messageIdInput');
+
+            form.action = formAction;
+            input.value = messageId;
+        });
+    }
+
     });
 </script>

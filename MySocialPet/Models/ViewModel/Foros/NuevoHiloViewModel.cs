@@ -13,5 +13,7 @@ namespace MySocialPet.Models.ViewModel.Foros
 
         [Required(ErrorMessage = "La descripción es obligatoria.")]
         public string Descripcion { get; set; }
+
+        public string Slug { get; set; } = string.Empty;
     }
 }

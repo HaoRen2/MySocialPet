@@ -23,7 +23,11 @@
                     <textarea asp-for="Descripcion" class="form-control"></textarea>
                     <span asp-validation-for="Descripcion" class="text-danger"></span>
                 </div>
-
+                <a asp-action="Hilos"
+                   asp-route-slug="@Model.Slug"
+                   class="text-decoration-none btn btn-verde border-1 border-verde">
+                    <i class="bi bi-arrow-left ">Volver</i>
+                </a>
                 <button type="submit" class="btn primary">Crear</button>
             </form>
         </div>
