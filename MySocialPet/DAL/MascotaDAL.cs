@@ -81,6 +81,12 @@ namespace MySocialPet.DAL
                                             .ToListAsync();
                 _context.RemoveRange(eventos);
 
+                // Salud Registros
+                var saludRegistros = await _context.Set<SaludRegistro>()
+                    .Where(s => s.IdMascota == id)
+                                            .ToListAsync();
+                _context.RemoveRange(saludRegistros);
+
                 // 2) Eliminar la mascota
                 var mascota = await _context.Mascotas.FindAsync(id);
                 if (mascota != null)
@@ -99,7 +105,19 @@ namespace MySocialPet.DAL
 
         public Mascota GetMascotaById(int id)
         {
-            return _context.Mascotas.Include(m => m.Raza).Include(m => m.Notas).Include(m => m.Eventos)
+            return _context.Mascotas
+                .Include(m => m.Raza)
+                    .ThenInclude(r => r.Especie)
+                .Include(m => m.Notas)
+                .Include(m => m.Eventos)
+                .FirstOrDefault(m => m.IdMascota == id);
+        }
+
+        public Mascota GetMascotaByIdConEspecie(int id)
+        {
+            return _context.Mascotas
+                .Include(m => m.Raza)
+                    .ThenInclude(r => r.Especie)
                 .FirstOrDefault(m => m.IdMascota == id);
         }
 
