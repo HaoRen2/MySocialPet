@@ -178,6 +178,7 @@
     /* right: 0; left: auto;   <-- alternativa si prefieres alinear al extremo derecho */
 }
 
+
 /* === Clase base para TODOS los botones === */
 .btn {
     display: inline-flex; /* siempre flex para centrar */

@@ -12,20 +12,20 @@
             --msp-radius-lg: 1rem;
         }
 
-        /* ====== Card de mascota ====== */
         .pet-card {
-            border: 0;
-            border-radius: var(--msp-radius-lg);
-            overflow: hidden;
-            box-shadow: var(--msp-shadow-card);
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: none;
         }
-            /* sin hover transform */
+
             .pet-card:hover {
-                transform: none;
-                box-shadow: var(--msp-shadow-card);
+                transform: translateY(-5px);
+                cursor: pointer;
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px var(--green);
+                transition: box-shadow 0.3s ease-in-out;
+                border-color:  blue;
+
             }
 
         /* Media con ratio cuadrado */
