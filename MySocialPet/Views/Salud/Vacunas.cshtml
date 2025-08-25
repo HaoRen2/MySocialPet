@@ -99,21 +99,35 @@
                                 }
                             </td>
                             <td class="text-center">
-                                @if (vacuna.Aplicada)
-                                {
-                                    <button type="button" class="btn btn-sm btn-outline-primary"
-                                            data-bs-toggle="modal"
-                                            title="Editar"
-                                            data-bs-target="#editarVacunaModal-@vacuna.IdVacunaRegistro">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-sm btn-outline-primary" disabled>
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                }
+                                <div class="d-flex justify-content-center gap-1">
+                                    @if (vacuna.Aplicada)
+                                    {
+                                        <!-- Botón editar -->
+                                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                                data-bs-toggle="modal"
+                                                title="Editar"
+                                                data-bs-target="#editarVacunaModal-@vacuna.IdVacunaRegistro">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+
+                                        <!-- Botón eliminar -->
+                                        <form asp-action="EliminarVacuna" asp-controller="Salud" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@vacuna.IdVacunaRegistro" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('¿Seguro que quieres eliminar esta vacuna?');"
+                                                    title="Eliminar">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-primary" disabled>
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    }
+                                </div>
                             </td>
                         </tr>
                     }

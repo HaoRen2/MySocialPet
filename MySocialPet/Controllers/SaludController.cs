@@ -109,7 +109,7 @@ namespace MySocialPet.Controllers
                     IdMascota = model.IdMascota
                 };
 
-                _saludDAL.InsertMascota(nuevoEvento);
+                await _saludDAL.InsertMascotaEvento(nuevoEvento);
 
                 return RedirectToAction("CalendarioEventos", new { id = model.IdMascota });
             }
@@ -221,6 +221,23 @@ namespace MySocialPet.Controllers
             return RedirectToAction(nameof(Vacunas), new { id = registro.IdMascota });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarVacuna(int id)
+        {
+            var vacuna = await _context.VacunaRegistros.FindAsync(id);
+            if (vacuna == null)
+            {
+                return NotFound();
+            }
+
+            _context.VacunaRegistros.Remove(vacuna);
+            await _context.SaveChangesAsync();
+
+            TempData["Mensaje"] = "La vacuna se eliminó correctamente.";
+            return RedirectToAction("Vacunas", new { id = vacuna.IdMascota });
+        }
+
         [HttpGet]
         public IActionResult ObtenerEvolucion(int idMascota)
         {
@@ -269,36 +286,28 @@ namespace MySocialPet.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EstimarIndiceCorporal(double pesoKg, double longitudLomoCm, int idRaza)
+        public async Task<IActionResult> EstimarIndiceCorporal(double pesoKg, double longitudLomoCm, int idMascota) // 1. Cambiamos el nombre del parámetro a idMascota
         {
-            if (pesoKg <= 0 || longitudLomoCm <= 0 || idRaza <= 0)
+            if (pesoKg <= 0 || longitudLomoCm <= 0 || idMascota <= 0)
             {
                 return Json(new { exito = false, mensaje = "Los datos introducidos no son válidos." });
             }
 
-            // --- Obtención de datos de la raza ---
-            // ASUMIMOS que ahora tu clase 'Raza' tiene una propiedad: public double? RatioIdeal { get; set; }
-            var raza = _mascotaDAL.GetRazaDeMascota(idRaza);
+            var mascota = _mascotaDAL.GetMascotaByIdConEspecie(idMascota);
 
-            if (raza == null || raza.Especie == null)
+            // 3. Verificamos que la mascota y su raza existan.
+            if (mascota == null || mascota.Raza == null || mascota.Raza.Especie == null)
             {
-                return Json(new { exito = false, mensaje = "Raza no encontrada o datos incompletos." });
+                return Json(new { exito = false, mensaje = "Mascota, raza o especie no encontrada en la base de datos." });
             }
+
+            // 4. A partir de aquí, el resto de tu lógica funciona perfectamente.
+            var raza = mascota.Raza; // Obtenemos la raza desde la mascota.
 
             string especie = raza.Especie.Nombre.ToLower();
             string tamano = raza.Tamanyo?.ToLower() ?? "";
-            double ratioIdeal = 0;
-            // --- CÁLCULO DEL RATIO IDEAL (Lógica mejorada) ---
-            // double? ratioIdeal = null;
+            int ratioIdeal = 0;
 
-            // 1. Prioridad: Usar el ratio específico de la raza si existe en la BD.
-            /*
-            if (raza.RatioIdeal != null && raza.RatioIdeal > 0)
-            {
-                ratioIdeal = raza.RatioIdeal;
-            }
-            */
-            // 2. Fallback: Si no hay ratio específico, usar la lógica general por tamaño.
             if (especie == "perro")
             {
                 if (tamano.Contains("toy") || tamano.Contains("pequeño")) ratioIdeal = 28;
@@ -309,9 +318,7 @@ namespace MySocialPet.Controllers
             }
             else if (especie == "gato")
             {
-                // Para gatos, es mejor tener ratios por raza. Si no, usamos un default genérico
-                // pero somos conscientes de su alta imprecisión.
-                ratioIdeal = 30; // Default para gatos (con sus limitaciones ya discutidas)
+                ratioIdeal = 30; // Default para gatos
             }
 
             if (ratioIdeal <= 0)
@@ -319,12 +326,10 @@ namespace MySocialPet.Controllers
                 return Json(new { exito = false, mensaje = "No se pudo determinar un ratio ideal para esta especie o raza." });
             }
 
-            // --- CÁLCULO DEL ÍNDICE ACTUAL Y LA DESVIACIÓN ---
             double longitudMetros = longitudLomoCm / 100.0;
             double ratioActual = pesoKg / Math.Pow(longitudMetros, 2);
             double desviacion = (ratioActual - ratioIdeal) / ratioIdeal * 100;
 
-            // --- MAPEO A UNA ESCALA ORIENTATIVA ---
             int valorEstimado;
             string textoOrientativo;
 
@@ -338,9 +343,11 @@ namespace MySocialPet.Controllers
             else if (desviacion <= 40) { valorEstimado = 8; textoOrientativo = "8/9 - Posiblemente con sobrepeso severa"; }
             else { valorEstimado = 9; textoOrientativo = "9/9 - Posiblemente con obesidad"; }
 
-            // --- MENSAJE DE ADVERTENCIA (EL CAMBIO MÁS IMPORTANTE) ---
+            // 5. ¡Ahora devolvemos el resultado correcto!
+            //    Añadimos `exito = true` para que el JavaScript sepa que todo fue bien.
             return Json(new
             {
+                exito = true, // Es una buena práctica indicar el éxito.
                 valorEstimado,
                 textoOrientativo,
             });
