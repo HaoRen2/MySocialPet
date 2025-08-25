@@ -5,96 +5,98 @@
     var pagina = "Salud";
 
 }
-
-<div class="container pt-nav">
-    <div class="auth-tabs mb-3">
-        <a asp-action="SaludRegistro"
-           asp-controller="Salud"
-           asp-route-id="@Model.IdMascota"
-           class="btn @(pagina.ToString() == "Salud" ? "active" : "")">
-            Registro Salud
-        </a>
-        <a asp-action="Vacunas"
-           asp-controller="Salud"
-           asp-route-id="@Model.IdMascota"
-           asp-route-vista="especificaciones"
-           class="btn @(pagina.ToString() == "Vacuna" ? "active" : "")">
-            Registro Vacunas
-        </a>
-    </div>
-    <div class="row justify-content-center">
-        <div class="text-center col-12">
-            <h2 class="fw-bold">@ViewData["Title"]</h2>
+<div class="welcome-section py-5">
+    <div class="container">
+        <div class="auth-tabs mb-3">
+            <a asp-action="SaludRegistro"
+               asp-controller="Salud"
+               asp-route-id="@Model.IdMascota"
+               class="btn @(pagina.ToString() == "Salud" ? "active" : "")">
+                Registro Salud
+            </a>
+            <a asp-action="Vacunas"
+               asp-controller="Salud"
+               asp-route-id="@Model.IdMascota"
+               asp-route-vista="especificaciones"
+               class="btn @(pagina.ToString() == "Vacuna" ? "active" : "")">
+                Registro Vacunas
+            </a>
         </div>
-        @await Component.InvokeAsync("MascotaSelector", new {
-        mascotaIdActual = Model.IdMascota,
-                controlador = "Salud",
-                accion = "SaludRegistro"
-                })
+        <div class="row justify-content-center">
+            <div class="text-center col-12">
+                <h2 class="fw-bold">@ViewData["Title"]</h2>
+            </div>
+            @await Component.InvokeAsync("MascotaSelector", new {
+            mascotaIdActual = Model.IdMascota,
+                        controlador = "Salud",
+                        accion = "SaludRegistro"
+                        })
 
-        <div class="col-lg-6 p-2">
-            <!-- Formulario -->
-            <form asp-action="SaludRegistro" method="post" class="mx-auto" style="max-width: 600px;">
-                <input type="hidden" asp-for="IdMascota" />
-                <p class="text-muted fs-5">Introduce los datos de salud de tu mascota.</p>
+            <div class="col-lg-6 p-2">
+                <!-- Formulario -->
+                <form asp-action="SaludRegistro" method="post" class="mx-auto" style="max-width: 600px;">
+                    <input type="hidden" asp-for="IdMascota" />
+                    <p class="text-muted fs-5">Introduce los datos de salud de tu mascota.</p>
 
-                <div class="mb-3">
-                    <label asp-for="Fecha" class="form-label">Fecha</label>
-                    <input asp-for="Fecha" class="form-control" type="date" min="2000-01-01" 
-                    max="@DateTime.Today.ToString("yyyy-MM-dd")" type="date" />
-                    <span asp-validation-for="Fecha" class="text-danger small"></span>
-                </div>
+                    <div class="mb-3">
+                        <label asp-for="Fecha" class="form-label">Fecha</label>
+                        <input asp-for="Fecha" class="form-control" type="date" min="2000-01-01"
+                               max="@DateTime.Today.ToString("yyyy-MM-dd")" type="date" />
+                        <span asp-validation-for="Fecha" class="text-danger small"></span>
+                    </div>
 
-                <div class="mb-3">
-                    <label asp-for="PesoKg" class="form-label">Peso (Kg)</label>
-                    <input asp-for="PesoKg" class="form-control" id="pesoInput" type="number" inputmode="decimal" step="0.01"/>
-                    <span asp-validation-for="PesoKg" class="text-danger small"></span>
-                </div>
+                    <div class="mb-3">
+                        <label asp-for="PesoKg" class="form-label">Peso (Kg)</label>
+                        <input asp-for="PesoKg" class="form-control" id="pesoInput" type="number" inputmode="decimal" step="0.01" />
+                        <span asp-validation-for="PesoKg" class="text-danger small"></span>
+                    </div>
 
-                <div class="mb-3">
-                    <label asp-for="LongitudCm" class="form-label">Longitud Lomo (cm)</label>
-                    <input asp-for="LongitudCm" class="form-control" id="longitudInput" type="number" inputmode="decimal" step="0.01" />
-                    <span asp-validation-for="LongitudCm" class="text-danger small"></span>
-                </div>
+                    <div class="mb-3">
+                        <label asp-for="LongitudCm" class="form-label">Longitud Lomo (cm)</label>
+                        <input asp-for="LongitudCm" class="form-control" id="longitudInput" type="number" inputmode="decimal" step="0.01" />
+                        <span asp-validation-for="LongitudCm" class="text-danger small"></span>
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Indice corporal Calculado</label>
-                    <input type="text" class="form-control" readonly id="bcsTextoInput" />
-                    <input type="hidden" asp-for="BCS" id="bcsValorInput" />
-                    <small>
-                        IMPORTANTE: Este es un cálculo de orientación basado en promedios y no reemplaza la evaluación de un veterinario.
-                        La complexión de cada mascota es única.
-                    </small>
-                </div>
-
-                <div class="d-grid">
-                    <button type="submit" class="btn static">Guardar</button>
-                </div>
-            </form>
-        </div>
-
-        <div class="col-lg-6 p-2">
-            <h2>Evolución de Peso</h2>
-            <canvas id="evolucionChart" style="max-height: 400px;"></canvas>
-            <!-- Calorías recomendadas -->
-            <div class="p-2 justify-content-end">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Calorías recomendadas</h5>
-                        <p class="card-text">
-                            <span id="caloriasValor" class="fw-bold fs-4 text-primary">--</span> kcal/día
-                        </p>
-                        <small class="text-muted">
-                             Cálculo de calorías basado en el peso actual y el estado reproductivo.
-                             Esta es una recomendación aproximada si la mascota se comporta con normalidad.
-                             Si no es muy activa, se recomienda reducir entre un 10% y un 20% la cantidad calculada.
+                    <div class="mb-3">
+                        <label class="form-label">Indice corporal Calculado</label>
+                        <input type="text" class="form-control" readonly id="bcsTextoInput" />
+                        <input type="hidden" asp-for="BCS" id="bcsValorInput" />
+                        <small>
+                            IMPORTANTE: Este es un cálculo de orientación basado en promedios y no reemplaza la evaluación de un veterinario.
+                            La complexión de cada mascota es única.
                         </small>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn static">Guardar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-lg-6 p-2">
+                <h2>Evolución de Peso</h2>
+                <canvas id="evolucionChart" style="max-height: 400px;"></canvas>
+                <!-- Calorías recomendadas -->
+                <div class="p-2 justify-content-end">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Calorías recomendadas</h5>
+                            <p class="card-text">
+                                <span id="caloriasValor" class="fw-bold fs-4 text-primary">--</span> kcal/día
+                            </p>
+                            <small class="text-muted">
+                                Cálculo de calorías basado en el peso actual y el estado reproductivo.
+                                Esta es una recomendación aproximada si la mascota se comporta con normalidad.
+                                Si no es muy activa, se recomienda reducir entre un 10% y un 20% la cantidad calculada.
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

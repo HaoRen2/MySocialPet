@@ -9,6 +9,38 @@
         #globalLoader {
             display: none !important;
         }
+
+        /* ====== Drag & Drop upload ====== */
+        .upload-zone {
+            border: 2px dashed #9BB29D;
+            border-radius: .75rem;
+            transition: background .2s ease, border-color .2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        /* por si tu tema no define esta utilidad */
+        .border-dashed {
+            border-style: dashed !important;
+        }
+
+        .upload-zone.dragover {
+            background: rgba(155,178,157, .08); /* verde sutil */
+            border-color: #6C936C;
+        }
+
+        .upload-preview {
+            display: none;
+            margin-top: .75rem;
+        }
+
+            .upload-preview img {
+                max-width: 100%;
+                max-height: 220px;
+                object-fit: contain;
+                border-radius: .5rem;
+                box-shadow: 0 2px 8px rgba(0,0,0,.08);
+                background: #fff;
+            }
     </style>
 }
 
@@ -23,8 +55,8 @@
                 <div class="d-flex flex-column align-items-center text-white">
                     <img id="avatarClickable"
                          src="@(Model.AvatarFoto != null
-                                                                                                                       ? $"data:image/png;base64,{Convert.ToBase64String(Model.AvatarFoto)}"
-                                                                                                                       : Url.Content("~/src/DefaultAvatar/AvatarPerro.png"))"
+                                                                                                                                                ? $"data:image/png;base64,{Convert.ToBase64String(Model.AvatarFoto)}"
+                                                                                                                                                : Url.Content("~/src/DefaultAvatar/AvatarPerro.png"))"
                          alt="Avatar de @Model.Username"
                          class="rounded-circle border border-4 border-light shadow"
                          style="width:140px;height:140px;object-fit:cover;cursor:pointer;"
@@ -335,18 +367,24 @@
                     <!-- Subir -->
                     <div class="tab-pane fade" id="pane-upload">
                         <form id="avatarUploadForm" asp-controller="Perfil" asp-action="SaveAvatar"
-                              method="post" enctype="multipart/form-data" class="p-3 border rounded-3 shadow-sm bg-light text-center">
+                              method="post" enctype="multipart/form-data"
+                              class="p-3 border rounded-3 shadow-sm bg-light text-center">
                             @Html.AntiForgeryToken()
 
-                            <div class="upload-zone mb-3 p-4 border border-2 border-dashed rounded-3 bg-white position-relative">
-                                <i class="bi bi-cloud-arrow-up fs-1 text-secondary"></i>
+                            <div id="uploadZone" class="upload-zone mb-3 p-4 border border-2 border-dashed bg-white position-relative">
+                                <i class="bi bi-cloud-arrow-up fs-1 text-secondary d-block"></i>
                                 <p class="mt-2 mb-1 fw-bold">Arrastra tu imagen aquí</p>
-                                <p class="text-muted small mb-3">Formatos aceptados: JPG, PNG, GIF</p>
+                                <p class="text-muted small mb-3">Formatos aceptados: JPG, PNG, GIF. Máx ~10MB.</p>
 
                                 <!-- Input escondido + label estilizada -->
                                 <input id="fldAvatarUpload" type="file" name="avatar" accept="image/*"
                                        class="form-control d-none" required />
                                 <label for="fldAvatarUpload" class="btn secondary">Elegir archivo</label>
+
+                                <!-- Previsualización -->
+                                <div id="uploadPreviewBox" class="upload-preview">
+                                    <img id="avatarUploadPreview" alt="Previsualización" />
+                                </div>
                             </div>
 
                             <button type="submit" class="btn primary w-100 mt-3">
@@ -680,13 +718,86 @@
             });
           }
 
-          // Subir nueva
+          // ===== Subir nueva: Drag & Drop + preview + submit AJAX =====
           if (uploadForm) {
+            const dropZone   = document.getElementById("uploadZone");
+            const fileInput  = document.getElementById("fldAvatarUpload");
+            const prevBox    = document.getElementById("uploadPreviewBox");
+            const prevImg    = document.getElementById("avatarUploadPreview");
+            const MAX_MB = 10;
+
+            function bytesToMB(b){ return b / (1024*1024); }
+
+            function showPreview(file) {
+              if (!file) return;
+              if (!file.type.startsWith('image/')) {
+                toastError?.('Archivo no válido', 'Solo imágenes (JPG, PNG, GIF)');
+                fileInput.value = '';
+                prevBox.style.display = 'none';
+                return;
+              }
+              if (bytesToMB(file.size) > MAX_MB) {
+                toastError?.('Archivo muy grande', `Máximo ${MAX_MB} MB`);
+                fileInput.value = '';
+                prevBox.style.display = 'none';
+                return;
+              }
+              const reader = new FileReader();
+              reader.onload = e => {
+                prevImg.src = e.target.result;
+                prevBox.style.display = 'block';
+              };
+              reader.readAsDataURL(file);
+            }
+
+            // Click en la zona abre el diálogo (además del label)
+            dropZone?.addEventListener('click', (e) => {
+              if (e.target?.id === 'fldAvatarUpload') return; // evita doble click
+              fileInput.click();
+            });
+
+            // Previsualizar cuando el usuario elige un archivo con el diálogo
+            fileInput.addEventListener('change', () => {
+              showPreview(fileInput.files?.[0]);
+            });
+
+            // Drag & drop UI
+            ['dragenter','dragover'].forEach(evt => {
+              dropZone?.addEventListener(evt, e => {
+                e.preventDefault(); e.stopPropagation();
+                e.dataTransfer.dropEffect = 'copy';
+                dropZone.classList.add('dragover');
+              });
+            });
+
+            ['dragleave','dragend','drop'].forEach(evt => {
+              dropZone?.addEventListener(evt, e => {
+                e.preventDefault(); e.stopPropagation();
+                dropZone.classList.remove('dragover');
+              });
+            });
+
+            dropZone?.addEventListener('drop', (e) => {
+              e.preventDefault(); e.stopPropagation();
+              const file = e.dataTransfer?.files?.[0];
+              if (!file) return;
+              // asigna al input para que el form lo envíe
+              fileInput.files = e.dataTransfer.files;
+              showPreview(file);
+            });
+
+            // Evita que soltar fuera de la zona navegue fuera de la página
+            ['dragover','drop'].forEach(evt => {
+              window.addEventListener(evt, e => e.preventDefault(), false);
+            });
+
+            // Submit AJAX (con token)
             uploadForm.addEventListener("submit", async (e) => {
               e.preventDefault();
               const fd = new FormData(uploadForm);
               if(!fd.get("__RequestVerificationToken")) {
-                const token = getToken(); if (token) fd.append("__RequestVerificationToken", token);
+                const token = document.querySelector('#__AjaxAntiForgeryForm input[name="__RequestVerificationToken"]')?.value;
+                if (token) fd.append("__RequestVerificationToken", token);
               }
 
               try {
@@ -703,10 +814,10 @@
                 const j = await res.json();
                 toastSuccess(j.message || "Avatar subido", "Tu nueva imagen ya está activa");
                 if (j.success && j.previewDataUrl) {
-                  if (avatarImg) avatarImg.src = j.previewDataUrl;
+                  if (avatarImg) avatarImg.src = j.previewDataUrl; // actualiza avatar del banner
                   if (avatarModal) avatarModal.hide();
                 }
-              } catch (e) {
+              } catch (err) {
                 toastError("Error de red", "Revisa tu conexión e inténtalo de nuevo");
               }
             });

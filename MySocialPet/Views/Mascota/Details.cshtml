@@ -15,14 +15,17 @@
     string infoRaza = string.IsNullOrWhiteSpace(mascota.Raza?.Informacion) ? "Sin información disponible." : mascota.Raza.Informacion;
 
     string imgSrc;
-    if (mascota.Foto != null)
+
+    if (mascota.Foto != null && mascota.Foto.Length > 0)
     {
+        // Foto propia de la mascota (byte[])
         var base64 = Convert.ToBase64String(mascota.Foto);
         imgSrc = $"data:image/jpeg;base64,{base64}";
     }
     else
     {
-        imgSrc = Url.Content("~/src/defecto.png");
+        // Fallback a imagen por defecto
+        imgSrc = Url.Content(Model.RazaFoto);
     }
 }
 

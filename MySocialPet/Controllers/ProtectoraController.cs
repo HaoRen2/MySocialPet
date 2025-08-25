@@ -38,5 +38,45 @@ namespace MySocialPet.Controllers
             return View(vm);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GuardarLogo(int id, IFormFile logo)
+        {
+            if (logo == null || logo.Length == 0)
+                return BadRequest("Archivo vacío.");
+
+            // 1) Verificar que exista la protectora
+            var protectora = await _protectoraDal.GetProtectoraByIdAsync(id);
+            if (protectora == null) return NotFound();
+
+            // 2) Leer bytes del archivo
+            byte[] bytes;
+            using (var ms = new MemoryStream())
+            {
+                await logo.CopyToAsync(ms);
+                bytes = ms.ToArray();
+            }
+
+            // 3) Aquí podrías validar/transformar la imagen si quisieras (resize, formato, etc.)
+            //    Por ahora, subimos tal cual:
+            byte[] fotoToUpdate = bytes;
+
+            // 4) Actualizar el "avatar" del usuario dueño de la protectora (tu DAL existente)
+            await _usuarioDAL.UpdateAvatarAsync(protectora.IdUsuario, fotoToUpdate);
+
+            // 5) Data URL para refrescar al instante en la vista
+            var contentType = string.IsNullOrWhiteSpace(logo.ContentType) ? "image/png" : logo.ContentType;
+            var dataUrl = $"data:{contentType};base64,{Convert.ToBase64String(fotoToUpdate)}";
+
+            return Json(new
+            {
+                success = true,
+                previewDataUrl = dataUrl,
+                message = "Logo actualizado"
+            });
+        }
+
+
+
     }
 }

@@ -4,122 +4,125 @@
     ViewData["Title"] = "Registrar Salud de " + Model.NombreMascota;
     var pagina = "Vacuna";
 }
+<div class="welcome-section">
+    <div class="container py-5">
+        <div class="auth-tabs mb-3">
+            <a asp-action="SaludRegistro"
+               asp-controller="Salud"
+               asp-route-id="@Model.IdMascota"
+               class="btn @(pagina.ToString() == "Salud" ? "active" : "")">
+                Registro Salud
+            </a>
+            <a asp-action="Vacunas"
+               asp-controller="Salud"
+               asp-route-id="@Model.IdMascota"
+               asp-route-vista="especificaciones"
+               class="btn @(pagina.ToString() == "Vacuna" ? "active" : "")">
+                Registro Vacunas
+            </a>
+        </div>
+        @await Component.InvokeAsync("MascotaSelector", new {
+        mascotaIdActual = Model.IdMascota,
+                controlador = "Salud",
+                accion = "Vacunas"
+                })
+        <h2 class="mb-4">
+            📋 Plan de Vacunación para
+            <strong>@Model.NombreMascota</strong> (@Model.NombreEspecie)
+        </h2>
 
-<div class="container pt-nav">
-    <div class="auth-tabs mb-3">
-        <a asp-action="SaludRegistro"
-           asp-controller="Salud"
-           asp-route-id="@Model.IdMascota"
-           class="btn @(pagina.ToString() == "Salud" ? "active" : "")">
-            Registro Salud
-        </a>
-        <a asp-action="Vacunas"
-           asp-controller="Salud"
-           asp-route-id="@Model.IdMascota"
-           asp-route-vista="especificaciones"
-           class="btn @(pagina.ToString() == "Vacuna" ? "active" : "")">
-            Registro Vacunas
-        </a>
-    </div>
-    @await Component.InvokeAsync("MascotaSelector", new {
-    mascotaIdActual = Model.IdMascota,
-        controlador = "Salud",
-        accion = "Vacunas"
-        })
-    <h2 class="mb-4">
-        📋 Plan de Vacunación para
-        <strong>@Model.NombreMascota</strong> (@Model.NombreEspecie)
-    </h2>
+        <div class="d-flex justify-content-between mb-3">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registroVacunaModal">
+                <i class="bi bi-plus-circle"></i> Registrar nueva vacuna aplicada
+            </button>
+            <a href="@Url.Action("ListaMascota", "Mascota")" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
 
-    <div class="d-flex justify-content-between mb-3">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registroVacunaModal">
-            <i class="bi bi-plus-circle"></i> Registrar nueva vacuna aplicada
-        </button>
-        <a href="@Url.Action("ListaMascota", "Mascota")" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Volver
-        </a>
-    </div>
-
-    <div class="table-responsive shadow-sm rounded border">
-        <table class="table table-hover mb-0">
-            <thead class=" align-items-center align-items-center text-center">
-                <tr>
-                    <th>Vacuna</th>
-                    <th>Edad Recomendada<br></th>
-                    <th>Refuerzo</th>
-                    <th>Descripción</th>
-                    <th>Esencial</th>
-                    <th>Notas</th>
-                    <th>Fecha Aplicación</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var vacuna in Model.Vacunas)
-                {
-                    <tr class="@(vacuna.Aplicada ? "table-success" : "table-warning")">
-                        <td><strong>@vacuna.NombreVacuna</strong></td>
-                        <td class="text-center">@(vacuna.EdadRecomendada?.ToString() ?? "-")</td>
-                        <td class="text-center">
-                            @if (vacuna.EsRefuerzo)
-                            {
-                                <span class="badge bg-info">Sí</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">No</span>
-                            }
-                        </td>
-                        <td>@vacuna.Descripcion</td>
-                        <td class="text-center">
-                            @if (vacuna.Esencial)
-                            {
-                                <span class="badge bg-danger">Sí</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-light text-dark">No</span>
-                            }
-                        </td>
-                        <td>@vacuna.Notas</td>
-                        <td class="text-center">@(vacuna.FechaAplicacion?.ToString("dd/MM/yyyy") ?? "-")</td>
-                        <td class="text-center">
-                            @if (vacuna.Aplicada)
-                            {
-                                <span class="badge bg-success">
-                                    <i class="bi bi-check-circle-fill"></i> Aplicada
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark">
-                                    <i class="bi bi-exclamation-circle"></i> Pendiente
-                                </span>
-                            }
-                        </td>
-                        <td class="text-center">
-                            @if (vacuna.Aplicada)
-                            {
-                                <button type="button" class="btn btn-sm btn-outline-primary"
-                                        data-bs-toggle="modal"
-                                        title="Editar"
-                                        data-bs-target="#editarVacunaModal-@vacuna.IdVacunaRegistro">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                            }
-                            else
-                            {
-                                <button class="btn btn-sm btn-outline-primary" disabled>
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                            }
-                        </td>
+        <div class="table-responsive shadow-sm rounded border">
+            <table class="table table-hover mb-0">
+                <thead class=" align-items-center align-items-center text-center">
+                    <tr>
+                        <th>Vacuna</th>
+                        <th>Edad Recomendada<br></th>
+                        <th>Refuerzo</th>
+                        <th>Descripción</th>
+                        <th>Esencial</th>
+                        <th>Notas</th>
+                        <th>Fecha Aplicación</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var vacuna in Model.Vacunas)
+                    {
+                        <tr class="@(vacuna.Aplicada ? "table-success" : "table-warning")">
+                            <td><strong>@vacuna.NombreVacuna</strong></td>
+                            <td class="text-center">@(vacuna.EdadRecomendada?.ToString() ?? "-")</td>
+                            <td class="text-center">
+                                @if (vacuna.EsRefuerzo)
+                                {
+                                    <span class="badge bg-info">Sí</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">No</span>
+                                }
+                            </td>
+                            <td>@vacuna.Descripcion</td>
+                            <td class="text-center">
+                                @if (vacuna.Esencial)
+                                {
+                                    <span class="badge bg-danger">Sí</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark">No</span>
+                                }
+                            </td>
+                            <td>@vacuna.Notas</td>
+                            <td class="text-center">@(vacuna.FechaAplicacion?.ToString("dd/MM/yyyy") ?? "-")</td>
+                            <td class="text-center">
+                                @if (vacuna.Aplicada)
+                                {
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle-fill"></i> Aplicada
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="bi bi-exclamation-circle"></i> Pendiente
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (vacuna.Aplicada)
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                            data-bs-toggle="modal"
+                                            title="Editar"
+                                            data-bs-target="#editarVacunaModal-@vacuna.IdVacunaRegistro">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-primary" disabled>
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
+
+
 </div>
 
 

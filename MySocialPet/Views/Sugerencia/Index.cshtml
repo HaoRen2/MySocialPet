@@ -1,92 +1,96 @@
 ﻿@model MySocialPet.Models.ViewModel.Sugerencias.SugerenciaViewModel
 
-<div class="container pt-nav m-5">
-    <div class="card">
-        <div class="card-header">
-            <h4><i class="bi bi-filter"></i> Filtrar Sugerencias</h4>
-        </div>
-        <div class="card-body">
-            <form method="get" asp-action="Index" class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label asp-for="IdEspecie" class="form-label">Especie</label>
-                    <select id="IdEspecie" asp-for="IdEspecie" asp-items="Model.EspeciesSelectList" class="form-select">
-                        <option value="">-- Todas --</option>
-                    </select>
-                </div>
 
-                <div class="col-md-3">
-                    <label asp-for="IdCategoria" class="form-label">Categoría</label>
-                    <select asp-for="IdCategoria" asp-items="Model.CategoriasSelectList" class="form-select">
-                        <option value="">-- Todas --</option>
-                    </select>
-                </div>
+<div class="welcome-section">
+    <div class="container pt-nav m-5">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-filter"></i> Filtrar Sugerencias</h4>
+            </div>
+            <div class="card-body">
+                <form method="get" asp-action="Index" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label asp-for="IdEspecie" class="form-label">Especie</label>
+                        <select id="IdEspecie" asp-for="IdEspecie" asp-items="Model.EspeciesSelectList" class="form-select">
+                            <option value="">-- Todas --</option>
+                        </select>
+                    </div>
 
-                <div class="col-md-3">
-                    <label asp-for="IdRaza" class="form-label">Raza</label>
-                    <select id="IdRaza" asp-for="IdRaza" asp-items="Model.RazasSelectList" class="form-select">
-                        <option value="">-- Todas --</option>
-                    </select>
-                </div>
+                    <div class="col-md-3">
+                        <label asp-for="IdCategoria" class="form-label">Categoría</label>
+                        <select asp-for="IdCategoria" asp-items="Model.CategoriasSelectList" class="form-select">
+                            <option value="">-- Todas --</option>
+                        </select>
+                    </div>
 
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-search"></i> Buscar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+                    <div class="col-md-3">
+                        <label asp-for="IdRaza" class="form-label">Raza</label>
+                        <select id="IdRaza" asp-for="IdRaza" asp-items="Model.RazasSelectList" class="form-select">
+                            <option value="">-- Todas --</option>
+                        </select>
+                    </div>
 
-    <h3>Resultados</h3>
-    <hr />
-
-    <div class="accordion" id="acordeonSugerencias">
-        @if (Model.Sugerencias != null && Model.Sugerencias.Any())
-        {
-            var i = 0; 
-
-            @foreach (var grupo in Model.Sugerencias.GroupBy(s => s.Titulo))
-            {
-                var collapseId = $"collapse-{i}";
-                var headingId = $"heading-{i}";   
-
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="@headingId">
-                        <button class="accordion-button @(i == 0 ? "" : "collapsed")" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="@(i == 0 ? "true" : "false")" aria-controls="@collapseId">
-                            @grupo.Key
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Buscar
                         </button>
-                    </h2>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-                    <div id="@collapseId" class="accordion-collapse collapse @(i == 0 ? "show" : "")" aria-labelledby="@headingId" data-bs-parent="#acordeonSugerencias">
-                        <div class="accordion-body">
-                            <div class="row">
-                                @foreach (var sug in grupo)
-                                {
-                                    <div class="col-md-6 col-lg-4 mb-4">
-                                        <div class="card h-100">
-                                            <div class="card-body d-flex flex-column">
-                                                <h6 class="card-subtitle mb-2 text-muted">@sug.Tema</h6>
-                                                <p class="card-text flex-grow-1">@sug.Descripcion</p>
+        <h3>Resultados</h3>
+        <hr />
 
+        <div class="accordion" id="acordeonSugerencias">
+            @if (Model.Sugerencias != null && Model.Sugerencias.Any())
+            {
+                var i = 0;
+
+                @foreach (var grupo in Model.Sugerencias.GroupBy(s => s.Titulo))
+                {
+                    var collapseId = $"collapse-{i}";
+                    var headingId = $"heading-{i}";
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="@headingId">
+                            <button class="accordion-button @(i == 0 ? "" : "collapsed")" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="@(i == 0 ? "true" : "false")" aria-controls="@collapseId">
+                                @grupo.Key
+                            </button>
+                        </h2>
+
+                        <div id="@collapseId" class="accordion-collapse collapse @(i == 0 ? "show" : "")" aria-labelledby="@headingId" data-bs-parent="#acordeonSugerencias">
+                            <div class="accordion-body">
+                                <div class="row">
+                                    @foreach (var sug in grupo)
+                                    {
+                                        <div class="col-md-6 col-lg-4 mb-4">
+                                            <div class="card h-100">
+                                                <div class="card-body d-flex flex-column">
+                                                    <h6 class="card-subtitle mb-2 text-muted">@sug.Tema</h6>
+                                                    <p class="card-text flex-grow-1">@sug.Descripcion</p>
+
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                }
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                i++; 
+                    i++;
+                }
             }
-        }
-        else
-        {
-            <div class="alert alert-info text-center">
-                <p class="mb-0">No se encontraron sugerencias con los filtros seleccionados.</p>
-            </div>
-        }
+            else
+            {
+                <div class="alert alert-info text-center">
+                    <p class="mb-0">No se encontraron sugerencias con los filtros seleccionados.</p>
+                </div>
+            }
+        </div>
     </div>
 </div>
+
 
 @section Scripts {
     <script>

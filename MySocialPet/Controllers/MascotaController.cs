@@ -84,6 +84,7 @@ namespace MySocialPet.Controllers
             {
                 DetailMascota = mascota,
                 Notas = mascota.Notas.OrderByDescending(n => n.IdNota).ToList(),
+                RazaFoto = mascota.Raza.Foto,
                 Evento = mascota.Eventos.Where(e => e.FechaHora > DateTime.Now).
                 OrderBy(e => (e.FechaHora - DateTime.Now).TotalSeconds).FirstOrDefault()
             };

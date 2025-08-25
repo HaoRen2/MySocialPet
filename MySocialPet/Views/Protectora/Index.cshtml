@@ -7,145 +7,179 @@
     var orden = Context.Request.Query["orden"].ToString();
     if (string.IsNullOrEmpty(orden)) orden = "recientes";
 }
-<div class="bg-foro">
-<div class="container pt-nav mb-5">
-<div style="height: 5vh"></div>
-    <div class="bg-white shadow rounded-15 border-bottom-0 p-5">
-        <!-- Encabezado -->
-        <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
-            <div>
-                <h1 class="fw-bold mb-1">Protectoras</h1>
-                <p class="text-muted mb-0">Encuentra y colabora con protectoras de tu zona.</p>
-            </div>
-        </div>
+<div class="welcome-section">
+    <div class="container py-5">
+        <!-- ===== Contenedor global ===== -->
+        <div class="bg-white border rounded-15 shadow-sm px-4 px-md-5 pt-4 pb-5">
 
-        <!-- Filtros -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body">
-                <form asp-action="Index" method="get">
-                    <div class="row g-3">
-                        <div class="col-md-5">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                <input name="q" class="form-control" placeholder="Buscar protectora..."
-                                       value="@q" />
-                            </div>
-                        </div>
+            <!-- ===== Header ===== -->
+            <section class="mb-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-end">
+                    <div>
+                        <h1 class="fw-bold mb-1">Protectoras</h1>
+                        <p class="text-muted mb-0">Explora asociaciones, conoce sus proyectos y encuentra a tu nuevo mejor amigo.</p>
+                    </div>
+                    <div class="mt-3 mt-md-0">
+                        <a asp-controller="Protectora" asp-action="Index" class="btn secondary">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Restablecer
+                        </a>
+                    </div>
+                </div>
+            </section>
 
-                        <div class="col-md-3">
-                            <select class="form-select" name="orden">
-                                <option value="recientes" selected="@(orden == "recientes")">Orden: recientes</option>
-                                <option value="nombre" selected="@(orden == "nombre")">A‑Z</option>
-                                <option value="antiguas" selected="@(orden == "antiguas")">Antiguas</option>
-                            </select>
+            <!-- ===== Filtros ===== -->
+            <section class="mb-4">
+                <form asp-action="Index" method="get" class="row g-3 align-items-end">
+                    <div class="col-12 col-md-6 col-lg-5">
+                        <label class="form-label small text-muted">Buscar</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input name="q" class="form-control" placeholder="Nombre, ciudad, web…"
+                                   value="@q" />
                         </div>
+                    </div>
 
-                        <div class="col-md-2 ms-auto d-grid">
-                            <button class="btn btn-primary">
-                                <i class="bi bi-funnel me-1"></i> Filtrar
-                            </button>
-                        </div>
+                    <div class="col-6 col-md-3 col-lg-3">
+                        <label class="form-label small text-muted">Orden</label>
+                        <select class="form-select" name="orden">
+                            <option value="recientes" selected="@(orden == "recientes")">Recientes</option>
+                            <option value="nombre" selected="@(orden == "nombre")">A-Z</option>
+                            <option value="antiguas" selected="@(orden == "antiguas")">Antiguas</option>
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-md-3 col-lg-2 ms-auto d-grid">
+                        <button class="btn  primary">
+                            <i class="bi bi-funnel me-1"></i> Filtrar
+                        </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </section>
 
-        <!-- Grid dinámico -->
-        <div class="row g-4">
-            @foreach (var p in (Model?.Protectoras ?? Enumerable.Empty<MySocialPet.Models.ViewModel.Protectora.ProtectoraViewModel>()))
-            {
-                <div class="col-12 col-sm-6 col-lg-4">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body d-flex">
-
-                            <div class="me-3">
-                                <img src="~/src/DefaultAvatar/AvatarProtectora.png"
+            <!-- ===== Grid ===== -->
+            <section class="row g-4">
+                @foreach (var p in (Model?.Protectoras ?? Enumerable.Empty<MySocialPet.Models.ViewModel.Protectora.ProtectoraViewModel>()))
+                {
+                    <div class="col-12 col-sm-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm protectora-card">
+                            <div class="card-body d-flex gap-3">
+                                <!-- Avatar -->
+                                <a asp-controller="Protectora" asp-action="Detalles" asp-route-id="@p.IdProtectora"
+                                   class="text-decoration-none">
+                                    <img src="@(p.AvatarFoto != null && p.AvatarFoto.Length > 0
+                                                                                 ? $"data:image/png;base64,{Convert.ToBase64String(p.AvatarFoto)}"
+                                                                                 : Url.Content("~/src/DefaultAvatar/AvatarProtectora.png"))"
                                      alt="Logo @p.Nombre"
-                                     class="rounded-circle border"
+                                     class="rounded-circle border flex-shrink-0"
                                      style="width:64px;height:64px;object-fit:cover;" />
-                            </div>
+                            </a>
 
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <h5 class="card-title mb-1 fw-semibold">@p.Nombre</h5>
-                                    <span class="badge bg-light text-dark border">
-                                        <i class="bi bi-hash me-1"></i> @p.IdProtectora
-                                    </span>
-                                </div>
-
-                                <p class="card-text text-muted mb-2">
-                                    @{
-                                        var desc = p.Introduccion;
-                                        if (string.IsNullOrWhiteSpace(desc))
-                                        {
-                                            @:Sin descripción.
-                                        }
-                                        else
-                                        {
-                                            var shortDesc = desc!.Length > 140 ? desc.Substring(0, 140) + "…" : desc;
-                                            @shortDesc
-                                        }
-                                    }
-                                </p>
-
-                                <div class="d-flex flex-wrap gap-2 mb-3">
-                                    <span class="badge bg-success-subtle text-success border">
-                                        <i class="bi bi-bone me-1"></i> @p.NumPerros Perros
-                                    </span>
-                                    <span class="badge bg-primary-subtle text-primary border">
-                                        <i class="bi bi-emoji-smile me-1"></i> @p.NumGatos Gatos
-                                    </span>
-                                    <span class="badge bg-danger-subtle text-danger border">
-                                        <i class="bi bi-heart-fill me-1"></i> @p.NumMascotas Total
-                                    </span>
-                                </div>
-
-                                <div class="d-flex gap-2">
-                                    <a asp-controller="Protectora"
-                                       asp-action="Detalles"
-                                       asp-route-id="@p.IdProtectora"
-                                       class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-info-circle me-1"></i> Ver detalles
-                                    </a>
-
-                                    @if (!string.IsNullOrWhiteSpace(p.Web))
-                                    {
-                                        <a href="@p.Web" target="_blank" rel="noopener"
-                                           class="btn btn-outline-secondary btn-sm">
-                                            <i class="bi bi-globe me-1"></i> Web
+                                <!-- Contenido -->
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <a asp-controller="Protectora" asp-action="Detalles" asp-route-id="@p.IdProtectora"
+                                           class="stretched-link text-decoration-none">
+                                            <h5 class="card-title mb-1 fw-semibold text-dark">@p.Nombre</h5>
                                         </a>
-                                    }
+                                        <span class="badge id-chip"><i class="bi bi-hash me-1"></i>@p.IdProtectora</span>
+                                    </div>
+
+                                    <p class="card-text text-muted mb-2 small">
+                                    @{
+                                            var desc = p.Introduccion;
+                                            if (string.IsNullOrWhiteSpace(desc))
+                                            {
+                                                @:Sin descripción.
+                                            }
+                                            else
+                                            {
+                                                var shortDesc = desc!.Length > 140 ? desc.Substring(0, 140) + "…" : desc;
+                                                @shortDesc
+                                            }
+                                        }
+                                    </p>
+
+                                    <div class="d-flex flex-wrap gap-2 mb-2">
+                                        <span class="badge stat stat-dog"><i class="bi bi-bone me-1"></i>@p.NumPerros Perros</span>
+                                        <span class="badge stat stat-cat"><i class="bi bi-emoji-smile me-1"></i>@p.NumGatos Gatos</span>
+                                        <span class="badge stat stat-total"><i class="bi bi-heart-fill me-1"></i>@p.NumMascotas Total</span>
+                                    </div>
+
+                                    <div class="d-flex gap-2 mt-2">
+                                        <a asp-controller="Protectora" asp-action="Detalles" asp-route-id="@p.IdProtectora"
+                                           class="btn primary btn-sm">
+                                            <i class="bi bi-info-circle me-1"></i> Ver detalles
+                                        </a>
+                                        @if (!string.IsNullOrWhiteSpace(p.Web))
+                                        {
+                                            <a href="@p.Web" target="_blank" rel="noopener"
+                                               class="btn btn-outline-secondary btn-sm">
+                                                <i class="bi bi-globe me-1"></i> Web
+                                            </a>
+                                        }
+                                    </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
-                </div>
-            }
+                }
 
-            @if (!(Model?.Protectoras?.Any() ?? false))
-            {
-                <div class="col-12">
-                    <div class="alert alert-light border d-flex align-items-center" role="alert">
-                        <i class="bi bi-info-circle me-2"></i>
-                        No hay protectoras para mostrar.
+                @if (!(Model?.Protectoras?.Any() ?? false))
+                {
+                    <div class="col-12">
+                        <div class="text-center p-5 border rounded-15 bg-light">
+                            <div class="mx-auto mb-3 bg-ultralightgreen rounded-circle d-flex align-items-center justify-content-center" style="width:72px;height:72px;">
+                                <i class="bi bi-emoji-neutral fs-3 text-primary"></i>
+                            </div>
+                            <h5 class="fw-semibold mb-1">No hay protectoras</h5>
+                            <p class="text-muted mb-3">Prueba cambiando los filtros o el término de búsqueda.</p>
+                            <a asp-controller="Protectora" asp-action="Index" class="btn primary">
+                                <i class="bi bi-funnel me-1"></i> Quitar filtros
+                            </a>
+                        </div>
                     </div>
-                </div>
-            }
+                }
+            </section>
         </div>
     </div>
 </div>
-</div>
+
 <style>
-    .badge.bg-success-subtle {
+    .protectora-card {
+        transition: transform .15s ease, box-shadow .15s ease;
+        border-radius: 0.75rem;
+    }
+
+        .protectora-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(0,0,0,.08);
+        }
+
+    .id-chip {
+        background: #f6f7f9;
+        color: #455a64;
+        border: 1px solid #e5e7eb;
+        font-weight: 600;
+    }
+
+    .stat {
+        border: 1px solid rgba(0,0,0,.08);
+    }
+
+    .stat-dog {
         background-color: #e6f4ea;
+        color: #2e7d32;
     }
 
-    .badge.bg-primary-subtle {
+    .stat-cat {
         background-color: #e7f0ff;
+        color: #1e5bb8;
     }
 
-    .badge.bg-danger-subtle {
+    .stat-total {
         background-color: #ffe8ea;
+        color: #d32f2f;
     }
+</style>
+
 </style>
