@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error(`Error ${resp.status}: ${text.substring(0, 200)}`);
             }
 
-            // ✅ Recargar la página completa después de borrar
+            // Recargar la página completa después de borrar
             window.location.reload();
 
         } catch (err) {

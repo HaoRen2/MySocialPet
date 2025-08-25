@@ -33,7 +33,7 @@
                 <div class="dropdown">
                     <button class="btn secondary btn-sm dropdown-toggle" id="dropdownFilter"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-funnel"></i> Ordenar
+                        <i class="bi bi-funnel"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownFilter">
                         <li>
@@ -246,7 +246,7 @@
                                     @foreach (var mascota in mascotasUsuario)
                                     {
                                         <input class="btn-check" type="checkbox" name="MascotasEtiquetadasIds" value="@mascota.Value" id="mascota_@mascota.Value" autocomplete="off" />
-                                        <label class="btn secondary btn-sm tag-chip" for="mascota_@mascota.Value">
+                                        <label class="btn btn-outline-success btn-sm tag-chip" for="mascota_@mascota.Value">
                                             <i class="bi bi-tag"></i> @mascota.Text
                                         </label>
                                     }
