@@ -167,7 +167,9 @@
     right: 0;
 }
 
-
+a.dropdown-item:hover {
+    background-color: var(--light-green);
+}
 
 
 
