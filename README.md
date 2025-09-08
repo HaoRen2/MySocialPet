@@ -1,20 +1,14 @@
 # MySocialPet
 
-<p align="center">
   <img src="https://i.imgur.com/8a3n3tC.png" alt="Logo de MySocialPet" width="200"/>
-</p>
 
-<p align="center">
   <strong>Una plataforma web integral para el cuidado de tus mascotas y la conexión con una comunidad de amantes de los animales.</strong>
-</p>
 
-<p align="center">
   <a href="#características-principales">Características</a> •
   <a href="#arquitectura-y-tecnologías">Tecnologías</a> •
   <a href="#instalación-y-puesta-en-marcha">Instalación</a> •
   <a href="#licencia">Licencia</a> •
   <a href="#contribuidores">Contribuidores</a>
-</p>
 
 ---
 
@@ -72,3 +66,35 @@ La arquitectura sigue el patrón **ASP.NET MVC**, organizada en capas para favor
    ```bash
    git clone https://github.com/tu-usuario/MySocialPet.git
    cd MySocialPet
+   
+2. **Configurar la Base de Datos**
+Abre appsettings.json.
+Modifica la cadena de conexión (DefaultConnection) para apuntar a tu instancia local de SQL Server.
+
+3. **Aplicar Migraciones**
+
+4. **Ejecutar la aplicación**
+dotnet run o utilizar en visual studio 2022
+
+---
+
+## Paso 5: **Registro e Inicio de Sesión**
+
+```markdown
+## Registro e Inicio de Sesión
+
+1. Haz clic en **Login** y luego en **Registrarse**.  
+2. Completa el formulario con usuario, email y contraseña.  
+3. Al confirmar, accederás automáticamente a la plataforma.
+
+## Licencia
+
+Este proyecto está bajo la **Licencia MIT**.  
+Consulta el archivo [LICENSE](LICENSE) para más detalles.
+
+## Contribuidores
+
+- **Alexis Godoy**  
+- **Lei Wang**  
+- **Pol Nebot**  
+- **Juan Pablo Guerrero**
