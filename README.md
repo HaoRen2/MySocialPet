@@ -87,7 +87,6 @@ dotnet run o utilizar en visual studio 2022
 ## Licencia
 
 Este proyecto está bajo la **Licencia MIT**.  
-Consulta el archivo [LICENSE](LICENSE) para más detalles.
 ---
 ## Contribuidores
 
