@@ -80,18 +80,17 @@ dotnet run o utilizar en visual studio 2022
 
 ## Paso 5: **Registro e Inicio de Sesión**
 
-```markdown
 ## Registro e Inicio de Sesión
 
 1. Haz clic en **Login** y luego en **Registrarse**.  
 2. Completa el formulario con usuario, email y contraseña.  
 3. Al confirmar, accederás automáticamente a la plataforma.
-
+---
 ## Licencia
 
 Este proyecto está bajo la **Licencia MIT**.  
 Consulta el archivo [LICENSE](LICENSE) para más detalles.
-
+---
 ## Contribuidores
 
 - **Alexis Godoy**  
